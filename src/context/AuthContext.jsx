@@ -49,7 +49,10 @@ export function AuthProvider({ children }) {
   async function login(email, password) {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      return { success: false, error: 'Email atau password salah' }
+      let msg = error.message;
+      if (msg === 'Email not confirmed') msg = 'Email belum diverifikasi. Pastikan fitur "Confirm Email" di Supabase sudah dimatikan, lalu daftar pakai email baru.';
+      if (msg === 'Invalid login credentials') msg = 'Email atau password salah';
+      return { success: false, error: msg }
     }
     return { success: true }
   }
