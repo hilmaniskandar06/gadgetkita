@@ -11,14 +11,14 @@ export default function Login() {
   const { addToast } = useToast()
   const navigate = useNavigate()
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    const res = login(email, password)
+    const res = await login(email, password)
     if (res.success) {
       addToast('Berhasil login')
       navigate('/')
     } else {
-      addToast(res.error, 'error')
+      addToast(res.error || 'Gagal login', 'error')
     }
   }
 
