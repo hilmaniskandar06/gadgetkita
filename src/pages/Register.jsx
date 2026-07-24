@@ -15,18 +15,18 @@ export default function Register() {
   const { addToast } = useToast()
   const navigate = useNavigate()
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     if (formData.password.length < 6) {
       addToast('Password minimal 6 karakter', 'error')
       return
     }
-    const res = register(formData)
+    const res = await register(formData)
     if (res.success) {
       addToast('Pendaftaran berhasil, silakan login!')
       navigate('/login')
     } else {
-      addToast(res.error, 'error')
+      addToast(res.error || 'Gagal mendaftar', 'error')
     }
   }
 
