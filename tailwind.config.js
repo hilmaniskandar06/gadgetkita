@@ -5,30 +5,31 @@ export default {
     extend: {
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+        serif: ['"Playfair Display"', 'serif'],
         mono: ['"IBM Plex Mono"', 'monospace'],
       },
       colors: {
         cacao: {
-          900: '#241812',
-          800: '#3B2A1F',
-          700: '#4A2C1E',
-          600: '#6B3F2A',
-          500: '#8C5A3D',
+          900: '#1A1412',
+          800: '#2A1F1B',
+          700: '#3D2D27',
+          600: '#5C443A',
+          500: '#7A5C4F',
         },
         cream: {
           50: '#FFFFFF',
-          100: '#FAF7F2',
-          200: '#F3EBDF',
-          300: '#EDE3D6',
+          100: '#FDFCFB',
+          200: '#F5F2ED',
+          300: '#E8E3DA',
         },
         gold: {
-          400: '#D9B96B',
-          500: '#C9A24B',
-          600: '#AD8637',
+          400: '#D4C19C',
+          500: '#C2A878',
+          600: '#9E865C',
         },
         rose: {
-          500: '#C1442D',
-          50: '#FBEAE6',
+          500: '#8C271E',
+          50: '#F8EBEA',
         },
         ok: {
           500: '#3F7D53',
@@ -36,7 +37,8 @@ export default {
         },
       },
       borderRadius: {
-        xl: '14px',
+        xl: '4px',
+        '2xl': '8px',
       },
     },
   },

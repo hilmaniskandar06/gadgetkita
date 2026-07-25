@@ -135,7 +135,7 @@ export default function ProductDetail() {
 
         <div>
           <span className="text-xs uppercase tracking-wide text-gold-600 font-bold">{product.category}</span>
-          <h1 className="text-2xl md:text-3xl font-extrabold mt-2">{product.name}</h1>
+          <h1 className="text-3xl md:text-4xl font-serif font-bold mt-2 text-cacao-900">{product.name}</h1>
           <div className="mt-3"><RatingStars rating={avgRating} reviews={reviewCount} size={16} /></div>
 
           <div className="flex items-baseline gap-3 mt-5">
@@ -300,7 +300,7 @@ export default function ProductDetail() {
       {featured.length > 0 && (
         <div className="mt-14">
           <div className="flex items-end justify-between mb-6">
-            <h2 className="text-xl font-extrabold">Produk Pilihan</h2>
+            <h2 className="text-2xl font-serif font-bold">Produk Pilihan</h2>
             <Link to="/toko" className="text-sm font-semibold text-gold-600 hover:underline">
               Lihat semua
             </Link>

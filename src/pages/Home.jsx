@@ -42,7 +42,7 @@ export default function Home() {
             <span className="inline-block bg-white/10 text-gold-400 text-xs font-bold uppercase tracking-wide px-3 py-1.5 rounded-full border border-gold-500/30 mb-5">
               {content.heroEyebrow}
             </span>
-            <h1 className="text-3xl md:text-5xl font-extrabold leading-tight text-white">
+            <h1 className="text-4xl md:text-6xl font-serif font-bold leading-tight text-white">
               {content.heroTitle}
             </h1>
             <p className="text-cream-50 mt-4 md:mt-5 max-w-md leading-relaxed text-base md:text-lg">
@@ -93,7 +93,7 @@ export default function Home() {
       {/* Categories */}
       {categories.length > 0 && (
         <section className="max-w-7xl mx-auto px-5 lg:px-8 py-10">
-          <h2 className="text-2xl font-extrabold mb-6">Belanja per Kategori</h2>
+          <h2 className="text-3xl font-serif font-bold mb-8 text-center">Belanja per Kategori</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {categories.map((c) => {
               return (
@@ -122,7 +122,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-5 lg:px-8">
             <div className="flex items-end justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-extrabold text-white">Sedang Diskon</h2>
+                <h2 className="text-3xl font-serif font-bold text-white mb-2">Sedang Diskon</h2>
                 <p className="text-sm text-cream-300 mt-1">Jangan sampai kehabisan.</p>
               </div>
             </div>
@@ -137,7 +137,7 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-5 lg:px-8 py-10 mt-10">
         <div className="flex items-end justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-extrabold">Produk Pilihan</h2>
+            <h2 className="text-3xl font-serif font-bold mb-8 text-center">Produk Pilihan</h2>
           </div>
           <Link to="/toko" className="text-sm font-semibold text-gold-600 hover:underline">
             Lihat semua

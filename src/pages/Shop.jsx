@@ -104,7 +104,7 @@ export default function Shop() {
   return (
     <div className="max-w-7xl mx-auto px-5 lg:px-8 py-10 relative">
       <div className="mb-8">
-        <h1 className="text-2xl font-extrabold">{activeCategory || 'Semua Produk'}</h1>
+        <h1 className="text-3xl font-serif font-bold">{activeCategory || 'Semua Produk'}</h1>
         <p className="text-sm text-cacao-600 mt-1">
           {query ? `Hasil pencarian untuk "${query}" — ` : ''}{results.length} produk ditemukan
         </p>
