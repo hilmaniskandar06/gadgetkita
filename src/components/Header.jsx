@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, Heart, ShoppingBag, Menu, X, Receipt, User as UserIcon, Bell } from 'lucide-react'
+import { Search, Heart, ShoppingBag, Receipt, User as UserIcon, Bell } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useAuth } from '../context/AuthContext'
@@ -15,7 +15,6 @@ export default function Header({ onOpenCart }) {
   const { content } = useSiteContent()
   const [query, setQuery] = useState('')
   const [notifOpen, setNotifOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const navigate = useNavigate()
   const notifRef = useRef(null)
@@ -40,7 +39,6 @@ export default function Header({ onOpenCart }) {
   function handleSearch(e) {
     e.preventDefault()
     navigate(`/toko?q=${encodeURIComponent(query)}`)
-    setMenuOpen(false)
   }
 
   return (
@@ -114,7 +112,7 @@ export default function Header({ onOpenCart }) {
                   </button>
 
                   {notifOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-cream-200 overflow-hidden z-50">
+                    <div className="absolute top-full right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-lg border border-cream-200 overflow-hidden z-50">
                       <div className="p-3 border-b flex justify-between items-center bg-cream-50">
                         <h3 className="font-bold text-sm">Notifikasi</h3>
                         {unreadCount > 0 && (
@@ -175,83 +173,28 @@ export default function Header({ onOpenCart }) {
               <>
                 <Link
                   to="/login"
-                  aria-label="Masuk"
-                  className="md:hidden w-10 h-10 rounded-full flex items-center justify-center hover:bg-cream-200 transition-colors"
-                >
-                  <UserIcon size={19} />
-                </Link>
-                <Link
-                  to="/login"
                   className="hidden md:flex px-4 py-2 text-sm font-bold bg-cacao-900 text-white rounded-full hover:bg-cacao-800 transition-colors"
                 >
                   Masuk
                 </Link>
               </>
             )}
-            <button
-              onClick={() => setMenuOpen((v) => !v)}
-              aria-label="Menu"
-              className="sm:hidden w-10 h-10 rounded-full flex items-center justify-center hover:bg-cream-200"
-            >
-              {menuOpen ? <X size={19} /> : <Menu size={19} />}
-            </button>
           </div>
         </div>
       </div>
       {searchOpen && (
         <div className="md:hidden px-5 py-3 border-t border-cream-300 bg-cream-100">
-          <form onSubmit={handleSearch} className="flex items-center relative">
-            <Search size={16} className="absolute left-8 text-cacao-500" />
+          <form onSubmit={handleSearch} className="flex items-center relative touch-manipulation">
+            <Search size={16} className="absolute left-3 text-cacao-500 pointer-events-none" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               type="search"
               placeholder="Cari cokelat..."
-              className="w-full bg-white rounded-full pl-9 pr-3 py-2 text-sm outline-none border border-cream-300 focus:border-gold-500"
+              className="w-full bg-white rounded-full pl-10 pr-4 py-2.5 text-sm outline-none border border-cream-300 focus:border-gold-500 touch-manipulation"
               autoFocus
             />
           </form>
-        </div>
-      )}
-
-      {user && (
-        <div className="md:hidden fixed bottom-[90px] right-6 flex flex-col gap-3 z-40">
-          <Link
-            to="/wishlist"
-            className="w-12 h-12 bg-white text-rose-500 rounded-full shadow-xl flex items-center justify-center relative border border-cream-200"
-          >
-            <Heart size={20} />
-            {wishlistItems.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
-                {wishlistItems.length}
-              </span>
-            )}
-          </Link>
-          <button
-            onClick={onOpenCart}
-            className="w-12 h-12 bg-gold-500 text-cacao-900 rounded-full shadow-xl flex items-center justify-center relative"
-          >
-            <ShoppingBag size={20} />
-            {totalCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-cacao-900 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-gold-500">
-                {totalCount}
-              </span>
-            )}
-          </button>
-        </div>
-      )}
-
-      {menuOpen && (
-        <div className="sm:hidden border-t border-cream-300 px-5 py-4 flex flex-col gap-3">
-          {user ? (
-            <>
-
-              <Link to="/profil" onClick={() => setMenuOpen(false)} className="text-sm font-medium py-1">Profil Saya</Link>
-              <Link to="/pesanan" onClick={() => setMenuOpen(false)} className="text-sm font-medium py-1">Riwayat Pesanan</Link>
-            </>
-          ) : (
-            <Link to="/login" onClick={() => setMenuOpen(false)} className="text-sm font-medium py-1 text-gold-600">Masuk / Daftar</Link>
-          )}
         </div>
       )}
     </header>

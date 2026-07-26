@@ -4,6 +4,7 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import CartDrawer from './components/CartDrawer'
 import ChatWidget from './components/ChatWidget'
+import BottomNav from './components/BottomNav'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
@@ -78,7 +79,7 @@ export default function App() {
       <Header onOpenCart={() => setCartOpen(true)} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
 
-      <main className="flex-1">
+      <main className="flex-1 pb-20">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home />} />
           <Route path="/toko" element={<Shop />} />
@@ -98,6 +99,7 @@ export default function App() {
       </main>
 
       <ChatWidget />
+      <BottomNav onOpenCart={() => setCartOpen(true)} />
       <Footer />
     </div>
   )

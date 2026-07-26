@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { SlidersHorizontal, X } from 'lucide-react'
+import { X, Filter as FilterIcon } from 'lucide-react'
 import ProductCard from '../components/ProductCard'
 import { useProducts } from '../context/ProductsContext'
 import { useCategories } from '../context/CategoriesContext'
@@ -24,12 +24,61 @@ export default function Shop() {
   const maxPrice = Number(params.get('max')) || 200000
   const inStockOnly = params.get('stock') === '1'
 
-  function updateParam(key, value) {
+  // STATE TEMPORARY untuk manual apply (Opsi A = Opsi 2)
+  const [tempSort, setTempSort] = useState(sort)
+  const [tempCategory, setTempCategory] = useState(activeCategory)
+  const [tempMaxPrice, setTempMaxPrice] = useState(maxPrice)
+  const [tempInStockOnly, setTempInStockOnly] = useState(inStockOnly)
+
+  useEffect(() => {
+    if (filtersOpen) {
+      setTempSort(sort)
+      setTempCategory(activeCategory)
+      setTempMaxPrice(maxPrice)
+      setTempInStockOnly(inStockOnly)
+    }
+  }, [filtersOpen, sort, activeCategory, maxPrice, inStockOnly])
+
+  function applyAllFilters() {
     const next = new URLSearchParams(params)
-    if (value) next.set(key, value)
-    else next.delete(key)
+    if (query) next.set('q', query); else next.delete('q')
+    if (tempSort && tempSort !== 'default') next.set('sort', tempSort); else next.delete('sort')
+    if (tempCategory) next.set('category', tempCategory); else next.delete('category')
+    if (tempMaxPrice && tempMaxPrice < 200000) next.set('max', String(tempMaxPrice)); else next.delete('max')
+    if (tempInStockOnly) next.set('stock', '1'); else next.delete('stock')
+    setParams(next)
+    setFiltersOpen(false)
+  }
+
+  function applyAllFiltersDesktop() {
+    const next = new URLSearchParams(params)
+    if (query) next.set('q', query); else next.delete('q')
+    if (tempSort && tempSort !== 'default') next.set('sort', tempSort); else next.delete('sort')
+    if (tempCategory) next.set('category', tempCategory); else next.delete('category')
+    if (tempMaxPrice && tempMaxPrice < 200000) next.set('max', String(tempMaxPrice)); else next.delete('max')
+    if (tempInStockOnly) next.set('stock', '1'); else next.delete('stock')
     setParams(next)
   }
+
+  function resetAllFilters() {
+    setTempSort('default')
+    setTempCategory('')
+    setTempMaxPrice(200000)
+    setTempInStockOnly(false)
+  }
+
+  // Apply realtime hanya untuk sidebar desktop
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches && !filtersOpen) {
+      const hasDiff =
+        tempSort !== sort ||
+        tempCategory !== activeCategory ||
+        Number(tempMaxPrice) !== Number(maxPrice) ||
+        Boolean(tempInStockOnly) !== Boolean(inStockOnly)
+      if (hasDiff) applyAllFiltersDesktop()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tempSort, tempCategory, tempMaxPrice, tempInStockOnly])
 
   const results = useMemo(() => {
     let list = products.filter((p) => p.price <= maxPrice)
@@ -49,8 +98,8 @@ export default function Shop() {
       <div>
         <h4 className="font-bold text-sm mb-3">Urutkan</h4>
         <select
-          value={sort}
-          onChange={(e) => updateParam('sort', e.target.value)}
+          value={tempSort}
+          onChange={(e) => setTempSort(e.target.value)}
           className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3 py-2 text-sm outline-none"
         >
           {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -59,17 +108,39 @@ export default function Shop() {
 
       <div>
         <h4 className="font-bold text-sm mb-3">Kategori</h4>
-        <div className="flex flex-col gap-2">
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input type="radio" name="cat" checked={!activeCategory} onChange={() => updateParam('category', '')} className="accent-gold-500" />
-            Semua Kategori
-          </label>
-          {categories.map((c) => (
-            <label key={c.name} className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="radio" name="cat" checked={activeCategory === c.name} onChange={() => updateParam('category', c.name)} className="accent-gold-500" />
-              {c.name}
-            </label>
-          ))}
+        <div className="flex flex-col gap-1.5">
+          {[
+            { id: '', name: 'Semua Kategori' },
+            ...categories.map((c) => ({ id: c.name, name: c.name })),
+          ].map((item) => {
+            const checked = item.id ? tempCategory === item.id : !tempCategory
+            return (
+              <label
+                key={item.id || '__all__'}
+                htmlFor={`cat-${item.id || 'all'}`}
+                className={`flex items-center gap-2.5 text-sm cursor-pointer touch-manipulation select-none py-1.5 px-1 rounded-lg min-h-[44px] transition-colors ${checked ? 'bg-gold-50 text-cacao-900' : 'hover:bg-cream-100'}`}
+              >
+                <span className="relative inline-flex shrink-0 items-center justify-center w-5 h-5">
+                  <input
+                    id={`cat-${item.id || 'all'}`}
+                    type="radio"
+                    name="cat"
+                    checked={checked}
+                    onChange={() => setTempCategory(item.id)}
+                    className="peer absolute inset-0 opacity-0 cursor-pointer accent-gold-500"
+                  />
+                  <span className={`w-5 h-5 rounded-full border-2 transition-all pointer-events-none ${checked ? 'border-gold-500' : 'border-cream-400 peer-focus:border-gold-500'}`}>
+                    {checked && (
+                      <span className="flex w-full h-full items-center justify-center">
+                        <span className="w-2.5 h-2.5 rounded-full bg-gold-500" />
+                      </span>
+                    )}
+                  </span>
+                </span>
+                <span className="leading-tight">{item.name}</span>
+              </label>
+            )
+          })}
         </div>
       </div>
 
@@ -80,24 +151,50 @@ export default function Shop() {
           min="30000"
           max="200000"
           step="5000"
-          value={maxPrice}
-          onChange={(e) => updateParam('max', e.target.value)}
+          value={tempMaxPrice}
+          onChange={(e) => setTempMaxPrice(Number(e.target.value))}
           className="w-full accent-gold-500"
         />
-        <div className="text-xs text-cacao-600 font-mono mt-1">hingga Rp{maxPrice.toLocaleString('id-ID')}</div>
+        <div className="text-xs text-cacao-600 font-mono mt-1">hingga Rp{Number(tempMaxPrice).toLocaleString('id-ID')}</div>
       </div>
 
-      <label className="flex items-center gap-2 text-sm cursor-pointer">
-        <input type="checkbox" checked={inStockOnly} onChange={(e) => updateParam('stock', e.target.checked ? '1' : '')} className="accent-gold-500" />
-        Hanya yang tersedia
+      <label
+        htmlFor="stock-only-filter"
+        className="flex items-center gap-2.5 text-sm cursor-pointer touch-manipulation select-none py-1.5 px-1 rounded-lg min-h-[44px] hover:bg-cream-100 transition-colors"
+      >
+        <span className="relative inline-flex shrink-0 items-center justify-center w-5 h-5">
+          <input
+            id="stock-only-filter"
+            type="checkbox"
+            checked={tempInStockOnly}
+            onChange={(e) => setTempInStockOnly(e.target.checked)}
+            className="peer absolute inset-0 opacity-0 cursor-pointer accent-gold-500"
+          />
+          <span className={`w-5 h-5 rounded-md border-2 transition-all pointer-events-none flex items-center justify-center ${tempInStockOnly ? 'border-gold-500 bg-gold-500 text-white' : 'border-cream-400 peer-focus:border-gold-500'}`}>
+            {tempInStockOnly && (
+              <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+                <path fillRule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-8 8a1 1 0 01-1.42 0l-4-4a1 1 0 111.42-1.42L8 12.58l7.29-7.29a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            )}
+          </span>
+        </span>
+        <span className="leading-tight">Hanya yang tersedia</span>
       </label>
 
-      <button
-        onClick={() => setParams({})}
-        className="text-xs font-semibold text-rose-500 hover:underline text-left"
-      >
-        Reset semua filter
-      </button>
+      <div className="hidden lg:block flex flex-col gap-2">
+        <button
+          onClick={applyAllFiltersDesktop}
+          className="w-full bg-gold-500 hover:bg-gold-400 font-bold py-2.5 rounded-lg text-sm transition-colors"
+        >
+          Terapkan Filter
+        </button>
+        <button
+          onClick={resetAllFilters}
+          className="w-full text-xs font-semibold text-rose-500 hover:underline text-left"
+        >
+          Reset semua filter
+        </button>
+      </div>
     </div>
   )
 
@@ -118,10 +215,10 @@ export default function Shop() {
         <div>
           <button
             onClick={() => setFiltersOpen(true)}
-            className="lg:hidden fixed bottom-6 left-6 z-40 w-14 h-14 bg-cacao-900 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-cacao-800 transition-colors"
+            className="lg:hidden fixed bottom-[10.5rem] right-5 z-40 w-14 h-14 bg-cacao-900 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-cacao-800 transition-colors gap-1"
             aria-label="Filter"
           >
-            <SlidersHorizontal size={24} />
+            <FilterIcon size={20} />
           </button>
 
           {loading ? (
@@ -142,12 +239,28 @@ export default function Shop() {
       {filtersOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div onClick={() => setFiltersOpen(false)} className="absolute inset-0 bg-cacao-900/40" />
-          <div className="absolute right-0 top-0 h-full w-72 bg-white p-6 overflow-y-auto">
+          <div className="absolute right-0 top-0 h-full w-72 bg-white p-6 overflow-y-auto pb-40">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-bold">Filter</h3>
               <button onClick={() => setFiltersOpen(false)} aria-label="Tutup"><X size={18} /></button>
             </div>
             {FilterPanel}
+            <div className="fixed right-0 bottom-0 w-72 p-4 bg-white border-t border-cream-200 flex items-stretch gap-3 pb-[max(env(safe-area-inset-bottom),1rem)]">
+              <button
+                type="button"
+                onClick={resetAllFilters}
+                className="flex-1 border border-cream-300 py-2.5 rounded-lg text-sm font-semibold hover:bg-cream-50 transition-colors"
+              >
+                Reset
+              </button>
+              <button
+                type="button"
+                onClick={applyAllFilters}
+                className="flex-[1.5] bg-gold-500 hover:bg-gold-400 text-cacao-900 font-bold py-2.5 rounded-lg text-sm transition-colors shadow-md shadow-gold-500/20"
+              >
+                Terapkan
+              </button>
+            </div>
           </div>
         </div>
       )}

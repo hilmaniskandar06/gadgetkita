@@ -40,12 +40,12 @@ export default function ChatWidget() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-24 right-5 z-50 flex flex-col items-end">
       {/* Chat Window */}
       {isOpen && (
-        <div className="bg-white w-80 sm:w-96 rounded-2xl shadow-2xl border border-cream-300 mb-4 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
+        <div className="bg-white w-[calc(100vw-2.5rem)] sm:w-96 max-w-full rounded-2xl shadow-2xl border border-cream-300 mb-4 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 max-h-[80vh]">
           {/* Header */}
-          <div className="bg-gold-500 text-white p-4 flex items-center justify-between shadow-sm">
+          <div className="bg-gold-500 text-white p-4 flex items-center justify-between shadow-sm shrink-0">
             <div className="flex items-center gap-2">
               <MessageCircle size={20} className="fill-white/20" />
               <h3 className="font-bold">Chat dengan Admin</h3>
@@ -56,7 +56,7 @@ export default function ChatWidget() {
           </div>
 
           {/* Body */}
-          <div className="flex-1 p-4 h-80 overflow-y-auto bg-cream-100 flex flex-col gap-3" ref={scrollRef}>
+          <div className="flex-1 min-h-[380px] sm:min-h-[440px] max-h-[calc(80vh-180px)] p-4 overflow-y-auto bg-cream-100 flex flex-col gap-3" ref={scrollRef}>
             {messages.length === 0 ? (
               <div className="m-auto text-center text-cacao-400 text-sm">
                 Belum ada pesan.<br />Ada pertanyaan tentang produk?

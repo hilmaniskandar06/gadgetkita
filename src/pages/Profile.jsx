@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Navigate } from 'react-router-dom'
-import { User, MapPin, Save, LogOut, Trash2 } from 'lucide-react'
+import { Link, Navigate } from 'react-router-dom'
+import { User, MapPin, Save, LogOut, Trash2, Receipt } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import SearchableSelect from '../components/SearchableSelect'
 import * as geo from '../services/geoService'
@@ -149,11 +149,16 @@ export default function Profile() {
 
   return (
     <div className="max-w-7xl mx-auto px-5 py-10">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-8">
         <h1 className="text-2xl font-extrabold text-cacao-900">Akun Saya</h1>
-        <button onClick={logout} className="flex items-center gap-2 text-rose-600 hover:bg-rose-50 px-4 py-2 rounded-xl font-bold transition-colors">
-          <LogOut size={18} /> Keluar
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/pesanan" className="flex items-center gap-2 bg-gold-100 hover:bg-gold-200 text-gold-800 px-4 py-2 rounded-xl font-bold transition-colors">
+            <Receipt size={18} /> Riwayat Pesanan
+          </Link>
+          <button onClick={logout} className="flex items-center gap-2 text-rose-600 hover:bg-rose-50 px-4 py-2 rounded-xl font-bold transition-colors">
+            <LogOut size={18} /> Keluar
+          </button>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
