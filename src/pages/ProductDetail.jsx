@@ -8,6 +8,7 @@ import { useProducts } from '../context/ProductsContext'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useToast } from '../context/ToastContext'
+import { useAuth } from '../context/AuthContext'
 
 const fmt = (n) => 'Rp' + n.toLocaleString('id-ID')
 
@@ -22,6 +23,7 @@ export default function ProductDetail() {
   const { addItem } = useCart()
   const { toggle, isWishlisted } = useWishlist()
   const { addToast } = useToast()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' })
 
@@ -36,8 +38,10 @@ export default function ProductDetail() {
 
   const wishlisted = isWishlisted(product.id)
 
-  function handleAdd() {
+  function handleAdd(e) {
+    if (e && e.preventDefault) e.preventDefault()
     if (!product.inStock) return
+    if (!user) return addToast('Silakan login terlebih dahulu', 'error')
     addItem(product.id, qty)
     addToast(`${qty}x ${product.name} ditambahkan ke keranjang`)
   }
@@ -53,18 +57,19 @@ export default function ProductDetail() {
   const reviewCount = allReviews.length > 0 ? allReviews.length : 0
   const filteredReviews = ratingFilter > 0 ? allReviews.filter(r => r.rating === ratingFilter) : allReviews
 
-  const user = JSON.parse(sessionStorage.getItem('kk_auth_session'))
+  const sessionUser = user || JSON.parse(sessionStorage.getItem('kk_auth_session') || 'null')
+  const reviewUser = sessionUser
 
   function submitReview(e) {
     e.preventDefault()
-    if (!user) return addToast('Silakan login terlebih dahulu', 'error')
+    if (!reviewUser) return addToast('Silakan login terlebih dahulu', 'error')
     
     const saved = JSON.parse(localStorage.getItem('kk_reviews') || '[]')
     const newReview = {
       id: 'rev-' + Date.now(),
       productId: product.id,
-      userId: user.id,
-      userName: user.name,
+      userId: reviewUser.id,
+      userName: reviewUser.name,
       rating: reviewForm.rating,
       comment: reviewForm.comment,
       date: new Date().toISOString()
@@ -75,8 +80,10 @@ export default function ProductDetail() {
     setReviewForm({ rating: 5, comment: '' })
   }
 
-  function handleBuyNow() {
+  function handleBuyNow(e) {
+    if (e && e.preventDefault) e.preventDefault()
     if (!product.inStock) return
+    if (!user) return addToast('Silakan login terlebih dahulu', 'error')
     navigate('/checkout', { state: { directItem: { ...product, qty } } })
   }
 
@@ -157,16 +164,22 @@ export default function ProductDetail() {
 
           <div className="flex items-center gap-3 mt-8">
             <div className="flex items-center border border-cream-300 rounded-full">
-              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="w-10 h-10 flex items-center justify-center" aria-label="Kurangi jumlah">
+              <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="w-10 h-10 flex items-center justify-center" aria-label="Kurangi jumlah">
                 <Minus size={14} />
               </button>
               <span className="w-10 text-center font-mono">{qty}</span>
-              <button onClick={() => setQty((q) => q + 1)} className="w-10 h-10 flex items-center justify-center" aria-label="Tambah jumlah">
+              <button type="button" onClick={() => setQty((q) => q + 1)} className="w-10 h-10 flex items-center justify-center" aria-label="Tambah jumlah">
                 <Plus size={14} />
               </button>
             </div>
             <button
-              onClick={() => { toggle(product.id); addToast(wishlisted ? 'Dihapus dari wishlist' : 'Disimpan ke wishlist') }}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                if (!user) return addToast('Silakan login terlebih dahulu', 'error')
+                toggle(product.id)
+                addToast(wishlisted ? 'Dihapus dari wishlist' : 'Disimpan ke wishlist')
+              }}
               aria-label="Simpan ke wishlist"
               className="w-12 h-12 rounded-full border border-cream-300 flex items-center justify-center hover:border-rose-500 shrink-0"
             >
@@ -246,7 +259,7 @@ export default function ProductDetail() {
             </div>
             
             <div className="md:w-2/3">
-              {user ? (
+              {reviewUser ? (
                 <form onSubmit={submitReview} className="bg-white border border-cream-300 rounded-xl p-5 mb-8">
                   <h4 className="font-bold text-cacao-900 mb-3">Tulis Ulasan Anda</h4>
                   <div className="flex gap-1 mb-3">

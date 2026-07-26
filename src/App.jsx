@@ -79,7 +79,7 @@ export default function App() {
       <Header onOpenCart={() => setCartOpen(true)} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
 
-      <main className="flex-1 pb-20">
+      <main className="flex-1 pb-10 md:pb-0">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home />} />
           <Route path="/toko" element={<Shop />} />
@@ -99,8 +99,8 @@ export default function App() {
       </main>
 
       {['/', '/toko'].includes(location.pathname) && <ChatWidget />}
-      <BottomNav onOpenCart={() => setCartOpen(true)} />
-      <Footer />
+      <div className="md:hidden z-40 relative"><BottomNav onOpenCart={() => setCartOpen(true)} /></div>
+      <div className="pb-20 md:pb-0 -mt-px"><Footer /></div>
     </div>
   )
 }

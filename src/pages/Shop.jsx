@@ -12,10 +12,11 @@ const SORTS = [
   { value: 'rating', label: 'Rating Tertinggi' },
 ]
 
-export default function Shop({ filtersOpen, setFiltersOpen }) {
+export default function Shop() {
   const { products, loading } = useProducts()
   const { categories } = useCategories()
   const [params, setParams] = useSearchParams()
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const query = params.get('q') || ''
   const activeCategory = params.get('category') || ''
@@ -68,7 +69,7 @@ export default function Shop({ filtersOpen, setFiltersOpen }) {
 
   // Apply realtime hanya untuk sidebar desktop
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches && !filtersOpen) {
+    if (typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches && !filtersOpen) {
       const hasDiff =
         tempSort !== sort ||
         tempCategory !== activeCategory ||
@@ -180,7 +181,7 @@ export default function Shop({ filtersOpen, setFiltersOpen }) {
         <span className="leading-tight">Hanya yang tersedia</span>
       </label>
 
-      <div className="hidden lg:block flex flex-col gap-2">
+      <div className="hidden md:block flex flex-col gap-2">
         <button
           onClick={applyAllFiltersDesktop}
           className="w-full bg-gold-500 hover:bg-gold-400 font-bold py-2.5 rounded-lg text-sm transition-colors"
@@ -198,46 +199,49 @@ export default function Shop({ filtersOpen, setFiltersOpen }) {
   )
 
   return (
-    <div className="max-w-7xl mx-auto px-5 lg:px-8 py-10 relative">
-      <div className="mb-8">
-        <h1 className="text-3xl font-serif font-bold">{activeCategory || 'Semua Produk'}</h1>
-        <p className="text-sm text-cacao-600 mt-1">
-          {query ? `Hasil pencarian untuk "${query}" — ` : ''}{results.length} produk ditemukan
-        </p>
-      </div>
+    <>
+      <button
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFiltersOpen(true) }}
+        className="md:hidden fixed bottom-[10.5rem] right-5 z-40 w-14 h-14 bg-cacao-900 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-cacao-800 transition-colors"
+        aria-label="Filter"
+        type="button"
+      >
+        <FilterIcon size={20} />
+      </button>
 
-      <div className="grid lg:grid-cols-[220px_1fr] gap-8">
-        <aside className="hidden lg:block sticky top-20 h-fit max-h-[calc(100vh-6rem)] overflow-y-auto pr-2">
-          {FilterPanel}
-        </aside>
+      <div className="max-w-7xl mx-auto px-5 lg:px-8 py-10">
+        <div className="mb-8">
+          <h1 className="text-3xl font-serif font-bold">{activeCategory || 'Semua Produk'}</h1>
+          <p className="text-sm text-cacao-600 mt-1">
+            {query ? `Hasil pencarian untuk "${query}" — ` : ''}{results.length} produk ditemukan
+          </p>
+        </div>
 
-        <div>
-          <button
-            onClick={() => setFiltersOpen(true)}
-            className="lg:hidden fixed bottom-[10.5rem] right-5 z-40 w-14 h-14 bg-cacao-900 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-cacao-800 transition-colors gap-1"
-            aria-label="Filter"
-          >
-            <FilterIcon size={20} />
-          </button>
+        <div className="grid md:grid-cols-[220px_1fr] gap-8">
+          <aside className="hidden md:block sticky top-20 h-fit max-h-[calc(100vh-6rem)] overflow-y-auto pr-2">
+            {FilterPanel}
+          </aside>
 
-          {loading ? (
-            <p className="text-center py-20 text-cacao-500">Memuat produk...</p>
-          ) : results.length === 0 ? (
-            <div className="text-center py-20 text-cacao-600">
-              <p className="font-semibold">Produk tidak ditemukan.</p>
-              <p className="text-sm mt-1">Coba ubah kata kunci atau filter yang digunakan.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-              {results.map((p) => <ProductCard key={p.id} product={p} />)}
-            </div>
-          )}
+          <div>
+            {loading ? (
+              <p className="text-center py-20 text-cacao-500">Memuat produk...</p>
+            ) : results.length === 0 ? (
+              <div className="text-center py-20 text-cacao-600">
+                <p className="font-semibold">Produk tidak ditemukan.</p>
+                <p className="text-sm mt-1">Coba ubah kata kunci atau filter yang digunakan.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+                {results.map((p) => <ProductCard key={p.id} product={p} />)}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {filtersOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div onClick={() => setFiltersOpen(false)} className="absolute inset-0 bg-cacao-900/40" />
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div onClick={(e) => { e.preventDefault(); setFiltersOpen(false) }} className="absolute inset-0 bg-cacao-900/40" />
           <div className="absolute right-0 top-0 h-full w-72 bg-white p-6 overflow-y-auto pb-40">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-bold">Filter</h3>
@@ -263,6 +267,6 @@ export default function Shop({ filtersOpen, setFiltersOpen }) {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }

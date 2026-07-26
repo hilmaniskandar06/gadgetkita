@@ -5,6 +5,7 @@ import RatingStars from './RatingStars'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useToast } from '../context/ToastContext'
+import { useAuth } from '../context/AuthContext'
 
 const fmt = (n) => 'Rp' + n.toLocaleString('id-ID')
 
@@ -12,6 +13,7 @@ export default function ProductCard({ product }) {
   const { toggle, isWishlisted } = useWishlist()
   const { addItem } = useCart()
   const { addToast } = useToast()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const wishlisted = isWishlisted(product.id)
 
@@ -25,19 +27,25 @@ export default function ProductCard({ product }) {
 
   function handleAdd(e) {
     e.preventDefault()
+    e.stopPropagation()
     if (!product.inStock) return
+    if (!user) return addToast('Silakan login terlebih dahulu', 'error')
     addItem(product.id, 1)
     addToast(`${product.name} ditambahkan ke keranjang`)
   }
 
   function handleBuyNow(e) {
     e.preventDefault()
+    e.stopPropagation()
     if (!product.inStock) return
+    if (!user) return addToast('Silakan login terlebih dahulu', 'error')
     navigate('/checkout', { state: { directItem: { ...product, qty: 1 } } })
   }
 
   function handleWishlist(e) {
     e.preventDefault()
+    e.stopPropagation()
+    if (!user) return addToast('Silakan login terlebih dahulu', 'error')
     toggle(product.id)
     addToast(wishlisted ? `${product.name} dihapus dari wishlist` : `${product.name} disimpan ke wishlist`)
   }

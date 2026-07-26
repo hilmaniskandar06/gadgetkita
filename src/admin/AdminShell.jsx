@@ -30,7 +30,7 @@ export default function AdminShell({ title, actions, children }) {
 
   return (
     <div className="min-h-screen bg-cream-100 flex flex-col">
-      <header className="bg-cacao-900 text-white z-10 sticky top-0">
+      <header className="bg-cacao-900 text-white z-50 sticky top-0">
         <div className="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
           <Link to="/admin" className="font-extrabold tracking-tight flex items-center gap-2">
             {content.logoLight || content.shopLogo ? (
@@ -54,8 +54,8 @@ export default function AdminShell({ title, actions, children }) {
           </div>
         </div>
       </header>
-      <div className="flex-1 max-w-7xl w-full mx-auto px-5 flex flex-col md:flex-row gap-8 py-8 items-start">
-        <aside className="w-full md:w-64 shrink-0 bg-white border border-cream-300 rounded-xl p-4 sticky top-24">
+      <div className="flex-1 max-w-7xl w-full mx-auto px-5 flex flex-col md:flex-row gap-8 py-8 items-start relative">
+        <aside className="w-full md:w-64 shrink-0 bg-white border border-cream-300 rounded-xl p-4 md:sticky top-24 z-0 relative">
           <nav className="flex flex-col gap-1">
             {menu.map(m => {
               const active = m.exact ? location.pathname === m.path : location.pathname.startsWith(m.path)
