@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import CartDrawer from './components/CartDrawer'
@@ -33,32 +33,14 @@ import AdminNotifications from './admin/AdminNotifications'
 import AdminChats from './admin/AdminChats'
 import AdminPages from './admin/AdminPages'
 import StaticPage from './pages/StaticPage'
-import { useCart } from './context/CartContext'
-import { useWishlist } from './context/WishlistContext'
 
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false)
-  const [filtersOpen, setFiltersOpen] = useState(false)
   const location = useLocation()
-  const navigate = useNavigate()
-  const { pendingLogin: cartPendingLogin, setPendingLogin: setCartPendingLogin } = useCart()
-  const { pendingLogin: wishlistPendingLogin, setPendingLogin: setWishlistPendingLogin } = useWishlist()
 
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [location.pathname])
-
-  useEffect(() => {
-    setFiltersOpen(false)
-  }, [location.pathname])
-
-  useEffect(() => {
-    if (cartPendingLogin || wishlistPendingLogin) {
-      navigate('/login', { replace: true, state: { from: location.pathname } })
-      setCartPendingLogin(false)
-      setWishlistPendingLogin(false)
-    }
-  }, [cartPendingLogin, wishlistPendingLogin, navigate, location.pathname, setCartPendingLogin, setWishlistPendingLogin])
 
   const isAdmin = location.pathname.startsWith('/admin')
 
@@ -100,7 +82,7 @@ export default function App() {
       <main className="flex-1 pb-20">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home />} />
-          <Route path="/toko" element={<Shop filtersOpen={filtersOpen} setFiltersOpen={setFiltersOpen} />} />
+          <Route path="/toko" element={<Shop />} />
           <Route path="/produk/:id" element={<ProductDetail />} />
           <Route path="/keranjang" element={<CartPage />} />
           <Route path="/checkout" element={<Checkout />} />
@@ -116,7 +98,7 @@ export default function App() {
         </Routes>
       </main>
 
-      <ChatWidget cartOpen={cartOpen} filtersOpen={filtersOpen} pathname={location.pathname} />
+      {['/', '/toko'].includes(location.pathname) && <ChatWidget />}
       <BottomNav onOpenCart={() => setCartOpen(true)} />
       <Footer />
     </div>
