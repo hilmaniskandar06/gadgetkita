@@ -11,6 +11,7 @@ import { usePayments } from '../context/PaymentContext'
 import { useLeaveConfirmation } from '../hooks/useLeaveConfirmation'
 import { useSiteContent } from '../context/SiteContentContext'
 import { useAuth } from '../context/AuthContext'
+import { useNotifications } from '../context/NotificationContext'
 import * as geo from '../services/geoService'
 import * as orderService from '../services/orderService'
 import { Copy } from 'lucide-react'
@@ -45,6 +46,7 @@ export default function Checkout() {
   const location = useLocation()
   const { addToast } = useToast()
   const { user } = useAuth()
+  const { addNotification } = useNotifications()
   
   const directItem = location.state?.directItem
   const checkoutItems = directItem ? [directItem] : cartList
@@ -246,6 +248,14 @@ export default function Checkout() {
       addToast('Gagal membuat pesanan: ' + err.message)
       setSaving(false)
       return
+    }
+
+    // Kirim notifikasi admin: pesanan baru (broadcast userId=ADMIN_BROADCAST)
+    try {
+      const adminLink = `/admin/pesanan?focus=${order.id}`
+      await addNotification('ADMIN_BROADCAST', 'Pesanan Baru', `Pesanan ${order.id} baru saja dibuat oleh ${form.name}. Total: Rp${order.total.toLocaleString('id-ID')}`, adminLink)
+    } catch (e) {
+      console.warn('Gagal kirim notifikasi admin pesanan baru:', e)
     }
 
     if (user && form.saveToProfile) {

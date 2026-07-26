@@ -43,7 +43,7 @@ export default function ChatWidget() {
     <div className="fixed bottom-24 right-5 z-30 flex flex-col items-end">
       {/* Chat Window */}
       {isOpen && (
-        <div className="bg-white w-[calc(100vw-2.5rem)] sm:w-96 max-w-full rounded-2xl shadow-2xl border border-cream-300 mb-4 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 max-h-[calc(100vh-8rem)] sm:max-h-[80vh]">
+        <div className="bg-white w-[calc(100vw-2.5rem)] sm:w-96 max-w-full rounded-2xl shadow-2xl border border-cream-300 mb-4 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 max-h-[calc(100vh-8rem)] sm:max-h-[calc(100vh-6rem)]">
           {/* Header */}
           <div className="bg-gold-500 text-white p-3 sm:p-4 flex items-center justify-between shadow-sm shrink-0">
             <div className="flex items-center gap-2">
@@ -56,7 +56,7 @@ export default function ChatWidget() {
           </div>
 
           {/* Body */}
-          <div className="flex-1 min-h-[280px] sm:min-h-[380px] max-h-[calc(100vh-14rem)] sm:max-h-[calc(80vh-180px)] p-3 sm:p-4 overflow-y-auto bg-cream-100 flex flex-col gap-3" ref={scrollRef}>
+          <div className="flex-1 min-h-[280px] sm:min-h-[320px] max-h-[calc(100vh-14rem)] sm:max-h-[calc(100vh-12rem)] p-3 sm:p-4 overflow-y-auto bg-cream-100 flex flex-col gap-3" ref={scrollRef}>
             {messages.length === 0 ? (
               <div className="m-auto text-center text-cacao-400 text-sm">
                 Belum ada pesan.<br />Ada pertanyaan tentang produk?

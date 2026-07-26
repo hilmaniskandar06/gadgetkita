@@ -2,13 +2,21 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { LogOut, Store, Package, Tag, FileText, Ticket, CreditCard, ShoppingBag, Users, Bell, MessageCircle, FileDown, LayoutTemplate } from 'lucide-react'
 import { useSiteContent } from '../context/SiteContentContext'
 import { useChat } from '../context/ChatContext'
+import { useNotifications } from '../context/NotificationContext'
 
 export default function AdminShell({ title, actions, children }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { content } = useSiteContent()
   const { getUnreadCount } = useChat()
+  const { getAllNotifications } = useNotifications()
   const unreadChats = getUnreadCount(null, 'admin')
+
+  const allNotifs = getAllNotifications()
+  const unreadAdminNotifs = allNotifs.filter(n =>
+    String(n.userId) === 'ADMIN_BROADCAST' && !n.isRead
+  ).length
+  const unreadOrdersBadge = unreadAdminNotifs
 
   function logout() {
     sessionStorage.removeItem('kk_admin_auth')
@@ -16,7 +24,7 @@ export default function AdminShell({ title, actions, children }) {
   }
 
   const menu = [
-    { name: 'Pesanan', path: '/admin/pesanan', icon: ShoppingBag },
+    { name: 'Pesanan', path: '/admin/pesanan', icon: ShoppingBag, badge: unreadOrdersBadge },
     { name: 'Pelanggan', path: '/admin/pelanggan', icon: Users },
     { name: 'Chat', path: '/admin/chat', icon: MessageCircle, badge: unreadChats },
     { name: 'Produk', path: '/admin', icon: Package, exact: true },
@@ -25,7 +33,7 @@ export default function AdminShell({ title, actions, children }) {
     { name: 'Halaman Statis', path: '/admin/halaman', icon: LayoutTemplate },
     { name: 'Voucher', path: '/admin/voucher', icon: Ticket },
     { name: 'Pembayaran', path: '/admin/pembayaran', icon: CreditCard },
-    { name: 'Notifikasi', path: '/admin/notifikasi', icon: Bell },
+    { name: 'Notifikasi', path: '/admin/notifikasi', icon: Bell, badge: unreadAdminNotifs },
   ]
 
   return (
@@ -54,8 +62,8 @@ export default function AdminShell({ title, actions, children }) {
           </div>
         </div>
       </header>
-      <div className="flex-1 max-w-7xl w-full mx-auto px-5 flex flex-col md:flex-row gap-8 py-8 items-start relative">
-        <aside className="w-full md:w-64 shrink-0 bg-white border border-cream-300 rounded-xl p-4 md:sticky top-24 z-0 relative">
+      <div className="flex-1 max-w-7xl w-full mx-auto px-5 flex flex-row gap-8 py-8 items-start relative">
+        <aside className="w-full w-64 shrink-0 bg-white border border-cream-300 rounded-xl p-4 sticky top-24 z-0 relative">
           <nav className="flex flex-col gap-1">
             {menu.map(m => {
               const active = m.exact ? location.pathname === m.path : location.pathname.startsWith(m.path)

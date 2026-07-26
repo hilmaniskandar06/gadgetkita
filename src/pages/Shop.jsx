@@ -94,9 +94,9 @@ export default function Shop() {
   }, [products, activeCategory, sort, maxPrice, inStockOnly, query])
 
   const FilterPanel = (
-    <div className="flex flex-col gap-7">
+    <div className="flex flex-col gap-5 md:gap-4">
       <div>
-        <h4 className="font-bold text-sm mb-3">Urutkan</h4>
+        <h4 className="font-bold text-sm mb-2">Urutkan</h4>
         <select
           value={tempSort}
           onChange={(e) => setTempSort(e.target.value)}
@@ -107,8 +107,8 @@ export default function Shop() {
       </div>
 
       <div>
-        <h4 className="font-bold text-sm mb-3">Kategori</h4>
-        <div className="flex flex-col gap-1.5">
+        <h4 className="font-bold text-sm mb-2">Kategori</h4>
+        <div className="flex flex-col gap-0.5 md:gap-0">
           {[
             { id: '', name: 'Semua Kategori' },
             ...categories.map((c) => ({ id: c.name, name: c.name })),
@@ -118,7 +118,7 @@ export default function Shop() {
               <label
                 key={item.id || '__all__'}
                 htmlFor={`cat-${item.id || 'all'}`}
-                className={`flex items-center gap-2.5 text-sm cursor-pointer touch-manipulation select-none py-1.5 px-1 rounded-lg min-h-[44px] transition-colors ${checked ? 'bg-gold-50 text-cacao-900' : 'hover:bg-cream-100'}`}
+                className={`flex items-center gap-2.5 text-sm cursor-pointer touch-manipulation select-none py-1 md:py-0.5 px-1 rounded-lg min-h-[44px] md:min-h-[36px] transition-colors ${checked ? 'bg-gold-50 text-cacao-900' : 'hover:bg-cream-100'}`}
               >
                 <span className="relative inline-flex shrink-0 items-center justify-center w-5 h-5">
                   <input
@@ -145,7 +145,7 @@ export default function Shop() {
       </div>
 
       <div>
-        <h4 className="font-bold text-sm mb-3">Harga Maksimum</h4>
+        <h4 className="font-bold text-sm mb-2">Harga Maksimum</h4>
         <input
           type="range"
           min="30000"
@@ -155,12 +155,12 @@ export default function Shop() {
           onChange={(e) => setTempMaxPrice(Number(e.target.value))}
           className="w-full accent-gold-500"
         />
-        <div className="text-xs text-cacao-600 font-mono mt-1">hingga Rp{Number(tempMaxPrice).toLocaleString('id-ID')}</div>
+        <div className="text-xs text-cacao-600 font-mono mt-0.5">hingga Rp{Number(tempMaxPrice).toLocaleString('id-ID')}</div>
       </div>
 
       <label
         htmlFor="stock-only-filter"
-        className="flex items-center gap-2.5 text-sm cursor-pointer touch-manipulation select-none py-1.5 px-1 rounded-lg min-h-[44px] hover:bg-cream-100 transition-colors"
+        className="flex items-center gap-2.5 text-sm cursor-pointer touch-manipulation select-none py-1 px-1 rounded-lg min-h-[44px] md:min-h-[36px] hover:bg-cream-100 transition-colors"
       >
         <span className="relative inline-flex shrink-0 items-center justify-center w-5 h-5">
           <input
@@ -184,7 +184,7 @@ export default function Shop() {
       <div className="hidden md:block flex flex-col gap-2">
         <button
           onClick={applyAllFiltersDesktop}
-          className="w-full bg-gold-500 hover:bg-gold-400 font-bold py-2.5 rounded-lg text-sm transition-colors"
+          className="w-full bg-gold-500 hover:bg-gold-400 font-bold py-2 rounded-lg text-sm transition-colors"
         >
           Terapkan Filter
         </button>
