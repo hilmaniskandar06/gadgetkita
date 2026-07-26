@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useProducts } from './ProductsContext'
 import { useAuth } from './AuthContext'
 import { useToast } from './ToastContext'
@@ -12,14 +11,14 @@ export function CartProvider({ children }) {
   const { getById } = useProducts()
   const { user } = useAuth()
   const { addToast } = useToast()
-  const navigate = useNavigate()
+  const [pendingLogin, setPendingLogin] = useState(false)
 
   const requireAuth = () => {
     if (!user) {
-      setTimeout(() => {
+      if (!pendingLogin) {
+        setPendingLogin(true)
         addToast('Silakan login terlebih dahulu untuk menggunakan keranjang', 'error')
-        navigate('/login')
-      }, 0)
+      }
       return false
     }
     return true
@@ -40,16 +39,13 @@ export function CartProvider({ children }) {
       supabase.from('carts').select('items').eq('user_id', user.id).maybeSingle().then(({ data, error }) => {
         if (!error && data && data.items && Object.keys(data.items).length > 0) {
           setItems(data.items)
-        } else {
-          setItems(prev => prev)
         }
-      }).catch(() => {
-        setItems(prev => prev)
-      })
+      }).catch(() => {})
     } else {
       localStorage.removeItem(STORAGE_KEY)
       setItems({})
     }
+    setPendingLogin(false)
   }, [user])
 
   // Simpan perubahan baik ke lokal maupun server
@@ -76,22 +72,18 @@ export function CartProvider({ children }) {
 
   function setQty(id, qty) {
     if (!requireAuth()) return
-    if (qty < 1) {
-      setItems((prev) => {
-        const next = { ...prev }
+    setItems((prev) => {
+      const next = { ...prev }
+      if (qty < 1) {
         delete next[id]
-        return next
-      })
-      return
-    }
-    setItems((prev) => ({ ...prev, [id]: qty }))
+      } else {
+        next[id] = qty
+      }
+      return next
+    })
   }
 
   function clearCart() {
-    if (!user) {
-      setItems({})
-      return
-    }
     setItems({})
   }
 
@@ -107,7 +99,7 @@ export function CartProvider({ children }) {
 
   return (
     <CartContext.Provider
-      value={{ items, cartList, totalCount, subtotal, addItem, removeItem, setQty, clearCart }}
+      value={{ items, cartList, totalCount, subtotal, addItem, removeItem, setQty, clearCart, pendingLogin, setPendingLogin }}
     >
       {children}
     </CartContext.Provider>

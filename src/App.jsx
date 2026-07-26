@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import CartDrawer from './components/CartDrawer'
@@ -33,11 +33,16 @@ import AdminNotifications from './admin/AdminNotifications'
 import AdminChats from './admin/AdminChats'
 import AdminPages from './admin/AdminPages'
 import StaticPage from './pages/StaticPage'
+import { useCart } from './context/CartContext'
+import { useWishlist } from './context/WishlistContext'
 
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
+  const { pendingLogin: cartPendingLogin, setPendingLogin: setCartPendingLogin } = useCart()
+  const { pendingLogin: wishlistPendingLogin, setPendingLogin: setWishlistPendingLogin } = useWishlist()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -46,6 +51,14 @@ export default function App() {
   useEffect(() => {
     setFiltersOpen(false)
   }, [location.pathname])
+
+  useEffect(() => {
+    if (cartPendingLogin || wishlistPendingLogin) {
+      navigate('/login', { replace: true, state: { from: location.pathname } })
+      setCartPendingLogin(false)
+      setWishlistPendingLogin(false)
+    }
+  }, [cartPendingLogin, wishlistPendingLogin, navigate, location.pathname, setCartPendingLogin, setWishlistPendingLogin])
 
   const isAdmin = location.pathname.startsWith('/admin')
 

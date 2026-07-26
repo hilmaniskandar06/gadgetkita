@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useProducts } from './ProductsContext'
 import { useAuth } from './AuthContext'
 import { useToast } from './ToastContext'
@@ -12,14 +11,14 @@ export function WishlistProvider({ children }) {
   const { getById } = useProducts()
   const { user } = useAuth()
   const { addToast } = useToast()
-  const navigate = useNavigate()
+  const [pendingLogin, setPendingLogin] = useState(false)
 
   const requireAuth = () => {
     if (!user) {
-      setTimeout(() => {
+      if (!pendingLogin) {
+        setPendingLogin(true)
         addToast('Silakan login terlebih dahulu untuk menggunakan wishlist', 'error')
-        navigate('/login')
-      }, 0)
+      }
       return false
     }
     return true
@@ -40,16 +39,13 @@ export function WishlistProvider({ children }) {
       supabase.from('wishlists').select('items').eq('user_id', user.id).maybeSingle().then(({ data, error }) => {
         if (!error && data && data.items && Array.isArray(data.items) && data.items.length > 0) {
           setIds(data.items)
-        } else {
-          setIds(prev => prev)
         }
-      }).catch(() => {
-        setIds(prev => prev)
-      })
+      }).catch(() => {})
     } else {
       localStorage.removeItem(STORAGE_KEY)
       setIds([])
     }
+    setPendingLogin(false)
   }, [user])
 
   // Simpan perubahan baik ke lokal maupun server
@@ -72,7 +68,7 @@ export function WishlistProvider({ children }) {
   const wishlistItems = ids.map(getById).filter(Boolean)
 
   return (
-    <WishlistContext.Provider value={{ ids, wishlistItems, toggle, isWishlisted }}>
+    <WishlistContext.Provider value={{ ids, wishlistItems, toggle, isWishlisted, pendingLogin, setPendingLogin }}>
       {children}
     </WishlistContext.Provider>
   )

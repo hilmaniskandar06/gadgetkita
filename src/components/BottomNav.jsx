@@ -3,7 +3,6 @@ import { Home, Store, ShoppingBag, Heart, User as UserIcon } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useAuth } from '../context/AuthContext'
-import { useToast } from '../context/ToastContext'
 
 function navItemClass({ isActive }) {
   const base = 'flex flex-col items-center justify-center gap-0.5 w-full h-full text-xs font-medium transition-colors select-none touch-manipulation pb-[max(env(safe-area-inset-bottom),4px)]'
@@ -14,13 +13,11 @@ export default function BottomNav({ onOpenCart }) {
   const { totalCount } = useCart()
   const { wishlistItems } = useWishlist()
   const { user } = useAuth()
-  const { addToast } = useToast()
   const navigate = useNavigate()
 
   function handleOpenCart() {
     if (!user) {
-      addToast('Silakan login terlebih dahulu untuk melihat keranjang', 'error')
-      navigate('/login', { state: { from: '/keranjang' } })
+      navigate('/login', { replace: true, state: { from: '/keranjang' } })
       return
     }
     onOpenCart()
