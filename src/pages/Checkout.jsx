@@ -104,6 +104,8 @@ export default function Checkout() {
     }
   }, [user])
 
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname, state: location.state }} />
+
   if (checkoutItems.length === 0) return <Navigate to="/toko" replace />
 
   function update(key, value) {

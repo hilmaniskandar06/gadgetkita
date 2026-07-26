@@ -18,14 +18,21 @@ export function WishlistProvider({ children }) {
     }
   })
 
-  // Sinkronisasi data dari server saat login
+  // Sinkronisasi data dari server saat login, bersihkan saat logout
   useEffect(() => {
     if (user) {
       supabase.from('wishlists').select('items').eq('user_id', user.id).maybeSingle().then(({ data, error }) => {
-        if (!error && data && data.items) {
+        if (!error && data && data.items && Array.isArray(data.items) && data.items.length > 0) {
           setIds(data.items)
+        } else {
+          setIds(prev => prev)
         }
+      }).catch(() => {
+        setIds(prev => prev)
       })
+    } else {
+      localStorage.removeItem(STORAGE_KEY)
+      setIds([])
     }
   }, [user])
 

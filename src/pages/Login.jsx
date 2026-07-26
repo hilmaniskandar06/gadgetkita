@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { LogIn } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -10,13 +10,16 @@ export default function Login() {
   const { login } = useAuth()
   const { addToast } = useToast()
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = location.state?.from || '/'
+  const preservedState = location.state?.state
 
   async function handleSubmit(e) {
     e.preventDefault()
     const res = await login(email, password)
     if (res.success) {
       addToast('Berhasil login')
-      navigate('/')
+      navigate(from, { replace: true, state: preservedState })
     } else {
       addToast(res.error || 'Gagal login', 'error')
     }

@@ -19,16 +19,25 @@ export function CartProvider({ children }) {
     }
   })
 
-  // Sinkronisasi data dari server saat login
+  // Sinkronisasi data dari server saat login, bersihkan saat logout
   useEffect(() => {
     if (user) {
       supabase.from('carts').select('items').eq('user_id', user.id).maybeSingle().then(({ data, error }) => {
-        if (!error && data && data.items) {
-          // Gabungkan jika ada item lokal yang belum masuk cloud, 
-          // tapi cara termudah adalah menimpa data lokal dengan data server
+        if (!error && data && data.items && Object.keys(data.items).length > 0) {
+          // Cloud ADA isi → cloud MENANG (sesuai ekspektasi user login kembali)
           setItems(data.items)
+        } else {
+          // Cloud KOSONG → pakai item lokal yang sudah ada saat ini (guest sebelum login)
+          // Effect kedua akan otomatis menyimpan ini ke cloud
+          setItems(prev => prev)
         }
+      }).catch(() => {
+        setItems(prev => prev)
       })
+    } else {
+      // User logout → bersihkan state dan localStorage
+      localStorage.removeItem(STORAGE_KEY)
+      setItems({})
     }
   }, [user])
 
