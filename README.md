@@ -1,5 +1,6 @@
 # Kakao Kita — Toko Cokelat Online
 
+
 Aplikasi e-commerce cokelat siap pakai. Dibangun dengan **React + Vite + Tailwind CSS**, mode terang, gaya *flat design*.
 
 ## Fitur
@@ -274,5 +275,6 @@ kakao-kita-shop/
 └─ package.json
 ```
 "# cokelatbandara" 
-#   c o k e l a t b a n d a r a  
+#   c o k e l a t b a n d a r a 
+ 
  
