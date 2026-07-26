@@ -1,42 +1,50 @@
-import { NavLink } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Home, Store, ShoppingBag, Heart, User as UserIcon } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useAuth } from '../context/AuthContext'
-
-function navItemClass({ isActive }) {
-  const base = 'flex flex-col items-center justify-center gap-0.5 w-full h-full text-xs font-medium transition-colors select-none touch-manipulation pb-[max(env(safe-area-inset-bottom),4px)]'
-  return isActive ? `${base} text-gold-600` : `${base} text-cacao-400 hover:text-cacao-600`
-}
+import { useToast } from '../context/ToastContext'
 
 export default function BottomNav({ onOpenCart }) {
   const { totalCount } = useCart()
   const { wishlistItems } = useWishlist()
   const { user } = useAuth()
+  const { addToast } = useToast()
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  function navItemClass(isActive) {
+    const base = 'flex flex-col items-center justify-center gap-0.5 w-full h-full text-xs font-medium transition-colors select-none touch-manipulation pb-[max(env(safe-area-inset-bottom),4px)]'
+    return isActive ? `${base} text-gold-600` : `${base} text-cacao-400 hover:text-cacao-600`
+  }
+
+  function handleWishlist() {
+    if (!user) {
+      addToast('Silakan login terlebih dahulu', 'error')
+      return
+    }
+    navigate('/wishlist')
+  }
+
+  function handleAkun() {
+    navigate(user ? '/profil' : '/login')
+  }
 
   return (
     <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-cream-300 shadow-[0_-4px_20px_rgba(26,20,18,0.06)]">
       <ul className="grid grid-cols-5 items-end h-16 relative">
         <li className="h-full col-span-1">
-          <NavLink to="/" end className={navItemClass}>
-            {({ isActive }) => (
-              <>
-                <Home size={20} strokeWidth={isActive ? 2.6 : 2} />
-                <span>Beranda</span>
-              </>
-            )}
-          </NavLink>
+          <button type="button" onClick={() => navigate('/')} className={navItemClass(location.pathname === '/')}>
+            <Home size={20} strokeWidth={location.pathname === '/' ? 2.6 : 2} />
+            <span>Beranda</span>
+          </button>
         </li>
 
         <li className="h-full col-span-1">
-          <NavLink to="/toko" className={navItemClass}>
-            {({ isActive }) => (
-              <>
-                <Store size={20} strokeWidth={isActive ? 2.6 : 2} />
-                <span>Toko</span>
-              </>
-            )}
-          </NavLink>
+          <button type="button" onClick={() => navigate('/toko')} className={navItemClass(location.pathname === '/toko')}>
+            <Store size={20} strokeWidth={location.pathname === '/toko' ? 2.6 : 2} />
+            <span>Toko</span>
+          </button>
         </li>
 
         <li className="h-full col-span-1 relative">
@@ -61,32 +69,24 @@ export default function BottomNav({ onOpenCart }) {
         </li>
 
         <li className="h-full col-span-1 relative">
-          <NavLink to="/wishlist" className={navItemClass}>
-            {({ isActive }) => (
-              <>
-                <div className="relative">
-                  <Heart size={20} strokeWidth={isActive ? 2.6 : 2} />
-                  {wishlistItems.length > 0 && (
-                    <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">
-                      {wishlistItems.length > 99 ? '99+' : wishlistItems.length}
-                    </span>
-                  )}
-                </div>
-                <span>Favorit</span>
-              </>
-            )}
-          </NavLink>
+          <button type="button" onClick={handleWishlist} className={navItemClass(location.pathname === '/wishlist')}>
+            <div className="relative">
+              <Heart size={20} strokeWidth={location.pathname === '/wishlist' ? 2.6 : 2} />
+              {wishlistItems.length > 0 && (
+                <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">
+                  {wishlistItems.length > 99 ? '99+' : wishlistItems.length}
+                </span>
+              )}
+            </div>
+            <span>Favorit</span>
+          </button>
         </li>
 
         <li className="h-full col-span-1">
-          <NavLink to={user ? '/profil' : '/login'} className={navItemClass}>
-            {({ isActive }) => (
-              <>
-                <UserIcon size={20} strokeWidth={isActive ? 2.6 : 2} />
-                <span>Akun</span>
-              </>
-            )}
-          </NavLink>
+          <button type="button" onClick={handleAkun} className={navItemClass(location.pathname === '/profil' || location.pathname === '/login')}>
+            <UserIcon size={20} strokeWidth={(location.pathname === '/profil' || location.pathname === '/login') ? 2.6 : 2} />
+            <span>Akun</span>
+          </button>
         </li>
       </ul>
     </nav>

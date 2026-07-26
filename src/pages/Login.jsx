@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { LogIn } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import { useSiteContent } from '../context/SiteContentContext'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const { login } = useAuth()
   const { addToast } = useToast()
+  const { content } = useSiteContent()
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from || '/'
@@ -25,12 +26,19 @@ export default function Login() {
     }
   }
 
+  const logoSrc = content.logoDark || content.shopLogo
+  const shopName = content.shopName || 'KAKAO.KITA'
+
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-5">
       <div className="bg-white p-8 rounded-2xl w-full max-w-md shadow-sm border border-cream-200">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-cacao-100 text-cacao-600 rounded-full flex items-center justify-center mx-auto mb-3">
-            <LogIn size={24} />
+          <div className="w-16 h-16 rounded-full overflow-hidden bg-cacao-100 flex items-center justify-center mx-auto mb-3 border border-cream-200">
+            {logoSrc ? (
+              <img src={logoSrc} alt={shopName} className="w-full h-full object-contain p-1" />
+            ) : (
+              <span className="font-extrabold text-cacao-700 text-sm">{shopName}</span>
+            )}
           </div>
           <h1 className="text-2xl font-bold text-cacao-900">Selamat Datang Kembali</h1>
           <p className="text-cacao-500 text-sm mt-1">Masuk untuk melanjutkan belanja</p>
