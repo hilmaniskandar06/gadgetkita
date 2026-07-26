@@ -1,14 +1,10 @@
-import { Link, Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
 import ProductCard from '../components/ProductCard'
 import { useWishlist } from '../context/WishlistContext'
-import { useAuth } from '../context/AuthContext'
 
 export default function Wishlist() {
   const { wishlistItems } = useWishlist()
-  const { user } = useAuth()
-
-  if (!user) return <Navigate to="/login" replace state={{ from: '/wishlist' }} />
 
   if (wishlistItems.length === 0) {
     return (

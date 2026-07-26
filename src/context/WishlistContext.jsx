@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useProducts } from './ProductsContext'
 import { useAuth } from './AuthContext'
-import { useToast } from './ToastContext'
 import { supabase } from '../config/supabase'
 
 const WishlistContext = createContext(null)
@@ -10,20 +9,6 @@ const STORAGE_KEY = 'kk_wishlist'
 export function WishlistProvider({ children }) {
   const { getById } = useProducts()
   const { user } = useAuth()
-  const { addToast } = useToast()
-  const [pendingLogin, setPendingLogin] = useState(false)
-
-  const requireAuth = () => {
-    if (!user) {
-      if (!pendingLogin) {
-        setPendingLogin(true)
-        addToast('Silakan login terlebih dahulu untuk menggunakan wishlist', 'error')
-      }
-      return false
-    }
-    return true
-  }
-
   const [ids, setIds] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
@@ -39,13 +24,16 @@ export function WishlistProvider({ children }) {
       supabase.from('wishlists').select('items').eq('user_id', user.id).maybeSingle().then(({ data, error }) => {
         if (!error && data && data.items && Array.isArray(data.items) && data.items.length > 0) {
           setIds(data.items)
+        } else {
+          setIds(prev => prev)
         }
-      }).catch(() => {})
+      }).catch(() => {
+        setIds(prev => prev)
+      })
     } else {
       localStorage.removeItem(STORAGE_KEY)
       setIds([])
     }
-    setPendingLogin(false)
   }, [user])
 
   // Simpan perubahan baik ke lokal maupun server
@@ -57,7 +45,6 @@ export function WishlistProvider({ children }) {
   }, [ids, user])
 
   function toggle(id) {
-    if (!requireAuth()) return
     setIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
   }
 
@@ -68,7 +55,7 @@ export function WishlistProvider({ children }) {
   const wishlistItems = ids.map(getById).filter(Boolean)
 
   return (
-    <WishlistContext.Provider value={{ ids, wishlistItems, toggle, isWishlisted, pendingLogin, setPendingLogin }}>
+    <WishlistContext.Provider value={{ ids, wishlistItems, toggle, isWishlisted }}>
       {children}
     </WishlistContext.Provider>
   )

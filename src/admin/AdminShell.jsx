@@ -1,22 +1,40 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { LogOut, Store, Package, Tag, FileText, Ticket, CreditCard, ShoppingBag, Users, Bell, MessageCircle, FileDown, LayoutTemplate } from 'lucide-react'
 import { useSiteContent } from '../context/SiteContentContext'
 import { useChat } from '../context/ChatContext'
 import { useNotifications } from '../context/NotificationContext'
+import * as orderService from '../services/orderService'
 
 export default function AdminShell({ title, actions, children }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { content } = useSiteContent()
   const { getUnreadCount } = useChat()
-  const { getAllNotifications } = useNotifications()
   const unreadChats = getUnreadCount(null, 'admin')
 
-  const allNotifs = getAllNotifications()
-  const unreadAdminNotifs = allNotifs.filter(n =>
-    String(n.userId) === 'ADMIN_BROADCAST' && !n.isRead
-  ).length
-  const unreadOrdersBadge = unreadAdminNotifs
+  const [pendingOrdersCount, setPendingOrdersCount] = useState(0)
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadPendingCount() {
+      try {
+        const orders = await orderService.getAllOrders()
+        if (cancelled) return
+        const count = orders.filter(o =>
+          o.status === 'belum_dibayar' ||
+          o.status === 'menunggu_verifikasi' ||
+          o.status === 'diproses'
+        ).length
+        setPendingOrdersCount(count)
+      } catch (err) {
+        console.warn('Gagal hitung pesanan pending:', err)
+      }
+    }
+    loadPendingCount()
+    const interval = setInterval(loadPendingCount, 15000)
+    return () => { cancelled = true; clearInterval(interval) }
+  }, [])
 
   function logout() {
     sessionStorage.removeItem('kk_admin_auth')
@@ -24,7 +42,7 @@ export default function AdminShell({ title, actions, children }) {
   }
 
   const menu = [
-    { name: 'Pesanan', path: '/admin/pesanan', icon: ShoppingBag, badge: unreadOrdersBadge },
+    { name: 'Pesanan', path: '/admin/pesanan', icon: ShoppingBag, badge: pendingOrdersCount },
     { name: 'Pelanggan', path: '/admin/pelanggan', icon: Users },
     { name: 'Chat', path: '/admin/chat', icon: MessageCircle, badge: unreadChats },
     { name: 'Produk', path: '/admin', icon: Package, exact: true },
@@ -33,7 +51,7 @@ export default function AdminShell({ title, actions, children }) {
     { name: 'Halaman Statis', path: '/admin/halaman', icon: LayoutTemplate },
     { name: 'Voucher', path: '/admin/voucher', icon: Ticket },
     { name: 'Pembayaran', path: '/admin/pembayaran', icon: CreditCard },
-    { name: 'Notifikasi', path: '/admin/notifikasi', icon: Bell, badge: unreadAdminNotifs },
+    { name: 'Notifikasi', path: '/admin/notifikasi', icon: Bell },
   ]
 
   return (

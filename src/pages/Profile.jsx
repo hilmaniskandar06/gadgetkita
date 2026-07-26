@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import SearchableSelect from '../components/SearchableSelect'
 import * as geo from '../services/geoService'
 import { useToast } from '../context/ToastContext'
+import { resizeImage } from '../utils/image'
 
 export default function Profile() {
   const { user, updateProfile, logout, deleteAccount } = useAuth()
@@ -74,17 +75,18 @@ export default function Profile() {
     }))
   }
 
-  function handleFileChange(e) {
+  async function handleFileChange(e) {
     const file = e.target.files[0]
     if (!file) return
-    if (file.size > 2 * 1024 * 1024) {
-      return addToast('Ukuran gambar maksimal 2MB', 'error')
+    if (file.size > 5 * 1024 * 1024) {
+      return addToast('Ukuran gambar maksimal 5MB', 'error')
     }
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      setFormData(prev => ({ ...prev, avatar: ev.target.result }))
+    try {
+      const resized = await resizeImage(file, 512, 0.85)
+      setFormData(prev => ({ ...prev, avatar: resized }))
+    } catch (err) {
+      addToast('Gagal memproses gambar: ' + err.message, 'error')
     }
-    reader.readAsDataURL(file)
   }
 
   async function handleSelectProvince(p) {
@@ -177,7 +179,7 @@ export default function Profile() {
               </div>
               <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" title="Ubah Foto Profil" />
             </div>
-            <p className="text-[10px] text-cacao-500 mb-4">Maks 2MB (JPG/PNG)</p>
+            <p className="text-[10px] text-cacao-500 mb-4">Maks 5MB (JPG/PNG)</p>
             <h2 className="font-bold text-lg text-cacao-900">{user.name}</h2>
             <p className="text-cacao-500 text-sm mt-1">{user.email}</p>
             <div className="mt-4 pt-4 border-t border-cream-200 text-sm text-left space-y-2">

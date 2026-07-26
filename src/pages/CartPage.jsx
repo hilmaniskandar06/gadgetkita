@@ -1,17 +1,13 @@
-import { Link, Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Minus, Plus, ShoppingBag } from 'lucide-react'
 import ProductThumb from '../components/ProductThumb'
 import { useCart } from '../context/CartContext'
-import { useAuth } from '../context/AuthContext'
 
 const fmt = (n) => 'Rp' + n.toLocaleString('id-ID')
 const SHIPPING = 15000
 
 export default function CartPage() {
   const { cartList, subtotal, setQty, removeItem } = useCart()
-  const { user } = useAuth()
-
-  if (!user) return <Navigate to="/login" replace state={{ from: '/keranjang' }} />
 
   if (cartList.length === 0) {
     return (

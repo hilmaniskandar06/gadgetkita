@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useToast } from './ToastContext'
 import { supabase } from '../config/supabase'
+import * as storageService from '../services/storageService'
 
 const AuthContext = createContext()
 
@@ -90,9 +91,25 @@ export function AuthProvider({ children }) {
 
   async function updateProfile(updates) {
     if (!user) return
+
+    let finalUpdates = { ...updates }
+    if (finalUpdates.avatar && typeof finalUpdates.avatar === 'string' && finalUpdates.avatar.startsWith('data:image/')) {
+      try {
+        const timestamp = Date.now()
+        const rand = Math.random().toString(36).slice(2, 6)
+        const ext = finalUpdates.avatar.includes('image/png') ? 'png' : 'jpg'
+        const path = `avatars/${user.id}_${timestamp}_${rand}.${ext}`
+        const publicUrl = await storageService.uploadImage(finalUpdates.avatar, path, 'public')
+        finalUpdates.avatar = publicUrl
+      } catch (uploadErr) {
+        addToast('Gagal mengunggah foto profil: ' + uploadErr.message, 'error')
+        return
+      }
+    }
+
     const { error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update(finalUpdates)
       .eq('id', user.id)
 
     if (error) {
@@ -100,7 +117,7 @@ export function AuthProvider({ children }) {
       return
     }
 
-    setUser(prev => ({ ...prev, ...updates }))
+    setUser(prev => ({ ...prev, ...finalUpdates }))
     addToast('Profil berhasil diperbarui')
   }
 
