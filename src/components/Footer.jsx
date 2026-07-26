@@ -16,8 +16,12 @@ export default function Footer() {
     <footer className="bg-cacao-900 text-cream-200 mt-20 text-center">
       <div className="max-w-2xl mx-auto px-5 py-14 flex flex-col items-center">
         <Link to="/" className="inline-block mb-6">
-          {content.shopLogo ? (
-            <img src={content.shopLogo} alt={content.shopName} className="h-10 w-auto object-contain brightness-0 invert mx-auto" />
+          {content.logoLight || content.shopLogo ? (
+            <img
+              src={content.logoLight || content.shopLogo}
+              alt={content.shopName}
+              className={`h-10 w-auto object-contain mx-auto ${content.logoLight ? '' : 'brightness-0 invert'}`}
+            />
           ) : (
             <span className="font-extrabold text-2xl text-white block">{content.shopName || 'KAKAO.KITA'}</span>
           )}

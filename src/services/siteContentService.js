@@ -13,6 +13,8 @@ export const DEFAULT_CONTENT = {
   heroMediaType: 'image',
   shopName: 'Kakao Kita',
   shopLogo: '',
+  logoDark: '',
+  logoLight: '',
   socialInstagram: 'https://instagram.com/kakaokita',
   socialFacebook: '',
   socialTiktok: '',

@@ -31,8 +31,8 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center bg-cream-200 px-5">
       <form onSubmit={handleSubmit} className="bg-white border border-cream-300 rounded-xl p-8 w-full max-w-sm">
         <div className="flex justify-center mb-4">
-          {content.shopLogo ? (
-            <img src={content.shopLogo} alt={content.shopName} className="h-12 w-auto object-contain" />
+          {content.logoDark || content.shopLogo ? (
+            <img src={content.logoDark || content.shopLogo} alt={content.shopName} className="h-12 w-auto object-contain" />
           ) : (
             <div className="font-extrabold text-2xl tracking-tight text-cacao-900">{content.shopName || 'KAKAO.KITA'}</div>
           )}

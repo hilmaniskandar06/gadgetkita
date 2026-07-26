@@ -111,7 +111,9 @@ export default function Shop() {
       </div>
 
       <div className="grid lg:grid-cols-[220px_1fr] gap-8">
-        <aside className="hidden lg:block">{FilterPanel}</aside>
+        <aside className="hidden lg:block sticky top-20 h-fit max-h-[calc(100vh-6rem)] overflow-y-auto pr-2">
+          {FilterPanel}
+        </aside>
 
         <div>
           <button

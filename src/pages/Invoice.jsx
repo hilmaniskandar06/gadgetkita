@@ -27,7 +27,7 @@ export default function Invoice() {
   }
 
   const shopName = content?.shopName || 'KAKAO.KITA'
-  const shopLogo = content?.shopLogo
+  const shopLogo = content?.logoDark || content?.shopLogo
 
   // Format currency
   const formatRp = (num) => 'Rp' + num.toLocaleString('id-ID')

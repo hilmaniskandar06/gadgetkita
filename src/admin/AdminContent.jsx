@@ -24,7 +24,9 @@ export default function AdminContent() {
   const [form, setForm] = useState(content)
   const [saving, setSaving] = useState(false)
   const fileRef = useRef(null)
-  const logoRef = useRef(null)
+  const logoDarkRef = useRef(null)
+  const logoLightRef = useRef(null)
+  const shopLogoRef = useRef(null)
 
   useEffect(() => {
     if (!loading) setForm(content)
@@ -40,14 +42,25 @@ export default function AdminContent() {
 
       // Upload media
       const { uploadImage } = await import('../services/storageService')
+      const extOf = (dataUrl) => dataUrl.startsWith('data:image/png') ? 'png'
+        : dataUrl.startsWith('data:image/webp') ? 'webp'
+        : 'jpg'
       
       if (payload.heroMedia && payload.heroMedia.startsWith('data:')) {
-        const ext = payload.heroMediaType === 'video' ? 'mp4' : 'jpg'
+        const ext = payload.heroMediaType === 'video' ? 'mp4' : extOf(payload.heroMedia)
         payload.heroMedia = await uploadImage(payload.heroMedia, `site-hero-${Date.now()}.${ext}`, 'public')
       }
       
       if (payload.shopLogo && payload.shopLogo.startsWith('data:')) {
-        payload.shopLogo = await uploadImage(payload.shopLogo, `site-logo-${Date.now()}.jpg`, 'public')
+        payload.shopLogo = await uploadImage(payload.shopLogo, `site-logo-${Date.now()}.${extOf(payload.shopLogo)}`, 'public')
+      }
+
+      if (payload.logoDark && payload.logoDark.startsWith('data:')) {
+        payload.logoDark = await uploadImage(payload.logoDark, `logo-dark-${Date.now()}.${extOf(payload.logoDark)}`, 'public')
+      }
+
+      if (payload.logoLight && payload.logoLight.startsWith('data:')) {
+        payload.logoLight = await uploadImage(payload.logoLight, `logo-light-${Date.now()}.${extOf(payload.logoLight)}`, 'public')
       }
 
       await updateContent(payload)
@@ -98,6 +111,21 @@ export default function AdminContent() {
       setForm(s => ({ ...s, shopLogo: dataUrl }))
     } catch {
       addToast('Gagal memproses gambar logo', 'error')
+    }
+  }
+
+  function makeLogoHandler(field, maxWidth = 400) {
+    return async (e) => {
+      const file = e.target.files[0]
+      if (!file) return
+      if (file.size > 2 * 1024 * 1024) return addToast('Ukuran maksimal 2MB', 'error')
+      if (!file.type.startsWith('image/')) return addToast('Logo harus berupa gambar (PNG transparan disarankan)', 'error')
+      try {
+        const dataUrl = await resizeImage(file, maxWidth)
+        setForm(s => ({ ...s, [field]: dataUrl }))
+      } catch {
+        addToast('Gagal memproses gambar logo', 'error')
+      }
     }
   }
 
@@ -170,28 +198,90 @@ export default function AdminContent() {
         </div>
 
         <div className="pt-4 border-t border-cream-200">
-          <label className="block text-xs font-medium text-cacao-600 mb-1">Logo Toko (Opsional)</label>
-          <p className="text-[10px] text-cacao-500 mb-3">Menggantikan teks nama toko jika ada. Maks 2MB. Format: JPG/PNG/WEBP. Disarankan rasio memanjang atau 1:1.</p>
-          <div className="flex flex-col gap-3">
-            {form.shopLogo ? (
-              <img src={form.shopLogo} className="h-16 object-contain bg-cream-200 rounded p-2" alt="Logo" />
-            ) : (
-              <div className="w-40 h-16 bg-cream-100 border-2 border-dashed border-cream-300 rounded flex items-center justify-center text-cacao-400 text-xs">
-                Belum ada logo
+          <h3 className="text-sm font-bold mb-1">Logo Toko</h3>
+          <p className="text-[10px] text-cacao-500 mb-4">Pisahkan logo berdasarkan warna latar belakang tempat penempatannya. Format PNG transparan sangat disarankan. Maks 2MB per file.</p>
+
+          <div className="grid md:grid-cols-2 gap-5">
+            <div className="border border-cream-300 rounded-lg p-4">
+              <label className="block text-xs font-bold text-cacao-700 mb-1">Logo (untuk Latar Terang)</label>
+              <p className="text-[10px] text-cacao-500 mb-2">Digunakan di: Header, Invoice, Halaman Login Admin</p>
+              <div className="flex flex-col gap-3">
+                <div className="h-20 bg-white rounded border flex items-center justify-center p-3">
+                  {form.logoDark || form.shopLogo ? (
+                    <img src={form.logoDark || form.shopLogo} className="h-full object-contain" alt="Preview Logo Gelap" />
+                  ) : (
+                    <span className="text-cacao-300 text-xs">Logo belum ada</span>
+                  )}
+                </div>
+                <div className="flex gap-2 items-center">
+                  <input type="file" accept="image/png,image/webp,image/*" className="hidden" ref={logoDarkRef} onChange={makeLogoHandler('logoDark')} />
+                  <button type="button" onClick={() => logoDarkRef.current.click()} className="text-sm font-semibold border border-cream-300 px-3 py-1.5 rounded-lg hover:bg-cream-100">
+                    Upload
+                  </button>
+                  {form.logoDark && (
+                    <button type="button" onClick={() => setForm(s => ({ ...s, logoDark: '' }))} className="text-sm text-rose-500 font-semibold hover:text-rose-600">
+                      Hapus
+                    </button>
+                  )}
+                </div>
               </div>
-            )}
-            <div className="flex gap-2 items-center">
-              <input type="file" accept="image/*" className="hidden" ref={logoRef} onChange={handleLogoChange} />
-              <button type="button" onClick={() => logoRef.current.click()} className="text-sm font-semibold border border-cream-300 px-4 py-2 rounded-lg hover:bg-cream-100">
-                Pilih Logo
-              </button>
-              {form.shopLogo && (
-                <button type="button" onClick={() => setForm(s => ({ ...s, shopLogo: '' }))} className="text-sm text-rose-500 font-semibold hover:text-rose-600">
-                  Hapus
-                </button>
-              )}
+            </div>
+
+            <div className="border border-cream-300 rounded-lg p-4">
+              <label className="block text-xs font-bold text-cacao-700 mb-1">Logo (untuk Latar Gelap)</label>
+              <p className="text-[10px] text-cacao-500 mb-2">Digunakan di: Footer, Navbar Atas Admin</p>
+              <div className="flex flex-col gap-3">
+                <div className="h-20 bg-cacao-900 rounded border flex items-center justify-center p-3">
+                  {form.logoLight || form.shopLogo ? (
+                    <img src={form.logoLight || form.shopLogo} className={`h-full object-contain ${form.logoLight ? '' : 'brightness-0 invert'}`} alt="Preview Logo Terang" />
+                  ) : (
+                    <span className="text-cream-400 text-xs">Logo belum ada</span>
+                  )}
+                </div>
+                {!form.logoLight && form.shopLogo && (
+                  <p className="text-[10px] text-rose-500">Masih pakai logo lama, otomatis di-invert. Upload logo putih khusus untuk hasil terbaik.</p>
+                )}
+                <div className="flex gap-2 items-center">
+                  <input type="file" accept="image/png,image/webp,image/*" className="hidden" ref={logoLightRef} onChange={makeLogoHandler('logoLight')} />
+                  <button type="button" onClick={() => logoLightRef.current.click()} className="text-sm font-semibold border border-cream-300 px-3 py-1.5 rounded-lg hover:bg-cream-100">
+                    Upload
+                  </button>
+                  {form.logoLight && (
+                    <button type="button" onClick={() => setForm(s => ({ ...s, logoLight: '' }))} className="text-sm text-rose-500 font-semibold hover:text-rose-600">
+                      Hapus
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
+
+          <details className="mt-4">
+            <summary className="text-xs text-cacao-500 cursor-pointer hover:text-cacao-700">Logo Universal (Lama / Fallback)</summary>
+            <div className="mt-3">
+              <p className="text-[10px] text-cacao-500 mb-3">Logo cadangan jika logo khusus di atas tidak diisi. Maks 2MB.</p>
+              <div className="flex flex-col gap-3">
+                {form.shopLogo ? (
+                  <img src={form.shopLogo} className="h-16 w-auto object-contain bg-cream-200 rounded p-2" alt="Logo Universal" />
+                ) : (
+                  <div className="w-40 h-16 bg-cream-100 border-2 border-dashed border-cream-300 rounded flex items-center justify-center text-cacao-400 text-xs">
+                    Belum ada logo
+                  </div>
+                )}
+                <div className="flex gap-2 items-center">
+                  <input type="file" accept="image/*" className="hidden" ref={shopLogoRef} onChange={handleLogoChange} />
+                  <button type="button" onClick={() => shopLogoRef.current.click()} className="text-sm font-semibold border border-cream-300 px-4 py-2 rounded-lg hover:bg-cream-100">
+                    Pilih Logo
+                  </button>
+                  {form.shopLogo && (
+                    <button type="button" onClick={() => setForm(s => ({ ...s, shopLogo: '' }))} className="text-sm text-rose-500 font-semibold hover:text-rose-600">
+                      Hapus
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </details>
         </div>
 
         <button

@@ -33,8 +33,12 @@ export default function AdminShell({ title, actions, children }) {
       <header className="bg-cacao-900 text-white z-10 sticky top-0">
         <div className="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
           <Link to="/admin" className="font-extrabold tracking-tight flex items-center gap-2">
-            {content.shopLogo ? (
-              <img src={content.shopLogo} alt={content.shopName} className="h-6 w-auto object-contain brightness-0 invert" />
+            {content.logoLight || content.shopLogo ? (
+              <img
+                src={content.logoLight || content.shopLogo}
+                alt={content.shopName}
+                className={`h-6 w-auto object-contain ${content.logoLight ? '' : 'brightness-0 invert'}`}
+              />
             ) : (
               <span>{content.shopName || 'KAKAO.KITA'}</span>
             )}

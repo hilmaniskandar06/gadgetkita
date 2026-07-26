@@ -48,8 +48,8 @@ export default function Header({ onOpenCart }) {
       <div className="max-w-7xl mx-auto px-5 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           <Link to="/" className="font-extrabold text-lg tracking-tight shrink-0 flex items-center gap-2">
-            {content.shopLogo ? (
-              <img src={content.shopLogo} alt={content.shopName} className="h-8 w-auto object-contain" />
+            {content.logoDark || content.shopLogo ? (
+              <img src={content.logoDark || content.shopLogo} alt={content.shopName} className="h-8 w-auto object-contain" />
             ) : (
               <span>{content.shopName || 'KAKAO.KITA'}</span>
             )}
