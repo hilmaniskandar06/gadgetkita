@@ -16,8 +16,10 @@ export function WishlistProvider({ children }) {
 
   const requireAuth = () => {
     if (!user) {
-      addToast('Silakan login terlebih dahulu untuk menggunakan wishlist', 'error')
-      navigate('/login', { state: { from: null } })
+      setTimeout(() => {
+        addToast('Silakan login terlebih dahulu untuk menggunakan wishlist', 'error')
+        navigate('/login')
+      }, 0)
       return false
     }
     return true

@@ -1,8 +1,9 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { Home, Store, ShoppingBag, Heart, User as UserIcon } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 
 function navItemClass({ isActive }) {
   const base = 'flex flex-col items-center justify-center gap-0.5 w-full h-full text-xs font-medium transition-colors select-none touch-manipulation pb-[max(env(safe-area-inset-bottom),4px)]'
@@ -13,6 +14,17 @@ export default function BottomNav({ onOpenCart }) {
   const { totalCount } = useCart()
   const { wishlistItems } = useWishlist()
   const { user } = useAuth()
+  const { addToast } = useToast()
+  const navigate = useNavigate()
+
+  function handleOpenCart() {
+    if (!user) {
+      addToast('Silakan login terlebih dahulu untuk melihat keranjang', 'error')
+      navigate('/login', { state: { from: '/keranjang' } })
+      return
+    }
+    onOpenCart()
+  }
 
   return (
     <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-cream-300 shadow-[0_-4px_20px_rgba(26,20,18,0.06)]">
@@ -44,7 +56,7 @@ export default function BottomNav({ onOpenCart }) {
             <button
               type="button"
               aria-label="Keranjang"
-              onClick={onOpenCart}
+              onClick={handleOpenCart}
               className="relative pointer-events-auto flex items-center justify-center w-14 h-14 -mt-1 rounded-full bg-gold-500 text-cacao-900 shadow-[0_6px_18px_rgba(212,193,156,0.55)] ring-4 ring-white hover:scale-[1.03] active:scale-95 transition-transform touch-manipulation"
             >
               <ShoppingBag size={26} strokeWidth={2.3} />
@@ -61,7 +73,7 @@ export default function BottomNav({ onOpenCart }) {
         </li>
 
         <li className="h-full col-span-1 relative">
-          <NavLink to="/wishlist" className={navItemClass}>
+          <NavLink to={user ? '/wishlist' : '/login'} className={navItemClass}>
             {({ isActive }) => (
               <>
                 <div className="relative">

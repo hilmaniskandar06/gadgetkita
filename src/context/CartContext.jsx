@@ -16,8 +16,10 @@ export function CartProvider({ children }) {
 
   const requireAuth = () => {
     if (!user) {
-      addToast('Silakan login terlebih dahulu untuk menggunakan keranjang', 'error')
-      navigate('/login', { state: { from: null } })
+      setTimeout(() => {
+        addToast('Silakan login terlebih dahulu untuk menggunakan keranjang', 'error')
+        navigate('/login')
+      }, 0)
       return false
     }
     return true
@@ -74,7 +76,14 @@ export function CartProvider({ children }) {
 
   function setQty(id, qty) {
     if (!requireAuth()) return
-    if (qty < 1) return removeItem(id)
+    if (qty < 1) {
+      setItems((prev) => {
+        const next = { ...prev }
+        delete next[id]
+        return next
+      })
+      return
+    }
     setItems((prev) => ({ ...prev, [id]: qty }))
   }
 
