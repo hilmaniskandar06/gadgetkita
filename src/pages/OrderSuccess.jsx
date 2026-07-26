@@ -4,6 +4,7 @@ import { CheckCircle2, Upload, AlertCircle } from 'lucide-react'
 import OrderSummaryCard from '../components/OrderSummaryCard'
 import { useToast } from '../context/ToastContext'
 import * as orderService from '../services/orderService'
+import { resizeImage } from '../utils/image'
 
 export default function OrderSuccess() {
   const { id } = useParams()
@@ -49,7 +50,7 @@ export default function OrderSuccess() {
     }
   }
 
-  function handleUpload(e) {
+  async function handleUpload(e) {
     const file = e.target.files[0]
     if (!file) return
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
@@ -58,9 +59,18 @@ export default function OrderSuccess() {
       e.target.value = ''
       return
     }
-    const reader = new FileReader()
-    reader.onload = (event) => setProof(event.target.result)
-    reader.readAsDataURL(file)
+    if (file.size > 5 * 1024 * 1024) {
+      addToast('Ukuran gambar maksimal 5MB', 'error')
+      e.target.value = ''
+      return
+    }
+    try {
+      const resized = await resizeImage(file, 1280, 0.85)
+      setProof(resized)
+    } catch (err) {
+      addToast('Gagal memproses gambar: ' + err.message, 'error')
+      e.target.value = ''
+    }
   }
 
   if (loading) {
@@ -88,7 +98,7 @@ export default function OrderSuccess() {
             Upload bukti transfer untuk memproses pesanan {order.id}.
           </p>
           <p className="text-[10px] text-cacao-500 mb-4 text-center">
-            Maksimal 2MB. Format JPG/PNG/WEBP.
+            Maksimal 5MB. Format JPG/PNG/WEBP. (Otomatis dikecilkan jika terlalu besar)
           </p>
           
           <div className="flex flex-col gap-3">

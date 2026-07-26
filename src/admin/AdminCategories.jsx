@@ -28,6 +28,9 @@ export default function AdminCategories() {
     const file = e.target.files[0]
     if (!file) return
     if (!file.type.startsWith('image/')) return addToast('File harus berupa gambar', 'error')
+    if (file.size > 5 * 1024 * 1024) {
+      return addToast('Ukuran gambar maksimal 5MB', 'error')
+    }
     try {
       const dataUrl = await resizeImage(file)
       setForm(s => ({ ...s, image: dataUrl }))
@@ -138,7 +141,7 @@ export default function AdminCategories() {
 
               <div>
                 <label className="block text-xs font-semibold text-cacao-600 mb-1">Foto Background</label>
-                <p className="text-[10px] text-cacao-500 mb-2">Maks 2MB. Format: JPG/PNG/WEBP. Disarankan rasio 1:1 atau gambar persegi.</p>
+                <p className="text-[10px] text-cacao-500 mb-2">Maks 5MB. Format: JPG/PNG/WEBP. Disarankan rasio 1:1 atau gambar persegi. (Otomatis dikecilkan)</p>
                 {form.image ? (
                   <div className="relative w-full h-24 rounded-lg overflow-hidden group border border-cream-300 mb-2">
                     <img src={form.image} alt="" className="w-full h-full object-cover" />

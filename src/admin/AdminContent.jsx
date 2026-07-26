@@ -79,10 +79,10 @@ export default function AdminContent() {
     const file = e.target.files[0]
     if (!file) return
     const isVideo = file.type.startsWith('video/')
-    const maxSize = isVideo ? 20 * 1024 * 1024 : 2 * 1024 * 1024 // 20MB for video, 2MB for image
+    const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024 // 100MB for video, 10MB for image
     
     if (file.size > maxSize) {
-      return addToast(`Ukuran maksimal ${isVideo ? '20MB' : '2MB'}`, 'error')
+      return addToast(`Ukuran maksimal ${isVideo ? '100MB (video)' : '10MB (gambar)'}`, 'error')
     }
     
     setForm(s => ({ ...s, heroMediaType: isVideo ? 'video' : 'image' }))
@@ -163,7 +163,7 @@ export default function AdminContent() {
         
         <div className="pt-4 border-t border-cream-200">
           <label className="block text-xs font-medium text-cacao-600 mb-1">Latar Belakang Hero (Gambar / Video)</label>
-          <p className="text-[10px] text-cacao-500 mb-3">Maks 2MB. Format: JPG/PNG/WEBP/MP4. Disarankan rasio landscape (misal 16:9).</p>
+          <p className="text-[10px] text-cacao-500 mb-3">Maks 10MB (gambar) / 100MB (video). Format: JPG/PNG/WEBP/MP4/WEBM. Disarankan rasio landscape (misal 16:9).</p>
           <div className="flex flex-col gap-3">
             {form.heroMedia ? (
               form.heroMediaType === 'video' ? (
