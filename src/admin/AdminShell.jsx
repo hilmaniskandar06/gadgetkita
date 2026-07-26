@@ -62,8 +62,8 @@ export default function AdminShell({ title, actions, children }) {
           </div>
         </div>
       </header>
-      <div className="flex-1 max-w-7xl w-full mx-auto px-5 flex flex-row gap-8 py-8 items-start relative">
-        <aside className="w-full w-64 shrink-0 bg-white border border-cream-300 rounded-xl p-4 sticky top-24 z-0 relative">
+      <div className="flex-1 max-w-7xl w-full mx-auto px-5 flex flex-col md:flex-row gap-8 py-8 items-start relative">
+        <aside className="w-full md:w-64 shrink-0 bg-white border border-cream-300 rounded-xl p-4 md:sticky top-24 z-0 relative">
           <nav className="flex flex-col gap-1">
             {menu.map(m => {
               const active = m.exact ? location.pathname === m.path : location.pathname.startsWith(m.path)
