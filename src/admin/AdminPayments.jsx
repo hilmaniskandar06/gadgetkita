@@ -7,6 +7,8 @@ import { useToast } from '../context/ToastContext'
 export default function AdminPayments() {
   const { payments, addPayment, updatePayment, deletePayment } = usePayments()
   const { addToast } = useToast()
+  const [saving, setSaving] = useState(false)
+  const [uploadingField, setUploadingField] = useState(null)
   
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState({ type: 'bank', name: '', account: '', accountName: '', logo: '', qr: '' })
@@ -20,40 +22,68 @@ export default function AdminPayments() {
   }
 
   function handleCancel() {
+    if (saving) return
     setEditingId(null)
     setForm({ type: 'bank', name: '', account: '', accountName: '', logo: '', qr: '' })
     if (logoInputRef.current) logoInputRef.current.value = ''
     if (qrInputRef.current) qrInputRef.current.value = ''
   }
 
-  function handleImageUpload(e, field) {
+  async function handleImageUpload(e, field) {
     const file = e.target.files[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      setForm(f => ({ ...f, [field]: event.target.result }))
+    if (file.size > 2 * 1024 * 1024) return addToast('Ukuran gambar maksimal 2MB', 'error')
+    if (!file.type.startsWith('image/')) return addToast('Format harus gambar', 'error')
+
+    setUploadingField(field)
+    try {
+      const { resizeImage } = await import('../utils/image')
+      const { uploadImage } = await import('../services/storageService')
+      const dataUrl = await resizeImage(file, field === 'qr' ? 800 : 400)
+      const ext = dataUrl.startsWith('data:image/png') ? 'png' : 'jpg'
+      const path = `payment-${field}-${Date.now()}.${ext}`
+      const publicUrl = await uploadImage(dataUrl, path, 'public')
+      setForm(f => ({ ...f, [field]: publicUrl }))
+    } catch (err) {
+      console.error(err)
+      addToast('Gagal memproses gambar pembayaran', 'error')
+    } finally {
+      setUploadingField(null)
     }
-    reader.readAsDataURL(file)
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    if (!form.name || !form.account || !form.accountName) return addToast('Nama, Nomor Akun, dan Atas Nama wajib diisi')
-    
-    if (editingId) {
-      updatePayment(editingId, form)
-      addToast('Metode pembayaran diperbarui')
-    } else {
-      addPayment(form)
-      addToast('Metode pembayaran ditambahkan')
+    if (!form.name || !form.account || !form.accountName) {
+      return addToast('Nama, Nomor Akun, dan Atas Nama wajib diisi', 'error')
     }
-    handleCancel()
+    if (uploadingField) {
+      return addToast('Tunggu sampai upload gambar selesai', 'error')
+    }
+    setSaving(true)
+    try {
+      if (editingId) {
+        await updatePayment(editingId, form)
+        addToast('Metode pembayaran diperbarui')
+      } else {
+        await addPayment(form)
+        addToast('Metode pembayaran ditambahkan')
+      }
+      handleCancel()
+    } catch (err) {
+      addToast(err.message || 'Gagal menyimpan pembayaran', 'error')
+    } finally {
+      setSaving(false)
+    }
   }
 
-  function handleDelete(id) {
-    if (confirm('Hapus metode pembayaran ini?')) {
-      deletePayment(id)
+  async function handleDelete(id) {
+    if (!confirm('Hapus metode pembayaran ini?')) return
+    try {
+      await deletePayment(id)
       addToast('Metode pembayaran dihapus')
+    } catch (err) {
+      addToast(err.message || 'Gagal menghapus', 'error')
     }
   }
 
@@ -87,8 +117,13 @@ export default function AdminPayments() {
               <label className="block text-xs font-medium text-cacao-600 mb-1">Logo (Opsional)</label>
               <div className="flex items-center gap-3">
                 {form.logo && <img src={form.logo} alt="Logo" className="w-10 h-10 object-contain bg-cream-100 rounded" />}
-                <button type="button" onClick={() => logoInputRef.current.click()} className="flex items-center gap-1 text-xs border rounded px-2 py-1 hover:bg-cream-100">
-                  <Upload size={12} /> Upload Logo
+                <button
+                  type="button"
+                  disabled={!!uploadingField}
+                  onClick={() => logoInputRef.current.click()}
+                  className="flex items-center gap-1 text-xs border rounded px-2 py-1 hover:bg-cream-100 disabled:opacity-50"
+                >
+                  <Upload size={12} /> {uploadingField === 'logo' ? 'Uploading...' : 'Upload Logo'}
                 </button>
                 <input type="file" accept="image/*" className="hidden" ref={logoInputRef} onChange={e => handleImageUpload(e, 'logo')} />
               </div>
@@ -99,8 +134,13 @@ export default function AdminPayments() {
                 <label className="block text-xs font-medium text-cacao-600 mb-1">QRIS Code (Wajib untuk E-Wallet)</label>
                 <div className="flex flex-col gap-2">
                   {form.qr && <img src={form.qr} alt="QR" className="w-24 h-24 object-contain border rounded" />}
-                  <button type="button" onClick={() => qrInputRef.current.click()} className="flex items-center gap-1 text-xs border rounded px-2 py-1 hover:bg-cream-100 w-fit">
-                    <Upload size={12} /> Upload QR
+                  <button
+                    type="button"
+                    disabled={!!uploadingField}
+                    onClick={() => qrInputRef.current.click()}
+                    className="flex items-center gap-1 text-xs border rounded px-2 py-1 hover:bg-cream-100 w-fit disabled:opacity-50"
+                  >
+                    <Upload size={12} /> {uploadingField === 'qr' ? 'Uploading...' : 'Upload QR'}
                   </button>
                   <input type="file" accept="image/*" className="hidden" ref={qrInputRef} onChange={e => handleImageUpload(e, 'qr')} />
                 </div>
@@ -108,8 +148,23 @@ export default function AdminPayments() {
             )}
 
             <div className="flex gap-2 mt-2">
-              <button type="submit" className="flex-1 bg-gold-500 hover:bg-gold-400 font-bold py-2 rounded-lg text-sm">{editingId ? 'Simpan' : 'Tambah'}</button>
-              {editingId && <button type="button" onClick={handleCancel} className="flex-1 border py-2 rounded-lg text-sm">Batal</button>}
+              <button
+                type="submit"
+                disabled={saving || !!uploadingField}
+                className="flex-1 bg-gold-500 hover:bg-gold-400 font-bold py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
+              >
+                {saving ? 'Menyimpan...' : editingId ? 'Simpan' : 'Tambah'}
+              </button>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  disabled={saving}
+                  className="flex-1 border py-2 rounded-lg text-sm disabled:opacity-50"
+                >
+                  Batal
+                </button>
+              )}
             </div>
           </form>
         </div>

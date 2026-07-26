@@ -12,7 +12,7 @@ export default function Home() {
   const { products, loading } = useProducts()
   const { categories } = useCategories()
   const { content } = useSiteContent()
-  
+
   const featured = useMemo(() => {
     return [...products].sort(() => 0.5 - Math.random()).slice(0, 4)
   }, [products])
