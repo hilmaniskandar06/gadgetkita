@@ -1,91 +1,76 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
+import * as chatService from '../services/chatService'
 
 const ChatContext = createContext()
 
 export function ChatProvider({ children }) {
   const [chats, setChats] = useState([])
+  const mountedRef = useRef(true)
 
-  // Load from local storage
-  const loadChats = () => {
-    const saved = JSON.parse(localStorage.getItem('kk_chats') || '[]')
-    setChats(saved)
-  }
-
-  useEffect(() => {
-    loadChats()
-    // Sync across tabs
-    const handleStorage = (e) => {
-      if (e.key === 'kk_chats') {
-        loadChats()
-      }
-    }
-    window.addEventListener('storage', handleStorage)
-    
-    // Fallback polling for same-tab mock real-time (not strictly necessary but helps if not using storage events properly)
-    const interval = setInterval(loadChats, 2000)
-    return () => {
-      window.removeEventListener('storage', handleStorage)
-      clearInterval(interval)
-    }
+  const refresh = useCallback(async () => {
+    const list = await chatService.listChats()
+    if (mountedRef.current) setChats(list)
   }, [])
 
-  function saveChats(newChats) {
-    localStorage.setItem('kk_chats', JSON.stringify(newChats))
-    setChats(newChats)
-  }
+  useEffect(() => {
+    mountedRef.current = true
+    refresh()
+    const interval = setInterval(refresh, 4000)
+    return () => {
+      mountedRef.current = false
+      clearInterval(interval)
+    }
+  }, [refresh])
 
-  function sendMessage(userId, userName, text, sender = 'user') {
-    const currentChats = [...chats]
-    let chatSession = currentChats.find(c => c.userId === userId)
-    
+  async function sendMessage(userId, userName, text, sender = 'user') {
+    const currentChats = await chatService.listChats()
+    let chatSession = currentChats.find(c => String(c.userId) === String(userId))
+
     const newMessage = {
-      id: 'msg-' + Date.now() + Math.random(),
+      id: 'msg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
       sender,
       text,
       time: new Date().toISOString(),
-      read: false
+      read: false,
     }
 
     if (chatSession) {
       chatSession.messages.push(newMessage)
       chatSession.lastUpdated = new Date().toISOString()
-      if (sender === 'user') {
-        chatSession.userName = userName // Update name if changed
-      }
+      if (sender === 'user') chatSession.userName = userName
     } else {
       chatSession = {
         id: 'chat-' + userId,
         userId,
         userName,
         lastUpdated: new Date().toISOString(),
-        messages: [newMessage]
+        messages: [newMessage],
       }
-      currentChats.push(chatSession)
     }
 
-    saveChats(currentChats)
+    const saved = await chatService.upsertChat(chatSession)
+    await refresh()
+    return saved
   }
 
-  function markAsRead(userId, reader = 'user') {
-    const currentChats = [...chats]
-    const chatSession = currentChats.find(c => c.userId === userId)
-    if (chatSession) {
-      let changed = false
-      chatSession.messages.forEach(m => {
-        // If reader is user, mark admin messages as read
-        if (reader === 'user' && m.sender === 'admin' && !m.read) {
-          m.read = true
-          changed = true
-        }
-        // If reader is admin, mark user messages as read
-        if (reader === 'admin' && m.sender === 'user' && !m.read) {
-          m.read = true
-          changed = true
-        }
-      })
-      if (changed) {
-        saveChats(currentChats)
+  async function markAsRead(userId, reader = 'user') {
+    const chat = await chatService.getChatByUserId(userId)
+    if (!chat) return
+    let changed = false
+    chat.messages.forEach(m => {
+      if (reader === 'user' && m.sender === 'admin' && !m.read) {
+        m.read = true
+        changed = true
       }
+      if (reader === 'admin' && m.sender === 'user' && !m.read) {
+        m.read = true
+        changed = true
+      }
+    })
+    if (changed) {
+      chat.lastUpdated = new Date().toISOString()
+      await chatService.upsertChat(chat)
+      await refresh()
     }
   }
 
@@ -95,14 +80,14 @@ export function ChatProvider({ children }) {
         return total + chat.messages.filter(m => m.sender === 'user' && !m.read).length
       }, 0)
     } else {
-      const chatSession = chats.find(c => c.userId === userId)
+      const chatSession = chats.find(c => String(c.userId) === String(userId))
       if (!chatSession) return 0
       return chatSession.messages.filter(m => m.sender === 'admin' && !m.read).length
     }
   }
 
   return (
-    <ChatContext.Provider value={{ chats, sendMessage, markAsRead, getUnreadCount }}>
+    <ChatContext.Provider value={{ chats, sendMessage, markAsRead, getUnreadCount, refresh }}>
       {children}
     </ChatContext.Provider>
   )

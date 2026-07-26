@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import * as notificationService from '../services/notificationService'
 
 const NotificationContext = createContext({})
 
@@ -9,111 +10,69 @@ export function useNotifications() {
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([])
 
-  useEffect(() => {
-    loadNotifications()
+  const refresh = useCallback(async () => {
+    const list = await notificationService.listAllNotifications()
+    setNotifications(list)
   }, [])
 
-  function loadNotifications() {
-    const saved = JSON.parse(localStorage.getItem('kk_notifications') || '[]')
-    setNotifications(saved)
+  useEffect(() => {
+    refresh()
+    const interval = setInterval(refresh, 8000)
+    return () => clearInterval(interval)
+  }, [refresh])
+
+  async function addNotification(userId, title, message, link = null) {
+    const created = await notificationService.addNotification(userId, title, message, link)
+    await refresh()
+    return created
   }
 
-  function addNotification(userId, title, message, link = null) {
-    const saved = JSON.parse(localStorage.getItem('kk_notifications') || '[]')
-    const newNotif = {
-      id: 'NOTF-' + Date.now(),
-      userId,
-      title,
-      message,
-      link,
-      date: new Date().toISOString(),
-      isRead: false
-    }
-    saved.unshift(newNotif) // Add to top
-    localStorage.setItem('kk_notifications', JSON.stringify(saved))
-    setNotifications(saved)
+  async function markSingleAsRead(id, userId) {
+    const updated = await notificationService.markAsRead(id, userId)
+    await refresh()
+    return updated
+  }
+
+  async function markAllAsRead(userId) {
+    await notificationService.markAllAsReadForUser(userId)
+    await refresh()
   }
 
   function markAsRead(id) {
-    const saved = JSON.parse(localStorage.getItem('kk_notifications') || '[]')
-    const updated = saved.map(n => n.id === id ? { ...n, isRead: true } : n)
-    localStorage.setItem('kk_notifications', JSON.stringify(updated))
-    setNotifications(updated)
-  }
-  
-  function markAllAsRead(userId) {
-    const saved = JSON.parse(localStorage.getItem('kk_notifications') || '[]')
-    // We only mark read for notifications belonging to this user
-    // Wait, if it's 'ALL', how do we mark it read for ONE user without affecting others?
-    // We should probably store an array of readBy user IDs for broadcast notifications.
-    const updated = saved.map(n => {
-      if (n.userId === userId) {
-        return { ...n, isRead: true }
-      }
-      if (n.userId === 'ALL') {
-        const readBy = n.readBy || []
-        if (!readBy.includes(userId)) {
-          return { ...n, readBy: [...readBy, userId] }
-        }
-      }
-      return n
-    })
-    localStorage.setItem('kk_notifications', JSON.stringify(updated))
-    setNotifications(updated)
-  }
-  
-  // also update markAsRead for single notification
-  function markSingleAsRead(id, userId) {
-    const saved = JSON.parse(localStorage.getItem('kk_notifications') || '[]')
-    const updated = saved.map(n => {
-      if (n.id === id) {
-        if (n.userId === 'ALL') {
-          const readBy = n.readBy || []
-          if (!readBy.includes(userId)) {
-            return { ...n, readBy: [...readBy, userId] }
-          }
-          return n
-        } else {
-          return { ...n, isRead: true }
-        }
-      }
-      return n
-    })
-    localStorage.setItem('kk_notifications', JSON.stringify(updated))
-    setNotifications(updated)
+    return markSingleAsRead(id, null)
   }
 
-  // Get notifications specific to a user (including broadcast 'ALL')
   function getUserNotifications(userId) {
-    return notifications.filter(n => n.userId === userId || n.userId === 'ALL').map(n => {
-      if (n.userId === 'ALL') {
-        return { ...n, isRead: (n.readBy || []).includes(userId) }
-      }
-      return n
-    })
+    return notifications
+      .filter(n => String(n.userId) === String(userId) || String(n.userId) === 'ALL')
+      .map(n => {
+        if (String(n.userId) === 'ALL') {
+          return { ...n, isRead: (n.readBy || []).includes(String(userId)) }
+        }
+        return n
+      })
   }
 
-  // Admin gets all notifications
   function getAllNotifications() {
     return notifications
   }
-  
-  function deleteNotification(id) {
-    const saved = JSON.parse(localStorage.getItem('kk_notifications') || '[]')
-    const filtered = saved.filter(n => n.id !== id)
-    localStorage.setItem('kk_notifications', JSON.stringify(filtered))
-    setNotifications(filtered)
+
+  async function deleteNotification(id) {
+    await notificationService.deleteNotification(id)
+    await refresh()
   }
 
   return (
     <NotificationContext.Provider value={{
       notifications,
       addNotification,
+      markAsRead,
       markSingleAsRead,
       markAllAsRead,
       getUserNotifications,
       getAllNotifications,
-      deleteNotification
+      deleteNotification,
+      refresh,
     }}>
       {children}
     </NotificationContext.Provider>

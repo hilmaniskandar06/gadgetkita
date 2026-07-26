@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import * as voucherService from '../services/voucherService'
 
 const VoucherContext = createContext()
 
@@ -6,42 +7,51 @@ export function VoucherProvider({ children }) {
   const [vouchers, setVouchers] = useState([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const saved = localStorage.getItem('kk_vouchers')
-    if (saved) {
-      setVouchers(JSON.parse(saved))
-    }
+  const refresh = useCallback(async () => {
+    setLoading(true)
+    const list = await voucherService.listVouchers()
+    setVouchers(list)
     setLoading(false)
   }, [])
 
-  function saveVouchers(newVouchers) {
-    setVouchers(newVouchers)
-    localStorage.setItem('kk_vouchers', JSON.stringify(newVouchers))
+  useEffect(() => {
+    refresh()
+  }, [refresh])
+
+  async function addVoucher(voucher) {
+    const created = await voucherService.addVoucher(voucher)
+    await refresh()
+    return created
   }
 
-  function addVoucher(voucher) {
-    saveVouchers([...vouchers, { ...voucher, id: Date.now().toString(), used: 0 }])
+  async function updateVoucher(id, data) {
+    const updated = await voucherService.updateVoucher(id, data)
+    await refresh()
+    return updated
   }
 
-  function updateVoucher(id, data) {
-    saveVouchers(vouchers.map(v => v.id === id ? { ...v, ...data } : v))
+  async function deleteVoucher(id) {
+    await voucherService.deleteVoucher(id)
+    await refresh()
   }
 
-  function deleteVoucher(id) {
-    saveVouchers(vouchers.filter(v => v.id !== id))
+  async function incrementVoucherUsage(id) {
+    const updated = await voucherService.incrementVoucherUsage(id)
+    await refresh()
+    return updated
   }
 
   function verifyVoucher(code, subtotal) {
-    const v = vouchers.find(x => x.code === code)
+    const v = vouchers.find(x => String(x.code).toUpperCase() === String(code).toUpperCase())
     if (!v) return { valid: false, error: 'Voucher tidak ditemukan' }
-    
-    if (v.minOrder && subtotal < v.minOrder) {
+
+    if (v.minOrder && Number(subtotal) < Number(v.minOrder)) {
       return { valid: false, error: `Minimal belanja Rp${Number(v.minOrder).toLocaleString('id-ID')}` }
     }
     if (v.expiryDate && new Date() > new Date(v.expiryDate)) {
       return { valid: false, error: 'Voucher sudah kadaluarsa' }
     }
-    if (v.usageLimit && v.used >= v.usageLimit) {
+    if (v.usageLimit && Number(v.used || 0) >= Number(v.usageLimit)) {
       return { valid: false, error: 'Batas pemakaian voucher sudah habis' }
     }
 
@@ -49,21 +59,17 @@ export function VoucherProvider({ children }) {
     if (v.type === 'nominal') {
       discount = Number(v.value)
     } else if (v.type === 'persentase') {
-      discount = Math.floor((subtotal * Number(v.value)) / 100)
-      if (v.maxDiscount && discount > v.maxDiscount) {
-        discount = v.maxDiscount
+      discount = Math.floor((Number(subtotal) * Number(v.value)) / 100)
+      if (v.maxDiscount && discount > Number(v.maxDiscount)) {
+        discount = Number(v.maxDiscount)
       }
     }
 
-    if (discount > subtotal) {
-      discount = subtotal
+    if (discount > Number(subtotal)) {
+      discount = Number(subtotal)
     }
 
     return { valid: true, voucher: v, discount }
-  }
-
-  function incrementVoucherUsage(id) {
-    saveVouchers(vouchers.map(v => v.id === id ? { ...v, used: (v.used || 0) + 1 } : v))
   }
 
   return (

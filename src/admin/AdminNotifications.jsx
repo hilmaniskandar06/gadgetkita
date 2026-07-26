@@ -1,34 +1,62 @@
 import { useState, useEffect } from 'react'
-import { Bell, Trash2, Send, Users } from 'lucide-react'
+import { Bell, Trash2, Send, Users, Loader2 } from 'lucide-react'
 import AdminShell from './AdminShell'
 import { useNotifications } from '../context/NotificationContext'
 import { useToast } from '../context/ToastContext'
+import { supabase } from '../config/supabase'
 
 export default function AdminNotifications() {
   const { getAllNotifications, addNotification, deleteNotification } = useNotifications()
   const { addToast } = useToast()
-  
+
   const [users, setUsers] = useState([])
+  const [loadingUsers, setLoadingUsers] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState({ userId: 'ALL', title: '', message: '' })
-  
+
   useEffect(() => {
-    const savedUsers = JSON.parse(localStorage.getItem('kk_users') || '[]')
-    setUsers(savedUsers.filter(u => !u.deletedAt))
+    loadUsers()
   }, [])
 
-  function handleSubmit(e) {
-    e.preventDefault()
-    if (!form.title || !form.message) return addToast('Judul dan pesan wajib diisi', 'error')
-    
-    addNotification(form.userId, form.title, form.message)
-    addToast('Notifikasi berhasil dikirim')
-    setForm({ userId: 'ALL', title: '', message: '' })
+  async function loadUsers() {
+    setLoadingUsers(true)
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name, email')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      setUsers(data || [])
+    } catch (err) {
+      console.error(err)
+      addToast('Gagal memuat daftar pelanggan', 'error')
+    } finally {
+      setLoadingUsers(false)
+    }
   }
 
-  function handleDelete(id) {
-    if (confirm('Hapus riwayat notifikasi ini? (Akan terhapus juga dari sisi pengguna)')) {
-      deleteNotification(id)
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!form.title || !form.message) return addToast('Judul dan pesan wajib diisi', 'error')
+    setSubmitting(true)
+    try {
+      await addNotification(form.userId, form.title, form.message)
+      addToast('Notifikasi berhasil dikirim')
+      setForm({ userId: 'ALL', title: '', message: '' })
+    } catch (err) {
+      addToast(err.message || 'Gagal mengirim notifikasi', 'error')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  async function handleDelete(id) {
+    if (!confirm('Hapus riwayat notifikasi ini? (Akan terhapus juga dari sisi pengguna)')) return
+    try {
+      await deleteNotification(id)
       addToast('Notifikasi dihapus')
+    } catch (err) {
+      addToast(err.message || 'Gagal menghapus notifikasi', 'error')
     }
   }
 
@@ -44,39 +72,48 @@ export default function AdminNotifications() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div>
               <label className="block text-xs font-medium text-cacao-600 mb-1">Tujuan / Penerima</label>
-              <select 
-                value={form.userId} 
-                onChange={e => setForm({...form, userId: e.target.value})} 
-                className="w-full border rounded-lg px-3 py-2 text-sm"
+              <select
+                value={form.userId}
+                onChange={e => setForm({ ...form, userId: e.target.value })}
+                disabled={loadingUsers || submitting}
+                className="w-full border rounded-lg px-3 py-2 text-sm disabled:opacity-60"
               >
                 <option value="ALL">Broadcast (Semua Pelanggan)</option>
                 {users.map(u => (
-                  <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+                  <option key={u.id} value={u.id}>{u.name || 'Pelanggan'} ({u.email})</option>
                 ))}
               </select>
+              {loadingUsers && <div className="text-xs text-cacao-500 mt-1">Memuat daftar pelanggan...</div>}
             </div>
             <div>
               <label className="block text-xs font-medium text-cacao-600 mb-1">Judul Notifikasi</label>
-              <input 
-                value={form.title} 
-                onChange={e => setForm({...form, title: e.target.value})} 
-                className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-gold-500" 
-                required 
-                placeholder="Contoh: Flash Sale Cokelat!" 
+              <input
+                value={form.title}
+                onChange={e => setForm({ ...form, title: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-gold-500"
+                required
+                placeholder="Contoh: Flash Sale Cokelat!"
+                disabled={submitting}
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-cacao-600 mb-1">Isi Pesan</label>
-              <textarea 
-                value={form.message} 
-                onChange={e => setForm({...form, message: e.target.value})} 
-                className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-gold-500 min-h-[100px]" 
-                required 
-                placeholder="Tulis pesan lengkap di sini..." 
+              <textarea
+                value={form.message}
+                onChange={e => setForm({ ...form, message: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-gold-500 min-h-[100px]"
+                required
+                placeholder="Tulis pesan lengkap di sini..."
+                disabled={submitting}
               />
             </div>
-            <button type="submit" className="w-full bg-gold-500 hover:bg-gold-400 text-cacao-900 font-bold py-2.5 rounded-lg mt-2 transition-colors">
-              Kirim Notifikasi
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-gold-500 hover:bg-gold-400 text-cacao-900 font-bold py-2.5 rounded-lg mt-2 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+              {submitting ? 'Mengirim...' : 'Kirim Notifikasi'}
             </button>
           </form>
         </div>
@@ -98,10 +135,10 @@ export default function AdminNotifications() {
               </thead>
               <tbody>
                 {notifications.map(n => {
-                  const targetUser = users.find(u => u.id === n.userId)
-                  const targetLabel = n.userId === 'ALL' 
+                  const targetUser = users.find(u => String(u.id) === String(n.userId))
+                  const targetLabel = String(n.userId) === 'ALL'
                     ? <span className="inline-flex items-center gap-1 bg-gold-100 text-gold-700 px-2 py-0.5 rounded text-xs font-bold"><Users size={12}/> Broadcast</span>
-                    : <span className="text-xs text-cacao-600">Ke: {targetUser ? targetUser.name : n.userId}</span>
+                    : <span className="text-xs text-cacao-600">Ke: {targetUser ? (targetUser.name || targetUser.email) : n.userId}</span>
 
                   return (
                     <tr key={n.id} className="border-t border-cream-200">
