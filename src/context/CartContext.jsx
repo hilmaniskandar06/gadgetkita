@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useProducts } from './ProductsContext'
 import { useAuth } from './AuthContext'
+import { useToast } from './ToastContext'
 import { supabase } from '../config/supabase'
 
 const CartContext = createContext(null)
@@ -9,7 +11,18 @@ const STORAGE_KEY = 'kk_cart'
 export function CartProvider({ children }) {
   const { getById } = useProducts()
   const { user } = useAuth()
-  
+  const { addToast } = useToast()
+  const navigate = useNavigate()
+
+  const requireAuth = () => {
+    if (!user) {
+      addToast('Silakan login terlebih dahulu untuk menggunakan keranjang', 'error')
+      navigate('/login', { state: { from: null } })
+      return false
+    }
+    return true
+  }
+
   const [items, setItems] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
@@ -24,18 +37,14 @@ export function CartProvider({ children }) {
     if (user) {
       supabase.from('carts').select('items').eq('user_id', user.id).maybeSingle().then(({ data, error }) => {
         if (!error && data && data.items && Object.keys(data.items).length > 0) {
-          // Cloud ADA isi → cloud MENANG (sesuai ekspektasi user login kembali)
           setItems(data.items)
         } else {
-          // Cloud KOSONG → pakai item lokal yang sudah ada saat ini (guest sebelum login)
-          // Effect kedua akan otomatis menyimpan ini ke cloud
           setItems(prev => prev)
         }
       }).catch(() => {
         setItems(prev => prev)
       })
     } else {
-      // User logout → bersihkan state dan localStorage
       localStorage.removeItem(STORAGE_KEY)
       setItems({})
     }
@@ -50,10 +59,12 @@ export function CartProvider({ children }) {
   }, [items, user])
 
   function addItem(id, qty = 1) {
+    if (!requireAuth()) return
     setItems((prev) => ({ ...prev, [id]: (prev[id] || 0) + qty }))
   }
 
   function removeItem(id) {
+    if (!requireAuth()) return
     setItems((prev) => {
       const next = { ...prev }
       delete next[id]
@@ -62,11 +73,16 @@ export function CartProvider({ children }) {
   }
 
   function setQty(id, qty) {
+    if (!requireAuth()) return
     if (qty < 1) return removeItem(id)
     setItems((prev) => ({ ...prev, [id]: qty }))
   }
 
   function clearCart() {
+    if (!user) {
+      setItems({})
+      return
+    }
     setItems({})
   }
 

@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useProducts } from './ProductsContext'
 import { useAuth } from './AuthContext'
+import { useToast } from './ToastContext'
 import { supabase } from '../config/supabase'
 
 const WishlistContext = createContext(null)
@@ -9,6 +11,18 @@ const STORAGE_KEY = 'kk_wishlist'
 export function WishlistProvider({ children }) {
   const { getById } = useProducts()
   const { user } = useAuth()
+  const { addToast } = useToast()
+  const navigate = useNavigate()
+
+  const requireAuth = () => {
+    if (!user) {
+      addToast('Silakan login terlebih dahulu untuk menggunakan wishlist', 'error')
+      navigate('/login', { state: { from: null } })
+      return false
+    }
+    return true
+  }
+
   const [ids, setIds] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
@@ -45,6 +59,7 @@ export function WishlistProvider({ children }) {
   }, [ids, user])
 
   function toggle(id) {
+    if (!requireAuth()) return
     setIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
   }
 

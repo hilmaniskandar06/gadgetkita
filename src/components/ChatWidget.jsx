@@ -2,14 +2,18 @@ import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send } from 'lucide-react'
 import { useChat } from '../context/ChatContext'
 import { useAuth } from '../context/AuthContext'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
-export default function ChatWidget() {
+export default function ChatWidget({ cartOpen, filtersOpen, pathname }) {
   const [isOpen, setIsOpen] = useState(false)
   const [text, setText] = useState('')
   const { chats, sendMessage, markAsRead, getUnreadCount } = useChat()
   const { user } = useAuth()
+  const navigate = useNavigate()
   const scrollRef = useRef(null)
+
+  const showOnPages = pathname === '/' || pathname === '/toko'
+  if (!showOnPages || cartOpen || filtersOpen) return null
 
   // Avoid showing widget for admin (admins have their own chat UI)
   if (user?.role === 'admin') return null
@@ -37,6 +41,14 @@ export default function ChatWidget() {
     if (!text.trim() || !user) return
     sendMessage(user.id, user.name, text, 'user')
     setText('')
+  }
+
+  function handleToggle() {
+    if (!user) {
+      navigate('/login', { state: { from: pathname } })
+      return
+    }
+    setIsOpen(v => !v)
   }
 
   return (
@@ -108,7 +120,7 @@ export default function ChatWidget() {
 
       {/* Toggle Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
         className="w-14 h-14 bg-gold-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-gold-600 hover:scale-105 transition-all relative"
       >
         {isOpen ? <X size={26} /> : <MessageCircle size={26} />}

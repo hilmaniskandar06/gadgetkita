@@ -36,10 +36,15 @@ import StaticPage from './pages/StaticPage'
 
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false)
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const location = useLocation()
 
   useEffect(() => {
     window.scrollTo(0, 0)
+  }, [location.pathname])
+
+  useEffect(() => {
+    setFiltersOpen(false)
   }, [location.pathname])
 
   const isAdmin = location.pathname.startsWith('/admin')
@@ -82,7 +87,7 @@ export default function App() {
       <main className="flex-1 pb-20">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home />} />
-          <Route path="/toko" element={<Shop />} />
+          <Route path="/toko" element={<Shop filtersOpen={filtersOpen} setFiltersOpen={setFiltersOpen} />} />
           <Route path="/produk/:id" element={<ProductDetail />} />
           <Route path="/keranjang" element={<CartPage />} />
           <Route path="/checkout" element={<Checkout />} />
@@ -98,7 +103,7 @@ export default function App() {
         </Routes>
       </main>
 
-      <ChatWidget />
+      <ChatWidget cartOpen={cartOpen} filtersOpen={filtersOpen} pathname={location.pathname} />
       <BottomNav onOpenCart={() => setCartOpen(true)} />
       <Footer />
     </div>

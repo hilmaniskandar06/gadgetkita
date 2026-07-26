@@ -12,11 +12,10 @@ const SORTS = [
   { value: 'rating', label: 'Rating Tertinggi' },
 ]
 
-export default function Shop() {
+export default function Shop({ filtersOpen, setFiltersOpen }) {
   const { products, loading } = useProducts()
   const { categories } = useCategories()
   const [params, setParams] = useSearchParams()
-  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const query = params.get('q') || ''
   const activeCategory = params.get('category') || ''
