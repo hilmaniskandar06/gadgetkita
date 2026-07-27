@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
-import { ChevronLeft, Printer } from 'lucide-react'
+import { ChevronLeft, Printer, Upload } from 'lucide-react'
 import OrderSummaryCard from '../components/OrderSummaryCard'
 import { useToast } from '../context/ToastContext'
 import * as orderService from '../services/orderService'
+import { resizeImage } from '../utils/image'
 
 export default function OrderDetail() {
   const { id } = useParams()
   const [order, setOrder] = useState(undefined)
   const { addToast } = useToast()
+  const [proof, setProof] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const fileRef = useRef(null)
 
   useEffect(() => {
     orderService.getOrderById(id).then(o => {
@@ -23,6 +27,49 @@ export default function OrderDetail() {
     return <div className="max-w-3xl mx-auto px-5 py-16 text-center text-cacao-500">Memuat...</div>
   }
   if (order === null) return <Navigate to="/pesanan" replace />
+
+  async function handleUploadReceipt(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      addToast('Format file tidak didukung (hanya JPG/PNG/WEBP)', 'error')
+      e.target.value = ''
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      addToast('Ukuran gambar maksimal 5MB', 'error')
+      e.target.value = ''
+      return
+    }
+    try {
+      const resized = await resizeImage(file, 1280, 0.85)
+      setProof(resized)
+    } catch (err) {
+      addToast('Gagal memproses gambar: ' + err.message, 'error')
+      e.target.value = ''
+    }
+  }
+
+  async function handleConfirmReceipt() {
+    if (!proof) return addToast('Pilih gambar bukti transfer terlebih dahulu')
+    setUploading(true)
+    try {
+      let finalProof = proof
+      if (proof.startsWith('data:')) {
+        const { uploadImage } = await import('../services/storageService')
+        const fileName = `receipt-${order.id}-${Date.now()}.jpg`
+        finalProof = await uploadImage(proof, fileName, 'public')
+      }
+      const updated = await orderService.updateOrderStatus(order.id, 'menunggu_verifikasi', { paymentProof: finalProof })
+      setOrder(updated)
+      setProof(null)
+      addToast('Bukti transfer berhasil dikirim, menunggu verifikasi admin')
+    } catch (err) {
+      addToast('Gagal mengirim bukti: ' + err.message)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   async function handleSelesai() {
     if (confirm('Apakah Anda yakin pesanan ini sudah diterima dengan baik?')) {
@@ -64,6 +111,49 @@ export default function OrderDetail() {
       </div>
 
       <OrderSummaryCard order={order} />
+
+      {/* FORM UPLOAD BUKTI TRANSFER: HANYA MUNCUL JIKA STATUS BELUM_DIBAYAR */}
+      {order.status === 'belum_dibayar' && !order.paymentProof && (
+        <div className="mt-8 bg-white border border-cream-300 p-6 rounded-xl max-w-3xl">
+          <div className="flex items-start gap-2 mb-4">
+            <div className="w-9 h-9 shrink-0 rounded-full bg-gold-100 text-gold-700 flex items-center justify-center">
+              <Upload size={20} />
+            </div>
+            <div>
+              <h3 className="font-bold text-cacao-900">Konfirmasi Pembayaran</h3>
+              <p className="text-xs text-cacao-500 mt-0.5">Upload bukti transfer untuk memproses pesanan ini.</p>
+            </div>
+          </div>
+          <p className="text-[11px] text-rose-600 mb-3 bg-rose-50 rounded-lg py-1.5 px-3 border border-rose-200 inline-block">
+            ⚠️ <strong>Wajib upload bukti dalam 24 jam</strong>. Lewat batas waktu, pesanan otomatis dibatalkan.
+          </p>
+          <div className="flex flex-col gap-3 max-w-sm">
+            {proof ? (
+              <img src={proof} alt="Bukti Transfer" className="w-full h-44 object-cover rounded-lg border border-cream-300" />
+            ) : (
+              <div className="h-44 bg-cream-100 border-2 border-dashed border-cream-300 rounded-lg flex flex-col items-center justify-center text-cacao-400">
+                <Upload size={28} className="mb-2" />
+                <span className="text-xs">Klik Pilih Gambar untuk upload bukti</span>
+              </div>
+            )}
+            <input type="file" accept="image/*" className="hidden" ref={fileRef} onChange={handleUploadReceipt} />
+            <div className="flex gap-2 flex-wrap">
+              <button type="button" onClick={() => fileRef.current.click()} className="flex-1 text-sm font-semibold border border-cream-300 py-2.5 rounded-lg hover:bg-cream-100 transition-colors">
+                {proof ? 'Ganti Gambar' : 'Pilih Bukti Transfer'}
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmReceipt}
+                disabled={!proof || uploading}
+                className="flex-1 bg-gold-500 hover:bg-gold-400 text-cacao-900 font-bold py-2.5 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {uploading ? 'Mengirim...' : 'Kirim Bukti Transfer'}
+              </button>
+            </div>
+            <p className="text-[10px] text-cacao-500">Maksimal 5MB, format JPG / PNG / WEBP (otomatis dikecilkan).</p>
+          </div>
+        </div>
+      )}
 
       {order.status === 'dikirim' && (
         <div className="mt-6 flex justify-end">
