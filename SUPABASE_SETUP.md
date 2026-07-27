@@ -288,6 +288,81 @@ Jalankan no.11 untuk insert ke storage.buckets, dan pastikan nama bucket persis 
 | `diproses` | Diproses | Admin terima pembayaran & sedang packing |
 | `dikirim` | Dikirim | Sudah ada nomor resi |
 | `selesai` | Selesai | Pesanan diterima user |
-| `dibatalkan` | Dibatalkan | Bisa by user / by admin (stok habis, dll) |
+| `dibatalkan` | Dibatalkan | Bisa by user / by admin / by scheduler timeout 24 jam |
 
 Badge admin "Pesanan" menghitung status aktif: `belum_dibayar` + `menunggu_verifikasi` + `diproses`.
+
+---
+
+## 12. ⏰ PG_CRON: AUTO BATAL PESANAN LEBIH DARI 24 JAM (BUKTI TRANSFER TIDAK DIUPLOAD)
+
+**Cara kerja:** Scheduler berjalan tiap **10 menit**. Untuk setiap pesanan `belum_dibayar` yang `created_at` > 24 jam lalu:
+1. Ubah status → `dibatalkan`
+2. Tambah `cancel_reason`: `'Timeout 24 jam tidak upload bukti transfer (otomatis oleh sistem)'`
+3. **Rollback voucher**: Jika order pakai voucher (`voucher_code` ada) → kurangi `used` di tabel vouchers 1 poin.
+
+⚠️ **Prasyarat:** Extension `pg_cron` dan `pg_trigger` / `http` bisa di Supabase Free Tier. Jalankan SQL dibawah:
+
+```sql
+-- (STEP 1) Enable extension pg_cron (hanya bisa dijalankan OLEH POSTGRES ROLE / SUPABASE ADMIN)
+CREATE EXTENSION IF NOT EXISTS pg_cron SCHEMA extensions;
+GRANT USAGE ON SCHEMA cron TO postgres;
+GRANT EXECUTE ON FUNCTION cron.schedule(text, text, text) TO postgres;
+GRANT EXECUTE ON FUNCTION cron.unschedule(bigint) TO postgres;
+
+-- (STEP 2) Buat FUNCTION yang dijalankan scheduler
+CREATE OR REPLACE FUNCTION public.cancel_expired_unpaid_orders()
+RETURNS SETOF public.orders AS $$
+DECLARE
+  r_order RECORD;
+  v_voucher_id TEXT;
+BEGIN
+  FOR r_order IN
+    SELECT id, voucher_code
+    FROM public.orders
+    WHERE status = 'belum_dibayar'
+      AND created_at < NOW() - INTERVAL '24 hours'
+    FOR UPDATE SKIP LOCKED
+  LOOP
+    -- 1. Update order status ke dibatalkan
+    UPDATE public.orders
+    SET status = 'dibatalkan',
+        payment_status = 'dibatalkan',
+        customer_info = COALESCE(customer_info, '{}'::jsonb) ||
+          jsonb_build_object('cancelReason', 'Timeout 24 jam tidak upload bukti transfer (otomatis oleh sistem)')
+    WHERE id = r_order.id;
+
+    -- 2. Rollback voucher usage (jika order pakai voucher & kodenya tercatat)
+    IF r_order.voucher_code IS NOT NULL AND r_order.voucher_code <> '' THEN
+      SELECT id INTO v_voucher_id FROM public.vouchers WHERE code = r_order.voucher_code LIMIT 1;
+      IF FOUND THEN
+        UPDATE public.vouchers
+        SET used = GREATEST(0, COALESCE(used, 0) - 1)
+        WHERE id = v_voucher_id;
+      END IF;
+    END IF;
+
+    RETURN NEXT;
+  END LOOP;
+  RETURN;
+END;
+$$ LANGUAGE plpgsql VOLATILE SECURITY DEFINER;
+ALTER FUNCTION public.cancel_expired_unpaid_orders() OWNER TO postgres;
+
+-- (STEP 3) Jadwalkan scheduler berjalan tiap 10 menit
+SELECT cron.schedule(
+  'cancel-expired-unpaid-orders',
+  '*/10 * * * *',
+  $$ SELECT count(*) FROM public.cancel_expired_unpaid_orders(); $$
+);
+```
+
+**Cek apakah cron job sudah aktif:**
+```sql
+SELECT * FROM cron.job;
+```
+
+**Hapus job jika tidak diperlukan:**
+```sql
+SELECT cron.unschedule('cancel-expired-unpaid-orders');
+```

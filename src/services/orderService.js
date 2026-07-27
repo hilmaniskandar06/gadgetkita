@@ -43,15 +43,25 @@ export async function getAllOrders() {
 }
 
 export async function updateOrderStatus(id, status, extraData = {}) {
-  // First, fetch the existing order to get current customer_info
   const { data: existing, error: fetchErr } = await supabase.from('orders').select('customer_info').eq('id', id).single()
   if (fetchErr) throw new Error(fetchErr.message)
 
   const payload = { status }
   if (extraData.trackingNumber) payload.tracking_number = extraData.trackingNumber
-  if (extraData.paymentStatus) payload.payment_status = extraData.paymentStatus
+  if (extraData.paymentStatus) {
+    payload.payment_status = extraData.paymentStatus
+  } else if (status === 'menunggu_verifikasi') {
+    payload.payment_status = 'menunggu_verifikasi'
+  } else if (status === 'dibatalkan') {
+    payload.payment_status = 'dibatalkan'
+  } else if (status === 'diproses') {
+    payload.payment_status = 'lunas'
+  } else if (status === 'dikirim') {
+    payload.payment_status = 'dikirim'
+  } else if (status === 'selesai') {
+    payload.payment_status = 'selesai'
+  }
 
-  // Merge extra data into customer_info
   const updatedCustomerInfo = { ...existing.customer_info }
   let customerInfoChanged = false
   if (extraData.paymentProof) {
@@ -94,6 +104,8 @@ function mapOrderFromDb(dbItem) {
     shipping: cInfo.shipping || 0,
     serviceFee: cInfo.serviceFee || 0,
     note: cInfo.note || '',
+    paymentProof: cInfo.paymentProof || null,
+    cancelReason: cInfo.cancelReason || null,
     customer: {
       name: cInfo.name,
       phone: cInfo.phone,

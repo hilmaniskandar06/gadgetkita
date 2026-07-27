@@ -213,7 +213,11 @@ export default function Checkout() {
       id: 'KK-' + Math.floor(100000 + Math.random() * 899999),
       userId: user ? user.id : null,
       date: new Date().toISOString(),
-      items: checkoutItems.map((i) => ({ id: i.id, name: i.name, price: i.price, qty: i.qty, shape: i.shape, tone: i.tone, image: i.image || null })),
+      items: checkoutItems.map((i) => ({
+        id: i.id, name: i.name, price: i.price, qty: i.qty, shape: i.shape, tone: i.tone,
+        image: i.image || (i.images && i.images[0]) || null,
+        images: i.images || (i.image ? [i.image] : []),
+      })),
       subtotal: checkoutSubtotal,
       discount,
       voucherCode: activeVoucher ? activeVoucher.voucher.code : null,
@@ -238,12 +242,10 @@ export default function Checkout() {
       incrementVoucherUsage(activeVoucher.voucher.id)
     }
 
+    order.status = 'belum_dibayar'
+    order.paymentStatus = 'belum_dibayar'
     try {
-      await orderService.createOrder({
-        ...order,
-        status: 'diproses', // Status default
-        paymentStatus: 'menunggu_pembayaran'
-      })
+      await orderService.createOrder(order)
     } catch (err) {
       addToast('Gagal membuat pesanan: ' + err.message)
       setSaving(false)
