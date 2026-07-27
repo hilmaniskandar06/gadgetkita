@@ -41,12 +41,6 @@ export function VoucherProvider({ children }) {
     return updated
   }
 
-  async function decrementVoucherUsage(id) {
-    const updated = await voucherService.decrementVoucherUsage(id)
-    await refresh()
-    return updated
-  }
-
   async function verifyVoucher(code, subtotal) {
     if (typeof code !== 'string' || !code.trim()) {
       return { valid: false, error: 'Masukkan kode voucher' }
@@ -90,7 +84,7 @@ export function VoucherProvider({ children }) {
   }
 
   return (
-    <VoucherContext.Provider value={{ vouchers, loading, addVoucher, updateVoucher, deleteVoucher, verifyVoucher, incrementVoucherUsage, decrementVoucherUsage }}>
+    <VoucherContext.Provider value={{ vouchers, loading, addVoucher, updateVoucher, deleteVoucher, verifyVoucher, incrementVoucherUsage }}>
       {children}
     </VoucherContext.Provider>
   )

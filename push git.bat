@@ -1,3 +1,3 @@
 git add .
-git commit -m "update terbaru"
+git commit -m "update terbaruu"
 git push

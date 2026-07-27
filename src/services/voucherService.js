@@ -115,19 +115,6 @@ export async function incrementVoucherUsage(id) {
   }
 }
 
-export async function decrementVoucherUsage(id) {
-  try {
-    const { data: current } = await supabase.from('vouchers').select('used').eq('id', id).maybeSingle()
-    if (!current) return null
-    const newUsed = Math.max(0, Number(current.used || 0) - 1)
-    const { data, error } = await supabase.from('vouchers').update({ used: newUsed }).eq('id', id).select().single()
-    if (error) throw new Error(error.message)
-    return mapFromDb(data)
-  } catch (err) {
-    throw err
-  }
-}
-
 export async function deleteVoucher(id) {
   const { error } = await supabase.from('vouchers').delete().eq('id', id)
   if (error) throw new Error(error.message)
