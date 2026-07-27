@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Plus, Pencil, Trash2, RotateCcw, Tag, FileText, Ticket, CreditCard } from 'lucide-react'
+import { Plus, Pencil, Trash2, RotateCcw, Tag, FileText, Ticket, CreditCard, ExternalLink } from 'lucide-react'
 import AdminShell from './AdminShell'
 import ProductThumb from '../components/ProductThumb'
 import { useProducts } from '../context/ProductsContext'
@@ -92,6 +92,17 @@ export default function AdminDashboard() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
+                      {p.externalLink && (
+                        <a
+                          href={p.externalLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Buka Link Produk"
+                          className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-cream-200 text-cacao-600 transition-colors"
+                        >
+                          <ExternalLink size={14} />
+                        </a>
+                      )}
                       <Link
                         to={`/admin/produk/${p.id}/edit`}
                         aria-label="Edit"

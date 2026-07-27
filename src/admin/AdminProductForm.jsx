@@ -20,6 +20,7 @@ const emptyForm = {
   longDesc: '',
   weight: '',
   contentVolume: '',
+  externalLink: null,
 }
 
 export default function AdminProductForm() {
@@ -186,6 +187,16 @@ export default function AdminProductForm() {
               value={form.longDesc}
               onChange={(e) => update('longDesc', e.target.value)}
               required
+              className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-gold-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-cacao-600 mb-1.5">Link Produk (opsional)</label>
+            <input
+              value={form.externalLink || ''}
+              onChange={(e) => update('externalLink', e.target.value || null)}
+              placeholder="https://..."
               className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-gold-500"
             />
           </div>

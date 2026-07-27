@@ -11,6 +11,7 @@ const FIELDS = [
   { key: 'heroSubtitle', label: 'Subjudul Hero', type: 'textarea' },
   { key: 'footerDescription', label: 'Deskripsi Singkat di Footer', type: 'textarea' },
   { key: 'socialInstagram', label: 'Link Instagram', type: 'input' },
+  { key: 'whatsappLink', label: 'Link WhatsApp', type: 'input' },
   { key: 'socialFacebook', label: 'Link Facebook', type: 'input' },
   { key: 'socialTiktok', label: 'Link TikTok', type: 'input' },
   { key: 'socialTwitter', label: 'Link Twitter/X', type: 'input' },

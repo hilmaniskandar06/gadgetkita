@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Eye, CheckCircle, XCircle, Trash2, Image as ImageIcon, Printer } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Eye, CheckCircle, XCircle, MoreVertical, Image as ImageIcon, Printer, Trash2 } from 'lucide-react'
 import AdminShell from './AdminShell'
 import { useToast } from '../context/ToastContext'
 import { useNotifications } from '../context/NotificationContext'
@@ -19,6 +19,8 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState([])
   const [viewProof, setViewProof] = useState(null)
   const [selectedOrder, setSelectedOrder] = useState(null)
+  const [openDropdownId, setOpenDropdownId] = useState(null)
+  const dropdownRef = useRef(null)
   
   // prompt for resi or cancel reason
   const [statusPrompt, setStatusPrompt] = useState(null)
@@ -32,6 +34,18 @@ export default function AdminOrders() {
   useEffect(() => {
     loadOrders()
   }, [])
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpenDropdownId(null)
+      }
+    }
+    if (openDropdownId) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [openDropdownId])
 
   async function loadOrders() {
     try {
@@ -96,7 +110,8 @@ export default function AdminOrders() {
     if (confirm('Hapus pesanan ini secara permanen?')) {
       try {
         await orderService.deleteOrder(id)
-        setOrders(orders.filter(o => o.id !== id))
+        setOpenDropdownId(null)
+        await loadOrders()
         addToast('Pesanan dihapus')
       } catch (err) {
         console.error(err)
@@ -163,9 +178,26 @@ export default function AdminOrders() {
                       <a href={`/invoice/${o.id}`} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-cacao-100 text-cacao-600" title="Cetak Invoice">
                         <Printer size={14} />
                       </a>
-                      <button onClick={() => deleteOrder(o.id)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-rose-50 text-rose-500" title="Hapus">
-                        <Trash2 size={14} />
-                      </button>
+                      <div ref={openDropdownId === o.id ? dropdownRef : null} className="relative">
+                        <button
+                          onClick={() => setOpenDropdownId(openDropdownId === o.id ? null : o.id)}
+                          className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-cream-100 text-cacao-500"
+                          title="Menu"
+                        >
+                          <MoreVertical size={14} />
+                        </button>
+                        {openDropdownId === o.id && (
+                          <div className="absolute right-0 top-full mt-1 bg-white border border-cream-200 rounded-lg shadow-lg z-40 min-w-[140px]">
+                            <button
+                              onClick={() => deleteOrder(o.id)}
+                              className="w-full text-left px-4 py-2.5 text-sm text-rose-500 hover:bg-rose-50 rounded-lg flex items-center gap-2"
+                            >
+                              <Trash2 size={14} />
+                              Hapus Pesanan
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </td>
                 </tr>

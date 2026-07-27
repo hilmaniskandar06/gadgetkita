@@ -6,7 +6,7 @@ import { useSiteContent } from '../context/SiteContentContext'
 // Demo saja — password statis di kode. JANGAN dipakai untuk produksi.
 // Saat migrasi ke Supabase, ganti mekanisme ini dengan supabase.auth.signInWithPassword().
 // Lihat README bagian "Migrasi ke Supabase".
-const ADMIN_PASSWORD = 'admin123123'
+const ADMIN_PASSWORD = 'admin123'
 
 export default function AdminLogin() {
   const { content } = useSiteContent()

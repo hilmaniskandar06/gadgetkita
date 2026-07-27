@@ -111,10 +111,16 @@ CREATE TABLE IF NOT EXISTS products (
   short_desc TEXT,
   description TEXT,
   images TEXT[] DEFAULT '{}'::text[],
+  external_link TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Read products publicly" ON products FOR SELECT USING (true);
+```
+
+**Untuk database lama (sudah ada tanpa kolom `external_link`):**
+```sql
+ALTER TABLE products ADD COLUMN IF NOT EXISTS external_link TEXT;
 ```
 
 ---

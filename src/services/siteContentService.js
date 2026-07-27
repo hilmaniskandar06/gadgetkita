@@ -16,6 +16,7 @@ export const DEFAULT_CONTENT = {
   logoDark: '',
   logoLight: '',
   socialInstagram: 'https://instagram.com/kakaokita',
+  whatsappLink: '',
   socialFacebook: '',
   socialTiktok: '',
   socialTwitter: '',

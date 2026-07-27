@@ -10,7 +10,8 @@ function mapFromDb(dbItem) {
     contentVolume: dbItem.content_volume,
     isNew: dbItem.is_new,
     shortDesc: dbItem.short_desc,
-    longDesc: dbItem.description
+    longDesc: dbItem.description,
+    externalLink: dbItem.external_link || null
   }
 }
 
@@ -29,7 +30,8 @@ function mapToDb(item) {
     is_new: item.isNew,
     short_desc: item.shortDesc,
     description: item.longDesc || item.description,
-    images: item.images || []
+    images: item.images || [],
+    external_link: item.externalLink || null
   }
 }
 
