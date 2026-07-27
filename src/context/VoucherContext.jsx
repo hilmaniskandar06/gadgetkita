@@ -41,16 +41,27 @@ export function VoucherProvider({ children }) {
     return updated
   }
 
-  function verifyVoucher(code, subtotal) {
-    const v = vouchers.find(x => String(x.code).toUpperCase() === String(code).toUpperCase())
+  async function verifyVoucher(code, subtotal) {
+    if (typeof code !== 'string' || !code.trim()) {
+      return { valid: false, error: 'Masukkan kode voucher' }
+    }
+
+    const v = await voucherService.getVoucherByCode(code)
     if (!v) return { valid: false, error: 'Voucher tidak ditemukan' }
 
     if (v.minOrder && Number(subtotal) < Number(v.minOrder)) {
       return { valid: false, error: `Minimal belanja Rp${Number(v.minOrder).toLocaleString('id-ID')}` }
     }
-    if (v.expiryDate && new Date() > new Date(v.expiryDate)) {
-      return { valid: false, error: 'Voucher sudah kadaluarsa' }
+
+    if (v.expiryDate) {
+      const expiryStr = String(v.expiryDate).slice(0, 10)
+      const [y, m, d] = expiryStr.split('-').map(Number)
+      const endOfDayLocal = new Date(y, (m || 1) - 1, d || 1, 23, 59, 59, 999)
+      if (new Date() > endOfDayLocal) {
+        return { valid: false, error: 'Voucher sudah kadaluarsa' }
+      }
     }
+
     if (v.usageLimit && Number(v.used || 0) >= Number(v.usageLimit)) {
       return { valid: false, error: 'Batas pemakaian voucher sudah habis' }
     }

@@ -114,9 +114,9 @@ export default function Checkout() {
     setForm((f) => ({ ...f, [key]: value }))
   }
 
-  function handleApplyVoucher() {
+  async function handleApplyVoucher() {
     if (!voucherCode) return
-    const res = verifyVoucher(voucherCode, checkoutSubtotal)
+    const res = await verifyVoucher(voucherCode, checkoutSubtotal)
     if (res.valid) {
       setActiveVoucher(res)
       addToast('Voucher berhasil digunakan!')

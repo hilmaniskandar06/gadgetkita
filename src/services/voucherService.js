@@ -70,7 +70,14 @@ export async function listVouchers() {
 
 export async function getVoucherByCode(code) {
   try {
-    const { data, error } = await supabase.from('vouchers').select('*').eq('code', code).limit(1).maybeSingle()
+    const cleanCode = typeof code === 'string' ? code.trim() : ''
+    if (!cleanCode) return null
+    const { data, error } = await supabase
+      .from('vouchers')
+      .select('*')
+      .ilike('code', cleanCode)
+      .limit(1)
+      .maybeSingle()
     if (error && error.code !== 'PGRST116') {
       console.error('Error getVoucherByCode:', error)
     }
