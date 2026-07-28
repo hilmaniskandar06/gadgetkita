@@ -57,15 +57,23 @@ function makeFallbackRedirect(apkUrl) {
 }
 
 exports.handler = async function (event, context) {
-  const apkUrl = await getApkUrlFromDb()
+  const envUrl = (process.env.APP_DOWNLOAD_URL || '').trim()
+  const dbUrl = (await getApkUrlFromDb()) || ''
+  const apkUrl = envUrl || dbUrl
 
   if (!apkUrl) {
     return {
       statusCode: 404,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-      body: 'Link download APK belum diatur. Silakan hubungi admin atau isi field Link Download APK di halaman Kelola Konten.'
+      body:
+        'Link download APK belum diatur.\n' +
+        'Solusi (pilih SALAH SATU):\n' +
+        '  Opsi 1 (Rekomendasi): Set ENV VAR APP_DOWNLOAD_URL dengan link GitHub Releases repo public APK.\n' +
+        '  Opsi 2             : Admin -> Kelola Konten -> isi field Link Download APK -> Simpan.\n'
     }
   }
+
+  console.log('[download-apk] Source URL:', envUrl ? 'ENV APP_DOWNLOAD_URL (primary)' : 'DB site_settings (fallback)')
 
   try {
     const upstream = await fetch(apkUrl, {

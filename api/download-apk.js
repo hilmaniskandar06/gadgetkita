@@ -48,14 +48,23 @@ export const config = {
 }
 
 export default async function handler(req, res) {
-  const apkUrl = await getApkUrlFromDb()
+  const envUrl = (process.env.APP_DOWNLOAD_URL || '').trim()
+  const dbUrl = (await getApkUrlFromDb()) || ''
+  const apkUrl = envUrl || dbUrl
 
   if (!apkUrl) {
     res.status(404)
     res.setHeader('Content-Type', 'text/plain; charset=utf-8')
-    res.send('Link download APK belum diatur. Silakan hubungi admin atau isi field Link Download APK di halaman Kelola Konten.')
+    res.send(
+      'Link download APK belum diatur.\n' +
+        'Solusi (pilih SALAH SATU):\n' +
+        '  Opsi 1 (Rekomendasi): Set ENV VAR Vercel APP_DOWNLOAD_URL dengan link GitHub Releases repo public APK.\n' +
+        '  Opsi 2             : Admin -> Kelola Konten -> isi field Link Download APK -> Simpan.\n'
+    )
     return
   }
+
+  console.log('[download-apk] Source URL:', envUrl ? 'ENV APP_DOWNLOAD_URL (primary)' : 'DB site_settings (fallback)')
 
   try {
     const upstream = await fetch(apkUrl, {
