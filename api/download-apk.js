@@ -48,12 +48,12 @@ export const config = {
 }
 
 export default async function handler(req, res) {
-  const apkUrl = (process.env.APP_DOWNLOAD_URL || '').trim() || (await getApkUrlFromDb())
+  const apkUrl = await getApkUrlFromDb()
 
   if (!apkUrl) {
     res.status(404)
     res.setHeader('Content-Type', 'text/plain; charset=utf-8')
-    res.send('Link download APK belum diatur. Silakan hubungi admin atau atur APP_DOWNLOAD_URL environment variable.')
+    res.send('Link download APK belum diatur. Silakan hubungi admin atau isi field Link Download APK di halaman Kelola Konten.')
     return
   }
 
@@ -65,9 +65,16 @@ export default async function handler(req, res) {
     })
 
     if (!upstream.ok || !upstream.body) {
-      res.status(upstream.status || 502)
-      res.setHeader('Content-Type', 'text/plain; charset=utf-8')
-      res.send('Gagal mengambil file APK dari server upstream.')
+      console.warn(
+        `[download-apk] Upstream gagal (status=${upstream.status || 0}). Redirect langsung ke URL asli.`
+      )
+      const filename = parseFilenameFromUrl(apkUrl, 'KakaoKita.apk')
+      const separator = apkUrl.includes('?') ? '&' : '?'
+      const downloadHintUrl = `${apkUrl}${separator}download=${encodeURIComponent(filename)}`
+      res.status(302)
+      res.setHeader('Location', downloadHintUrl)
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+      res.end()
       return
     }
 
@@ -88,9 +95,19 @@ export default async function handler(req, res) {
     if (contentLength) res.setHeader('Content-Length', contentLength)
     res.send(buffer)
   } catch (err) {
-    console.error('download-apk error:', err)
-    res.status(500)
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8')
-    res.send('Terjadi kesalahan internal saat menyiapkan file APK.')
+    console.error('[download-apk] Stream error:', err)
+    try {
+      const filename = parseFilenameFromUrl(apkUrl, 'KakaoKita.apk')
+      const separator = apkUrl.includes('?') ? '&' : '?'
+      const downloadHintUrl = `${apkUrl}${separator}download=${encodeURIComponent(filename)}`
+      res.status(302)
+      res.setHeader('Location', downloadHintUrl)
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+      res.end()
+    } catch (fallbackErr) {
+      res.status(500)
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+      res.send('Terjadi kesalahan internal saat menyiapkan file APK.')
+    }
   }
 }

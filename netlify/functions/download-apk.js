@@ -42,14 +42,28 @@ function parseFilenameFromUrl(url, fallback = 'KakaoKita.apk') {
   }
 }
 
+function makeFallbackRedirect(apkUrl) {
+  const filename = parseFilenameFromUrl(apkUrl, 'KakaoKita.apk')
+  const separator = apkUrl.includes('?') ? '&' : '?'
+  const location = `${apkUrl}${separator}download=${encodeURIComponent(filename)}`
+  return {
+    statusCode: 302,
+    headers: {
+      Location: location,
+      'Cache-Control': 'no-cache, no-store, must-revalidate'
+    },
+    body: ''
+  }
+}
+
 exports.handler = async function (event, context) {
-  const apkUrl = (process.env.APP_DOWNLOAD_URL || '').trim() || (await getApkUrlFromDb())
+  const apkUrl = await getApkUrlFromDb()
 
   if (!apkUrl) {
     return {
       statusCode: 404,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-      body: 'Link download APK belum diatur. Silakan hubungi admin atau atur APP_DOWNLOAD_URL environment variable.'
+      body: 'Link download APK belum diatur. Silakan hubungi admin atau isi field Link Download APK di halaman Kelola Konten.'
     }
   }
 
@@ -61,11 +75,10 @@ exports.handler = async function (event, context) {
     })
 
     if (!upstream.ok || !upstream.body) {
-      return {
-        statusCode: upstream.status || 502,
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-        body: 'Gagal mengambil file APK dari server upstream.'
-      }
+      console.warn(
+        `[download-apk] Upstream gagal (status=${upstream.status || 0}). Redirect langsung ke URL asli.`
+      )
+      return makeFallbackRedirect(apkUrl)
     }
 
     const contentType =
@@ -89,11 +102,15 @@ exports.handler = async function (event, context) {
       isBase64Encoded: true
     }
   } catch (err) {
-    console.error('download-apk error:', err)
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-      body: 'Terjadi kesalahan internal saat menyiapkan file APK.'
+    console.error('[download-apk] Stream error:', err)
+    try {
+      return makeFallbackRedirect(apkUrl)
+    } catch (fallbackErr) {
+      return {
+        statusCode: 500,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        body: 'Terjadi kesalahan internal saat menyiapkan file APK.'
+      }
     }
   }
 }
