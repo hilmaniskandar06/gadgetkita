@@ -177,7 +177,6 @@ export default function Invoice() {
         {/* Footer Invoice */}
         <div className="mt-16 pt-8 border-t border-gray-200 text-center text-gray-500 text-xs">
           <p className="mb-1">Terima kasih telah berbelanja di <strong>{shopName}</strong>!</p>
-          <p>Jika Anda memiliki pertanyaan mengenai invoice ini, silakan hubungi kami.</p>
         </div>
       </div>
     </div>
