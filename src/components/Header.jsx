@@ -78,7 +78,7 @@ export default function Header({ onOpenCart }) {
 
             {content.appDownloadLink && content.appDownloadLink.trim() && (
               <a
-                href="/download-apk"
+                href="/api/download-apk"
                 className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold bg-cacao-900 text-white rounded-full hover:bg-cacao-800 transition-colors"
               >
                 <Download size={14} />
