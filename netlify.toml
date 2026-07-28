@@ -1,6 +1,12 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/download-apk"
+  to = "/.netlify/functions/download-apk"
+  status = 200
 
 [[redirects]]
   from = "/*"

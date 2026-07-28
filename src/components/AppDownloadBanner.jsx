@@ -26,9 +26,7 @@ export default function AppDownloadBanner({ content }) {
         </p>
 
         <a
-          href={content.appDownloadLink}
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/download-apk"
           className="shrink-0 px-3.5 py-1.5 bg-white text-cacao-900 text-xs font-bold rounded-full hover:bg-cream-100 transition-colors"
         >
           Download
