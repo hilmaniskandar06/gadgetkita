@@ -10,6 +10,8 @@ const FIELDS = [
   { key: 'heroTitle', label: 'Judul Hero (halaman beranda)', type: 'textarea' },
   { key: 'heroSubtitle', label: 'Subjudul Hero', type: 'textarea' },
   { key: 'footerDescription', label: 'Deskripsi Singkat di Footer', type: 'textarea' },
+  { key: 'appDownloadBannerText', label: 'Teks Banner Download Aplikasi', type: 'input' },
+  { key: 'appDownloadLink', label: 'Link Download APK (GitHub Releases)', type: 'input' },
   { key: 'socialInstagram', label: 'Link Instagram', type: 'input' },
   { key: 'whatsappLink', label: 'Link WhatsApp', type: 'input' },
   { key: 'socialFacebook', label: 'Link Facebook', type: 'input' },

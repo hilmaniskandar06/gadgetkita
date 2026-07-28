@@ -5,6 +5,7 @@ import Footer from './components/Footer'
 import CartDrawer from './components/CartDrawer'
 import ChatWidget from './components/ChatWidget'
 import BottomNav from './components/BottomNav'
+import AppDownloadBanner from './components/AppDownloadBanner'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
@@ -33,10 +34,12 @@ import AdminNotifications from './admin/AdminNotifications'
 import AdminChats from './admin/AdminChats'
 import AdminPages from './admin/AdminPages'
 import StaticPage from './pages/StaticPage'
+import { useSiteContent } from './context/SiteContentContext'
 
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false)
   const location = useLocation()
+  const { content } = useSiteContent()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -76,6 +79,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-cream-100 text-cacao-900">
+      <AppDownloadBanner content={content} />
       <Header onOpenCart={() => setCartOpen(true)} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
 

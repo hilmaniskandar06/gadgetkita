@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, Heart, ShoppingBag, Receipt, User as UserIcon, Bell } from 'lucide-react'
+import { Search, Heart, ShoppingBag, User as UserIcon, Bell, Download } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useAuth } from '../context/AuthContext'
@@ -76,27 +76,20 @@ export default function Header({ onOpenCart }) {
               <Search size={19} />
             </button>
 
+            {content.appDownloadLink && content.appDownloadLink.trim() && (
+              <a
+                href={content.appDownloadLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold bg-cacao-900 text-white rounded-full hover:bg-cacao-800 transition-colors"
+              >
+                <Download size={14} />
+                Download App
+              </a>
+            )}
+
             {user ? (
               <>
-                <Link
-                  to="/profil"
-                  aria-label="Profil Saya"
-                  className="hidden sm:flex w-10 h-10 rounded-full items-center justify-center hover:bg-cream-200 transition-colors overflow-hidden border border-cream-300"
-                >
-                  {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <UserIcon size={19} />
-                  )}
-                </Link>
-                <Link
-                  to="/pesanan"
-                  aria-label="Riwayat pesanan"
-                  className="hidden sm:flex w-10 h-10 rounded-full items-center justify-center hover:bg-cream-200 transition-colors"
-                >
-                  <Receipt size={19} />
-                </Link>
-                
                 <div className="relative" ref={notifRef}>
                   <button
                     onClick={() => setNotifOpen(!notifOpen)}
@@ -168,6 +161,17 @@ export default function Header({ onOpenCart }) {
                     </span>
                   )}
                 </button>
+                <Link
+                  to="/profil"
+                  aria-label="Profil Saya"
+                  className="hidden sm:flex w-10 h-10 rounded-full items-center justify-center hover:bg-cream-200 transition-colors overflow-hidden border border-cream-300"
+                >
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <UserIcon size={19} />
+                  )}
+                </Link>
               </>
             ) : (
               <>

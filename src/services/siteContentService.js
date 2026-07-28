@@ -15,6 +15,8 @@ export const DEFAULT_CONTENT = {
   shopLogo: '',
   logoDark: '',
   logoLight: '',
+  appDownloadBannerText: 'Download Aplikasi Kakao Kita',
+  appDownloadLink: '',
   socialInstagram: 'https://instagram.com/kakaokita',
   whatsappLink: '',
   socialFacebook: '',
