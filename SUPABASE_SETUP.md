@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS products (
   description TEXT,
   images TEXT[] DEFAULT '{}'::text[],
   external_link TEXT,
+  sold INTEGER DEFAULT 0 NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
@@ -306,6 +307,7 @@ Badge admin "Pesanan" menghitung status aktif: `belum_dibayar` + `menunggu_verif
 1. Ubah status → `dibatalkan`
 2. Tambah `cancel_reason`: `'Timeout 24 jam tidak upload bukti transfer (otomatis oleh sistem)'`
 3. **Rollback voucher**: Jika order pakai voucher (`voucher_code` ada) → kurangi `used` di tabel vouchers 1 poin.
+4. **Rollback jumlah terjual produk**: Kurangi `sold` di tabel products sesuai qty item di order (bisa cek kembali nanti jika produk dijual lagi).
 
 ⚠️ **Prasyarat:** Extension `pg_cron` dan `pg_trigger` / `http` bisa di Supabase Free Tier. Jalankan SQL dibawah:
 
@@ -322,9 +324,10 @@ RETURNS SETOF public.orders AS $$
 DECLARE
   r_order RECORD;
   v_voucher_id TEXT;
+  r_item RECORD;
 BEGIN
   FOR r_order IN
-    SELECT id, voucher_code
+    SELECT id, voucher_code, items
     FROM public.orders
     WHERE status = 'belum_dibayar'
       AND created_at < NOW() - INTERVAL '24 hours'
@@ -346,6 +349,21 @@ BEGIN
         SET used = GREATEST(0, COALESCE(used, 0) - 1)
         WHERE id = v_voucher_id;
       END IF;
+    END IF;
+
+    -- 3. Rollback jumlah produk terjual (sesuai qty per item)
+    IF r_order.items IS NOT NULL AND jsonb_array_length(r_order.items::jsonb) > 0 THEN
+      FOR r_item IN
+        SELECT (elem->>'id')::text AS product_id,
+               COALESCE(NULLIF((elem->>'qty')::text, '')::int, 1) AS qty
+        FROM jsonb_array_elements(r_order.items::jsonb) AS elem
+      LOOP
+        IF r_item.product_id IS NOT NULL THEN
+          UPDATE public.products
+          SET sold = GREATEST(0, COALESCE(sold, 0) - r_item.qty)
+          WHERE id = r_item.product_id;
+        END IF;
+      END LOOP;
     END IF;
 
     RETURN NEXT;

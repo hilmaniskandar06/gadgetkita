@@ -11,7 +11,8 @@ function mapFromDb(dbItem) {
     isNew: dbItem.is_new,
     shortDesc: dbItem.short_desc,
     longDesc: dbItem.description,
-    externalLink: dbItem.external_link || null
+    externalLink: dbItem.external_link || null,
+    sold: Number(dbItem.sold || 0)
   }
 }
 
@@ -31,8 +32,45 @@ function mapToDb(item) {
     short_desc: item.shortDesc,
     description: item.longDesc || item.description,
     images: item.images || [],
-    external_link: item.externalLink || null
+    external_link: item.externalLink || null,
+    sold: Number(item.sold || 0)
   }
+}
+
+export async function incrementProductsSold(itemsWithQty) {
+  if (!itemsWithQty || !itemsWithQty.length) return []
+  const results = []
+  for (const { id, qty } of itemsWithQty) {
+    if (!id || !qty) continue
+    const { data: current } = await supabase.from('products').select('sold').eq('id', id).maybeSingle()
+    const newSold = Number(current?.sold || 0) + Number(qty || 0)
+    const { data, error } = await supabase
+      .from('products')
+      .update({ sold: newSold })
+      .eq('id', id)
+      .select()
+      .maybeSingle()
+    if (!error && data) results.push(mapFromDb(data))
+  }
+  return results
+}
+
+export async function decrementProductsSold(itemsWithQty) {
+  if (!itemsWithQty || !itemsWithQty.length) return []
+  const results = []
+  for (const { id, qty } of itemsWithQty) {
+    if (!id || !qty) continue
+    const { data: current } = await supabase.from('products').select('sold').eq('id', id).maybeSingle()
+    const newSold = Math.max(0, Number(current?.sold || 0) - Number(qty || 0))
+    const { data, error } = await supabase
+      .from('products')
+      .update({ sold: newSold })
+      .eq('id', id)
+      .select()
+      .maybeSingle()
+    if (!error && data) results.push(mapFromDb(data))
+  }
+  return results
 }
 
 export async function listProducts() {

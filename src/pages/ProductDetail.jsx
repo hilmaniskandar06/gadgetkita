@@ -145,9 +145,14 @@ export default function ProductDetail() {
           <h1 className="text-3xl md:text-4xl font-serif font-bold mt-2 text-cacao-900">{product.name}</h1>
           <div className="mt-3"><RatingStars rating={avgRating} reviews={reviewCount} size={16} /></div>
 
-          <div className="flex items-baseline gap-3 mt-5">
+          <div className="flex items-baseline gap-3 mt-5 flex-wrap">
             {product.oldPrice && <span className="text-cacao-500 line-through font-mono">{fmt(product.oldPrice)}</span>}
             <span className="text-xl md:text-2xl font-mono font-extrabold">{fmt(product.price)}</span>
+            {Number(product.sold || 0) > 0 && (
+              <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-gold-50 text-gold-700 border border-gold-200">
+                {Number(product.sold || 0).toLocaleString('id-ID')} Terjual
+              </span>
+            )}
           </div>
 
           <p className="text-sm md:text-base text-cacao-700 leading-relaxed mt-5 max-w-lg">{product.shortDesc}</p>

@@ -68,6 +68,7 @@ export default function AdminDashboard() {
                 <th className="px-4 py-3 font-semibold">Produk</th>
                 <th className="px-4 py-3 font-semibold">Kategori</th>
                 <th className="px-4 py-3 font-semibold">Harga</th>
+                <th className="px-4 py-3 font-semibold">Terjual</th>
                 <th className="px-4 py-3 font-semibold">Stok</th>
                 <th className="px-4 py-3 font-semibold text-right">Aksi</th>
               </tr>
@@ -85,6 +86,11 @@ export default function AdminDashboard() {
                   </td>
                   <td className="px-4 py-3 text-cacao-600">{p.category}</td>
                   <td className="px-4 py-3 font-mono">{fmt(p.price)}</td>
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-gold-50 text-gold-700 border border-gold-200">
+                      {Number(p.sold || 0).toLocaleString('id-ID')} Terjual
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <span className={`text-xs font-semibold px-2 py-1 rounded-full ${p.inStock ? 'bg-ok-50 text-ok-500' : 'bg-rose-50 text-rose-500'}`}>
                       {p.inStock ? 'Tersedia' : 'Habis'}
@@ -123,7 +129,7 @@ export default function AdminDashboard() {
               ))}
               {products.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-cacao-500">
+                  <td colSpan={6} className="px-4 py-10 text-center text-cacao-500">
                     Belum ada produk.
                   </td>
                 </tr>

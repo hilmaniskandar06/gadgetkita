@@ -15,6 +15,7 @@ const emptyForm = {
   price: '',
   oldPrice: '',
   inStock: true,
+  sold: 0,
   images: [],
   shortDesc: '',
   longDesc: '',
@@ -107,6 +108,7 @@ export default function AdminProductForm() {
         images: finalImages,
         price: Number(form.price),
         oldPrice: form.oldPrice ? Number(form.oldPrice) : null,
+        sold: Number(form.sold || 0),
       }
       
       if (isEdit) {
@@ -170,6 +172,16 @@ export default function AdminProductForm() {
             <TextField label="Harga Coret (opsional)" type="number" value={form.oldPrice} onChange={(v) => update('oldPrice', v)} />
           </div>
 
+          <div className="grid sm:grid-cols-2 gap-4">
+            <TextField label="Jumlah Terjual" type="number" min={0} value={form.sold} onChange={(v) => update('sold', v ? Number(v) : 0)} placeholder="mis. 120" />
+            <div className="flex items-end">
+              <label className="flex items-center gap-2 text-sm pb-2.5">
+                <input type="checkbox" checked={form.inStock} onChange={(e) => update('inStock', e.target.checked)} className="accent-gold-500" />
+                Stok tersedia
+              </label>
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-medium text-cacao-600 mb-1.5">Deskripsi Singkat</label>
             <input
@@ -200,11 +212,6 @@ export default function AdminProductForm() {
               className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-gold-500"
             />
           </div>
-
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.inStock} onChange={(e) => update('inStock', e.target.checked)} className="accent-gold-500" />
-            Stok tersedia
-          </label>
         </div>
 
         <div className="flex flex-col gap-5">

@@ -14,6 +14,7 @@ import { useAuth } from '../context/AuthContext'
 import { useNotifications } from '../context/NotificationContext'
 import * as geo from '../services/geoService'
 import * as orderService from '../services/orderService'
+import * as productService from '../services/productService'
 import { Copy } from 'lucide-react'
 
 const fmt = (n) => 'Rp' + n.toLocaleString('id-ID')
@@ -250,6 +251,14 @@ export default function Checkout() {
       addToast('Gagal membuat pesanan: ' + err.message)
       setSaving(false)
       return
+    }
+
+    // Increment jumlah terjual setiap produk yang dicheckout (sesuai qty)
+    try {
+      const soldItems = checkoutItems.map(i => ({ id: i.id, qty: i.qty }))
+      await productService.incrementProductsSold(soldItems)
+    } catch (e) {
+      console.warn('Gagal update jumlah terjual:', e)
     }
 
     // Kirim notifikasi admin: pesanan baru (broadcast userId=ADMIN_BROADCAST)

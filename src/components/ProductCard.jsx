@@ -95,7 +95,14 @@ export default function ProductCard({ product }) {
             {product.oldPrice && (
               <span className="text-[10px] sm:text-xs text-cacao-500 line-through font-mono">{fmt(product.oldPrice)}</span>
             )}
-            <span className="font-mono font-bold text-sm sm:text-base text-cacao-900">{fmt(product.price)}</span>
+            <div className="flex items-baseline gap-2">
+              <span className="font-mono font-bold text-sm sm:text-base text-cacao-900">{fmt(product.price)}</span>
+              {Number(product.sold || 0) > 0 && (
+                <span className="text-[10px] sm:text-xs text-gold-700 font-bold">
+                  {Number(product.sold || 0).toLocaleString('id-ID')}+ Terjual
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end">
             <button
