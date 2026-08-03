@@ -1,9 +1,8 @@
 import { useState, useMemo } from 'react'
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom'
-import { Minus, Plus, Heart, Truck, ShieldCheck, Zap, ChevronLeft, ChevronRight, Star } from 'lucide-react'
+import { Minus, Plus, Heart, Truck, ShieldCheck, Zap, ChevronLeft, ChevronRight } from 'lucide-react'
 import ProductThumb from '../components/ProductThumb'
 import ProductCard from '../components/ProductCard'
-import RatingStars from '../components/RatingStars'
 import { useProducts } from '../context/ProductsContext'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
@@ -19,13 +18,11 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1)
   const [tab, setTab] = useState('desc')
   const [imgIdx, setImgIdx] = useState(0)
-  const [ratingFilter, setRatingFilter] = useState(0)
   const { addItem } = useCart()
   const { toggle, isWishlisted } = useWishlist()
   const { addToast } = useToast()
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' })
 
   const featured = useMemo(() => {
     return [...products].sort(() => 0.5 - Math.random()).slice(0, 4)
@@ -50,35 +47,6 @@ export default function ProductDetail() {
   const images = product.images?.length > 0 ? product.images : (product.image ? [product.image] : [])
   const nextImg = () => setImgIdx((i) => (i + 1) % images.length)
   const prevImg = () => setImgIdx((i) => (i - 1 + images.length) % images.length)
-
-  // Reviews logic
-  const allReviews = JSON.parse(localStorage.getItem('kk_reviews') || '[]').filter(r => r.productId === product.id)
-  const avgRating = allReviews.length > 0 ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length) : 0
-  const reviewCount = allReviews.length > 0 ? allReviews.length : 0
-  const filteredReviews = ratingFilter > 0 ? allReviews.filter(r => r.rating === ratingFilter) : allReviews
-
-  const sessionUser = user || JSON.parse(sessionStorage.getItem('kk_auth_session') || 'null')
-  const reviewUser = sessionUser
-
-  function submitReview(e) {
-    e.preventDefault()
-    if (!reviewUser) return addToast('Silakan login terlebih dahulu', 'error')
-    
-    const saved = JSON.parse(localStorage.getItem('kk_reviews') || '[]')
-    const newReview = {
-      id: 'rev-' + Date.now(),
-      productId: product.id,
-      userId: reviewUser.id,
-      userName: reviewUser.name,
-      rating: reviewForm.rating,
-      comment: reviewForm.comment,
-      date: new Date().toISOString()
-    }
-    saved.push(newReview)
-    localStorage.setItem('kk_reviews', JSON.stringify(saved))
-    addToast('Ulasan berhasil dikirim')
-    setReviewForm({ rating: 5, comment: '' })
-  }
 
   function handleBuyNow(e) {
     if (e && e.preventDefault) e.preventDefault()
@@ -143,7 +111,6 @@ export default function ProductDetail() {
         <div>
           <span className="text-xs uppercase tracking-wide text-gold-600 font-bold">{product.category}</span>
           <h1 className="text-3xl md:text-4xl font-serif font-bold mt-2 text-cacao-900">{product.name}</h1>
-          <div className="mt-3"><RatingStars rating={avgRating} reviews={reviewCount} size={16} /></div>
 
           <div className="flex items-baseline gap-3 mt-5 flex-wrap">
             {product.oldPrice && <span className="text-cacao-500 line-through font-mono">{fmt(product.oldPrice)}</span>}
@@ -217,7 +184,7 @@ export default function ProductDetail() {
       </div>
 
       <div className="mt-14 border-b border-cream-300 flex gap-8">
-        {[{ id: 'desc', label: 'Deskripsi' }, { id: 'shipping', label: 'Pengiriman' }, { id: 'reviews', label: 'Ulasan Pembeli' }].map((t) => (
+        {[{ id: 'desc', label: 'Deskripsi' }, { id: 'shipping', label: 'Pengiriman' }].map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
@@ -225,94 +192,13 @@ export default function ProductDetail() {
               tab === t.id ? 'border-gold-500 text-cacao-900' : 'border-transparent text-cacao-500'
             }`}
           >
-            {t.label} {t.id === 'reviews' && `(${reviewCount})`}
+            {t.label}
           </button>
         ))}
       </div>
       <div className="py-6 text-sm text-cacao-700 leading-relaxed max-w-3xl">
         {tab === 'desc' && product.longDesc}
         {tab === 'shipping' && 'Pesanan diproses dalam 1x24 jam pada hari kerja. Pengiriman menggunakan mitra ekspedisi ke seluruh Indonesia dengan estimasi 1–3 hari untuk area Jawa dan 3–6 hari untuk luar Jawa.'}
-        {tab === 'reviews' && (
-          <div className="flex flex-col md:flex-row gap-10">
-            <div className="md:w-1/3 shrink-0">
-              <div className="bg-cream-100 rounded-xl p-6 text-center">
-                <div className="text-5xl font-black text-cacao-900">{Number(avgRating).toFixed(1)}</div>
-                <div className="flex justify-center mt-2 text-gold-500"><RatingStars rating={avgRating} size={20} hideCount /></div>
-                <div className="text-cacao-500 mt-2">Dari {reviewCount} ulasan</div>
-                
-                <div className="mt-6 flex flex-col gap-2">
-                  {[5,4,3,2,1].map(star => {
-                    const count = allReviews.filter(r => r.rating === star).length
-                    const pct = allReviews.length ? (count / allReviews.length) * 100 : 0
-                    return (
-                      <button 
-                        key={star} 
-                        onClick={() => setRatingFilter(ratingFilter === star ? 0 : star)}
-                        className={`flex items-center gap-2 text-xs hover:text-gold-600 transition-colors ${ratingFilter === star ? 'font-bold text-gold-600' : ''}`}
-                      >
-                        <span className="w-2">{star}</span>
-                        <Star size={10} className="fill-gold-500 text-gold-500" />
-                        <div className="flex-1 h-1.5 bg-cream-300 rounded-full overflow-hidden">
-                          <div className="h-full bg-gold-500" style={{ width: `${pct}%` }} />
-                        </div>
-                        <span className="w-4 text-right">{count}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-            
-            <div className="md:w-2/3">
-              {reviewUser ? (
-                <form onSubmit={submitReview} className="bg-white border border-cream-300 rounded-xl p-5 mb-8">
-                  <h4 className="font-bold text-cacao-900 mb-3">Tulis Ulasan Anda</h4>
-                  <div className="flex gap-1 mb-3">
-                    {[1,2,3,4,5].map(star => (
-                      <button type="button" key={star} onClick={() => setReviewForm(f => ({ ...f, rating: star }))}>
-                        <Star size={24} className={star <= reviewForm.rating ? 'fill-gold-500 text-gold-500' : 'text-cream-300'} />
-                      </button>
-                    ))}
-                  </div>
-                  <textarea 
-                    required 
-                    value={reviewForm.comment}
-                    onChange={e => setReviewForm(f => ({ ...f, comment: e.target.value }))}
-                    placeholder="Bagaimana kualitas produk ini?" 
-                    className="w-full bg-cream-100 border border-cream-300 rounded-lg p-3 text-sm outline-none focus:border-gold-500 min-h-[80px]"
-                  />
-                  <button type="submit" className="mt-3 bg-cacao-900 hover:bg-cacao-800 text-white font-bold py-2 px-6 rounded-lg text-sm transition-colors">Kirim Ulasan</button>
-                </form>
-              ) : (
-                <div className="bg-cream-100 rounded-xl p-5 mb-8 text-center text-sm border border-cream-300 border-dashed">
-                  Silakan <Link to="/login" className="font-bold text-gold-600 hover:underline">Login</Link> untuk memberikan ulasan.
-                </div>
-              )}
-              
-              <div className="flex flex-col gap-6">
-                {filteredReviews.length > 0 ? filteredReviews.map(r => (
-                  <div key={r.id} className="border-b border-cream-200 pb-6 last:border-0 last:pb-0">
-                    <div className="flex gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-cream-300 flex items-center justify-center font-bold text-cacao-600 shrink-0">
-                        {r.userName.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="font-bold text-cacao-900">{r.userName}</div>
-                        <div className="text-[10px] text-cacao-500">
-                          {new Date(r.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex text-gold-500 mb-2"><RatingStars rating={r.rating} size={12} hideCount /></div>
-                    <p className="text-cacao-700">{r.comment}</p>
-                  </div>
-                )) : (
-                  <div className="text-center text-cacao-400 py-10">Belum ada ulasan{ratingFilter > 0 ? ` dengan ${ratingFilter} bintang` : ''}.</div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {featured.length > 0 && (

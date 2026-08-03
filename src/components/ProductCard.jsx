@@ -1,7 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { Heart, Plus, Zap } from 'lucide-react'
 import ProductThumb from './ProductThumb'
-import RatingStars from './RatingStars'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 import { useToast } from '../context/ToastContext'
@@ -16,10 +15,6 @@ export default function ProductCard({ product }) {
   const { user } = useAuth()
   const navigate = useNavigate()
   const wishlisted = isWishlisted(product.id)
-
-  const allReviews = JSON.parse(localStorage.getItem('kk_reviews') || '[]').filter(r => r.productId === product.id)
-  const productAvgRating = allReviews.length > 0 ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length) : 0
-  const productReviewCount = allReviews.length
 
   const discount = product.oldPrice
     ? Math.round(100 - (product.price / product.oldPrice) * 100)
@@ -88,7 +83,6 @@ export default function ProductCard({ product }) {
         <div className="hidden md:block">
           <p className="text-xs text-cacao-600 line-clamp-2">{product.shortDesc}</p>
         </div>
-        <RatingStars rating={productAvgRating} reviews={productReviewCount} />
 
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mt-auto pt-2 sm:pt-3 gap-2 sm:gap-0">
           <div className="flex flex-col">

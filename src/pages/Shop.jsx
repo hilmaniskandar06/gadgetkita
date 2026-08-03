@@ -9,7 +9,7 @@ const SORTS = [
   { value: 'default', label: 'Paling Relevan' },
   { value: 'price-asc', label: 'Harga Terendah' },
   { value: 'price-desc', label: 'Harga Tertinggi' },
-  { value: 'rating', label: 'Rating Tertinggi' },
+  { value: 'sold', label: 'Terlaris' },
 ]
 
 export default function Shop() {
@@ -88,7 +88,7 @@ export default function Shop() {
 
     if (sort === 'price-asc') list = [...list].sort((a, b) => a.price - b.price)
     if (sort === 'price-desc') list = [...list].sort((a, b) => b.price - a.price)
-    if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating)
+    if (sort === 'sold') list = [...list].sort((a, b) => Number(b.sold || 0) - Number(a.sold || 0))
 
     return list
   }, [products, activeCategory, sort, maxPrice, inStockOnly, query])

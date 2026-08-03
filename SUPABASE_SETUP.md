@@ -101,8 +101,6 @@ CREATE TABLE IF NOT EXISTS products (
   name TEXT NOT NULL,
   price NUMERIC NOT NULL,
   old_price NUMERIC,
-  rating NUMERIC DEFAULT 0,
-  reviews INTEGER DEFAULT 0,
   category TEXT,
   weight TEXT,
   in_stock BOOLEAN DEFAULT true,
@@ -390,3 +388,24 @@ SELECT * FROM cron.job;
 ```sql
 SELECT cron.unschedule('cancel-expired-unpaid-orders');
 ```
+
+---
+
+## 13. 🗑️ CARA HAPUS FITUR RATING & ULASAN (DARI DATABASE)
+
+Fitur rating & ulasan sudah dihapus dari frontend. Untuk membersihkan di database:
+
+### (A) Hapus kolom `rating` dan `reviews` dari tabel products (jika sudah terlanjur dibuat)
+```sql
+ALTER TABLE products DROP COLUMN IF EXISTS rating;
+ALTER TABLE products DROP COLUMN IF EXISTS reviews;
+```
+
+### (B) Hapus data ulasan yang tersimpan di localStorage user
+Data ulasan disimpan di localStorage dengan key `kk_reviews`. Untuk menghapus SEMUA data ulasan di SELURUH browser user sekaligus (bukan cuma 1 user), jalankan ini di browser DevTools Console (F12 → Console) saat situs dibuka:
+```javascript
+// (Hanya berjalan di browser pengguna masing-masing)
+localStorage.removeItem('kk_reviews')
+```
+Catatan: Karena data ulasan disimpan di `localStorage` (bukan di Supabase), maka HAPUS DATA LOKAL USER TIDAK BISA DILAKUKAN DARI SISI SERVER DALAM SEKALIGUS. Data ulasan lama tidak akan lagi ditampilkan karena UI sudah tidak memuatnya.
+

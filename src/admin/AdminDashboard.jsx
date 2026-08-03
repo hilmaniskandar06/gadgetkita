@@ -25,24 +25,11 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handleResetReviews() {
-    if (confirm('Hapus semua ulasan yang sudah dibuat pengguna? Tindakan ini tidak bisa dibatalkan.')) {
-      localStorage.removeItem('kk_reviews')
-      addToast('Semua ulasan berhasil dihapus')
-    }
-  }
-
   return (
     <AdminShell
       title="Kelola Produk"
       actions={
         <div className="flex flex-wrap gap-2">
-          <button
-            onClick={handleResetReviews}
-            className="flex items-center gap-1.5 text-sm font-semibold border border-cream-300 rounded-full px-4 py-2 text-rose-500 hover:border-rose-500 transition-colors"
-          >
-            <Trash2 size={14} /> Hapus Ulasan
-          </button>
           <button
             onClick={handleReset}
             className="flex items-center gap-1.5 text-sm font-semibold border border-cream-300 rounded-full px-4 py-2 hover:border-gold-500 transition-colors"
