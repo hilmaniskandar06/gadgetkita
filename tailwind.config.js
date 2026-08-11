@@ -4,41 +4,45 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-        serif: ['"Playfair Display"', 'serif'],
+        sans: ['Inter', 'sans-serif'],
+        display: ['Syne', 'sans-serif'],
         mono: ['"IBM Plex Mono"', 'monospace'],
       },
       colors: {
-        cacao: {
-          900: '#1A1412',
-          800: '#2A1F1B',
-          700: '#3D2D27',
-          600: '#5C443A',
-          500: '#7A5C4F',
+        slate: {
+          900: '#0F172A',
+          800: '#1E293B',
+          700: '#334155',
+          600: '#475569',
+          500: '#64748B',
         },
-        cream: {
-          50: '#FFFFFF',
-          100: '#FDFCFB',
-          200: '#F5F2ED',
-          300: '#E8E3DA',
+        gray: {
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
         },
-        gold: {
-          400: '#D4C19C',
-          500: '#C2A878',
-          600: '#9E865C',
+        lime: {
+          400: '#A3E635',
+          500: '#84CC16',
+          600: '#65A30D',
         },
         rose: {
-          500: '#8C271E',
-          50: '#F8EBEA',
+          500: '#E11D48',
+          50: '#FFF1F2',
         },
         ok: {
-          500: '#3F7D53',
-          50: '#E9F4EC',
+          500: '#16A34A',
+          50: '#F0FDF4',
+        },
+        warning: {
+          500: '#F97316',
+          50: '#FFF7ED',
         },
       },
       borderRadius: {
-        xl: '4px',
-        '2xl': '8px',
+        xl: '6px',
+        '2xl': '12px',
       },
     },
   },

@@ -1,153 +1,301 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Leaf, Truck, ShieldCheck } from 'lucide-react'
+import { ChevronDown, ArrowRight } from 'lucide-react'
 import ProductCard from '../components/ProductCard'
-import ProductThumb from '../components/ProductThumb'
 import { useProducts } from '../context/ProductsContext'
 import { useCategories } from '../context/CategoriesContext'
 import { useSiteContent } from '../context/SiteContentContext'
-import { useToast } from '../context/ToastContext'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 
+const SORTS = [
+  { value: 'default', label: 'Paling Relevan' },
+  { value: 'price-asc', label: 'Harga Terendah' },
+  { value: 'price-desc', label: 'Harga Tertinggi' },
+  { value: 'sold', label: 'Terlaris' },
+]
+
+const PLACEHOLDER_BRANDS = [
+  'NIKE', 'ADIDAS', 'PUMA', 'UNDER ARMOUR', 'NEW BALANCE', 'ASICS', 'REEBOK', 'CONVERSE',
+]
+
+// ─── Brand Ticker ────────────────────────────────────────────────────────────
+function BrandTicker({ logos }) {
+  const hasLogos = logos && logos.length > 0
+
+  if (!hasLogos && PLACEHOLDER_BRANDS.length === 0) return null
+
+  const items = hasLogos ? logos : PLACEHOLDER_BRANDS.map((n, i) => ({ id: i, name: n, imageUrl: '' }))
+  // Duplikat untuk infinite scroll
+  const doubled = [...items, ...items]
+
+  return (
+    <section className="bg-slate-950 border-y border-white/5 py-4 overflow-hidden ticker-track select-none">
+      <div className="animate-marquee gap-0">
+        {doubled.map((item, idx) => (
+          <div
+            key={`${item.id}-${idx}`}
+            className="flex items-center shrink-0 px-10 gap-3"
+          >
+            {item.imageUrl ? (
+              <img
+                src={item.imageUrl}
+                alt={item.name}
+                className="h-7 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity"
+              />
+            ) : (
+              <span className="text-white/40 font-display font-bold text-sm tracking-widest uppercase whitespace-nowrap hover:text-lime-400 transition-colors">
+                {item.name}
+              </span>
+            )}
+            <span className="text-white/20 text-xs ml-6">✦</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+// ─── Dropdown filter ─────────────────────────────────────────────────────────
+function DropdownFilter({ label, children, active }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-semibold transition-all ${
+          active
+            ? 'bg-lime-500 text-slate-900 border-lime-500 shadow-lg shadow-lime-500/20'
+            : 'bg-white border-gray-200 text-slate-700 hover:border-slate-400'
+        }`}
+      >
+        {label}
+        <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl z-30 min-w-[180px] p-3">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
 export default function Home() {
   const { products, loading } = useProducts()
   const { categories } = useCategories()
   const { content } = useSiteContent()
 
-  const featured = useMemo(() => {
-    return [...products].sort(() => 0.5 - Math.random()).slice(0, 4)
-  }, [products])
+  // Filter state
+  const [activeCategory, setActiveCategory] = useState('')
+  const [sort, setSort] = useState('default')
+  const [maxPrice, setMaxPrice] = useState(2000000)
+  const [inStockOnly, setInStockOnly] = useState(false)
 
-  const onSale = products.filter((p) => p.oldPrice)
-  const { addToast } = useToast()
-  if (loading) {
-    return <div className="max-w-7xl mx-auto px-5 py-24 text-center text-cacao-500">Memuat produk...</div>
-  }
+  const results = useMemo(() => {
+    let list = products.filter((p) => p.price <= maxPrice)
+    if (activeCategory) list = list.filter((p) => p.category === activeCategory)
+    if (inStockOnly) list = list.filter((p) => p.inStock)
+    if (sort === 'price-asc') list = [...list].sort((a, b) => a.price - b.price)
+    if (sort === 'price-desc') list = [...list].sort((a, b) => b.price - a.price)
+    if (sort === 'sold') list = [...list].sort((a, b) => Number(b.sold || 0) - Number(a.sold || 0))
+    return list
+  }, [products, activeCategory, sort, maxPrice, inStockOnly])
+
+  const activeSortLabel = SORTS.find((s) => s.value === sort)?.label || 'Urutkan'
+  const priceActive = maxPrice < 2000000
+  const stockActive = inStockOnly
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-cacao-900 text-white">
+      {/* ── Hero ── */}
+      <section className="relative overflow-hidden bg-slate-900 text-white min-h-[72vh] flex items-center">
         {content.heroMedia && (
           <div className="absolute inset-0 z-0">
             {content.heroMediaType === 'video' ? (
-              <video src={content.heroMedia} className="w-full h-full object-cover opacity-40" autoPlay loop muted playsInline />
+              <video src={content.heroMedia} className="w-full h-full object-cover opacity-30" autoPlay loop muted playsInline />
             ) : (
-              <img src={content.heroMedia} className="w-full h-full object-cover opacity-40" alt="" />
+              <img src={content.heroMedia} className="w-full h-full object-cover opacity-30" alt="" />
             )}
-            <div className="absolute inset-0 bg-gradient-to-r from-cacao-900 via-cacao-900/80 to-transparent"></div>
           </div>
         )}
-        <div className="relative z-10 max-w-7xl mx-auto px-5 lg:px-8 py-16 lg:py-24 grid lg:grid-cols-2 gap-10 items-center">
-          <div>
-            <span className="inline-block bg-white/10 text-gold-400 text-xs font-bold uppercase tracking-wide px-3 py-1.5 rounded-full border border-gold-500/30 mb-5">
-              {content.heroEyebrow}
-            </span>
-            <h1 className="text-4xl md:text-6xl font-serif font-bold leading-tight text-white">
-              {content.heroTitle}
-            </h1>
-            <p className="text-cream-50 mt-4 md:mt-5 max-w-md leading-relaxed text-base md:text-lg">
-              {content.heroSubtitle}
-            </p>
-            <div className="flex gap-3 mt-8">
-              <Link to="/toko" className="bg-gold-500 text-cacao-900 font-bold px-8 py-3.5 rounded-full flex items-center gap-2 hover:bg-gold-400 transition-colors">
-                Belanja Sekarang <ArrowRight size={16} />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
+
+        {/* Decorative glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-lime-500/10 rounded-full blur-[120px] pointer-events-none z-0" />
+
+        <div className="relative z-10 w-full max-w-4xl mx-auto px-5 lg:px-8 pt-20 pb-16 text-center">
+          <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.05] text-white mb-6 tracking-tight">
+            {content.heroTitle}
+          </h1>
+        </div>
+
+        {/* Scroll-down indicator */}
+        <a
+          href="#katalog"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-white/40 hover:text-lime-400 transition-colors group"
+          aria-label="Gulir ke katalog"
+        >
+          <span className="text-[10px] uppercase tracking-widest font-semibold">Scroll</span>
+          <ChevronDown size={20} className="animate-bounce" />
+        </a>
+      </section>
+
+      {/* ── Brand Logo Ticker ── */}
+      <BrandTicker logos={content.brandLogos} />
+
+      {/* ── Katalog + Filter ── */}
+      <section id="katalog" className="max-w-7xl mx-auto px-5 lg:px-8 py-12">
+        {/* Header */}
+        <div className="mb-8">
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-slate-900 mb-1">
+            Semua Produk
+          </h2>
+          <p className="text-sm text-slate-500">
+            {loading ? 'Memuat...' : `${results.length} produk tersedia`}
+          </p>
+        </div>
+
+        {/* Filter Bar */}
+        <div className="flex flex-wrap items-center gap-2.5 mb-8 pb-6 border-b border-gray-200">
+          {/* Kategori chips */}
+          <button
+            type="button"
+            onClick={() => setActiveCategory('')}
+            className={`px-4 py-2 rounded-full border text-sm font-semibold transition-all ${
+              !activeCategory
+                ? 'bg-slate-900 text-white border-slate-900'
+                : 'bg-white border-gray-200 text-slate-600 hover:border-slate-400'
+            }`}
+          >
+            Semua
+          </button>
+          {categories.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => setActiveCategory(activeCategory === c.name ? '' : c.name)}
+              className={`px-4 py-2 rounded-full border text-sm font-semibold transition-all ${
+                activeCategory === c.name
+                  ? 'bg-lime-500 text-slate-900 border-lime-500 shadow-md shadow-lime-500/20'
+                  : 'bg-white border-gray-200 text-slate-600 hover:border-slate-400'
+              }`}
+            >
+              {c.name}
+            </button>
+          ))}
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-gray-200 mx-1" />
+
+          {/* Urutkan dropdown */}
+          <DropdownFilter label={sort !== 'default' ? activeSortLabel : 'Urutkan'} active={sort !== 'default'}>
+            {SORTS.map((s) => (
+              <button
+                key={s.value}
+                type="button"
+                onClick={() => setSort(s.value)}
+                className={`w-full text-left px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                  sort === s.value ? 'bg-lime-100 text-slate-900' : 'text-slate-600 hover:bg-gray-50'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </DropdownFilter>
+
+          {/* Harga dropdown */}
+          <DropdownFilter label={priceActive ? `< Rp${(maxPrice / 1000).toFixed(0)}rb` : 'Harga'} active={priceActive}>
+            <div className="px-2 py-1">
+              <p className="text-xs font-semibold text-slate-500 mb-3">Harga Maksimum</p>
+              <input
+                type="range"
+                min="100000"
+                max="2000000"
+                step="50000"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(Number(e.target.value))}
+                className="w-full accent-lime-500"
+              />
+              <p className="text-xs text-slate-600 font-mono mt-1">
+                s/d Rp{Number(maxPrice).toLocaleString('id-ID')}
+              </p>
+              {priceActive && (
+                <button
+                  type="button"
+                  onClick={() => setMaxPrice(2000000)}
+                  className="text-xs text-rose-500 font-semibold mt-2 hover:underline"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          </DropdownFilter>
+
+          {/* Stok toggle */}
+          <button
+            type="button"
+            onClick={() => setInStockOnly((v) => !v)}
+            className={`px-4 py-2 rounded-full border text-sm font-semibold transition-all ${
+              stockActive
+                ? 'bg-lime-500 text-slate-900 border-lime-500 shadow-md shadow-lime-500/20'
+                : 'bg-white border-gray-200 text-slate-600 hover:border-slate-400'
+            }`}
+          >
+            {stockActive ? '✓ ' : ''}Tersedia
+          </button>
+
+          {/* Reset semua */}
+          {(activeCategory || sort !== 'default' || priceActive || stockActive) && (
+            <button
+              type="button"
+              onClick={() => { setActiveCategory(''); setSort('default'); setMaxPrice(2000000); setInStockOnly(false) }}
+              className="text-xs text-rose-500 font-semibold hover:underline ml-1"
+            >
+              Reset semua
+            </button>
+          )}
+        </div>
+
+        {/* Grid Produk */}
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="bg-gray-100 rounded-2xl aspect-[3/4] animate-pulse" />
+            ))}
+          </div>
+        ) : results.length === 0 ? (
+          <div className="text-center py-24 text-slate-500">
+            <p className="font-semibold text-lg">Produk tidak ditemukan.</p>
+            <p className="text-sm mt-1">Coba ubah filter yang digunakan.</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {results.map((p) => <ProductCard key={p.id} product={p} />)}
+            </div>
+            <div className="text-center mt-10">
+              <Link
+                to="/toko"
+                className="inline-flex items-center gap-2 border border-gray-200 text-slate-700 font-semibold px-8 py-3 rounded-full hover:border-slate-400 hover:bg-slate-50 transition-all text-sm"
+              >
+                Lihat Semua Produk <ArrowRight size={15} />
               </Link>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </section>
-
-      {/* Value Props */}
-      <section className="bg-cream-200 border-b border-cream-300">
-        <div className="max-w-7xl mx-auto px-5 lg:px-8 py-8 grid grid-cols-1 sm:grid-cols-3 gap-6 divide-y sm:divide-y-0 sm:divide-x divide-cream-300">
-          <div className="flex items-center gap-4 pt-4 sm:pt-0 sm:px-6 first:pl-0 first:pt-0">
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-cacao-900 shadow-sm shrink-0">
-              <Leaf size={24} />
-            </div>
-            <div>
-              <h4 className="font-bold text-cacao-900">Bahan Alami</h4>
-              <p className="text-xs text-cacao-600 mt-0.5">Tanpa pengawet buatan</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 pt-4 sm:pt-0 sm:px-6">
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-cacao-900 shadow-sm shrink-0">
-              <ShieldCheck size={24} />
-            </div>
-            <div>
-              <h4 className="font-bold text-cacao-900">Kualitas Premium</h4>
-              <p className="text-xs text-cacao-600 mt-0.5">Standar artisan cokelat</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 pt-4 sm:pt-0 sm:px-6">
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-cacao-900 shadow-sm shrink-0">
-              <Truck size={24} />
-            </div>
-            <div>
-              <h4 className="font-bold text-cacao-900">Pengiriman Aman</h4>
-              <p className="text-xs text-cacao-600 mt-0.5">Bergaransi tidak leleh</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Categories */}
-      {categories.length > 0 && (
-        <section className="max-w-7xl mx-auto px-5 lg:px-8 py-10">
-          <h2 className="text-3xl font-serif font-bold mb-8 text-center">Kategori</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {categories.map((c) => {
-              return (
-                <Link
-                  key={c.name}
-                  to={`/toko?category=${encodeURIComponent(c.name)}`}
-                  className="group relative overflow-hidden bg-cream-200 border border-cream-300 rounded-xl h-32 flex items-center justify-center hover:border-gold-500 transition-all shadow-sm hover:shadow-md"
-                >
-                  {c.image && (
-                    <div className="absolute inset-0 z-0">
-                      <img src={c.image} alt={c.name} className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500" />
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-                    </div>
-                  )}
-                  <span className="relative z-10 text-lg font-bold text-center px-4" style={{ color: c.textColor }}>{c.name}</span>
-                </Link>
-              )
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* Promo */}
-      {onSale.length > 0 && (
-        <section className="bg-cacao-900 py-14">
-          <div className="max-w-7xl mx-auto px-5 lg:px-8">
-            <div className="flex items-end justify-between mb-6">
-              <div>
-                <h2 className="text-3xl font-serif font-bold text-white mb-2">Sedang Diskon</h2>
-                <p className="text-sm text-cream-300 mt-1">Jangan sampai kehabisan.</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-              {onSale.map((p) => <ProductCard key={p.id} product={p} />)}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Featured */}
-      <section className="max-w-7xl mx-auto px-5 lg:px-8 py-10 mt-10">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <h2 className="text-3xl font-serif font-bold mb-8 text-center">Produk Pilihan</h2>
-          </div>
-          <Link to="/toko" className="text-sm font-semibold text-gold-600 hover:underline">
-            Lihat semua
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          {featured.map((p) => <ProductCard key={p.id} product={p} />)}
-        </div>
-      </section>
-
     </div>
   )
 }

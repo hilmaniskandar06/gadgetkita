@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { LogOut, Store, Package, Tag, FileText, Ticket, CreditCard, ShoppingBag, Users, Bell, MessageCircle, FileDown, LayoutTemplate } from 'lucide-react'
 import { useSiteContent } from '../context/SiteContentContext'
+import { useAuth } from '../context/AuthContext'
 import { useChat } from '../context/ChatContext'
 import { useNotifications } from '../context/NotificationContext'
 import * as orderService from '../services/orderService'
@@ -10,6 +11,7 @@ export default function AdminShell({ title, actions, children }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { content } = useSiteContent()
+  const { logout } = useAuth()
   const { getUnreadCount } = useChat()
   const unreadChats = getUnreadCount(null, 'admin')
 
@@ -36,8 +38,8 @@ export default function AdminShell({ title, actions, children }) {
     return () => { cancelled = true; clearInterval(interval) }
   }, [])
 
-  function logout() {
-    sessionStorage.removeItem('kk_admin_auth')
+  async function handleLogout() {
+    await logout()
     navigate('/admin/login')
   }
 
@@ -55,8 +57,8 @@ export default function AdminShell({ title, actions, children }) {
   ]
 
   return (
-    <div className="min-h-screen bg-cream-100 flex flex-col">
-      <header className="bg-cacao-900 text-white z-50 sticky top-0">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <header className="bg-slate-900 text-white z-50 sticky top-0">
         <div className="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
           <Link to="/admin" className="font-extrabold tracking-tight flex items-center gap-2">
             {content.logoLight || content.shopLogo ? (
@@ -68,20 +70,20 @@ export default function AdminShell({ title, actions, children }) {
             ) : (
               <span>{content.shopName || 'KAKAO.KITA'}</span>
             )}
-            <span className="text-gold-400 font-medium text-sm ml-1">Admin</span>
+            <span className="text-lime-400 font-medium text-sm ml-1">Admin</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link to="/toko" target="_blank" className="text-sm flex items-center gap-1.5 text-cream-200 hover:text-gold-400 transition-colors">
+            <Link to="/toko" target="_blank" className="text-sm flex items-center gap-1.5 text-gray-100 hover:text-lime-400 transition-colors">
               <Store size={15} /> Lihat Toko
             </Link>
-            <button onClick={logout} className="text-sm flex items-center gap-1.5 text-cream-200 hover:text-gold-400 transition-colors">
+            <button onClick={handleLogout} className="text-sm flex items-center gap-1.5 text-gray-100 hover:text-lime-400 transition-colors">
               <LogOut size={15} /> Keluar
             </button>
           </div>
         </div>
       </header>
       <div className="flex-1 max-w-7xl w-full mx-auto px-5 flex flex-col md:flex-row gap-8 py-8 items-start relative">
-        <aside className="w-full md:w-64 shrink-0 bg-white border border-cream-300 rounded-xl p-4 md:sticky top-24 z-0 relative">
+        <aside className="w-full md:w-64 shrink-0 bg-white border border-gray-200 rounded-xl p-4 md:sticky top-24 z-0 relative">
           <nav className="flex flex-col gap-1">
             {menu.map(m => {
               const active = m.exact ? location.pathname === m.path : location.pathname.startsWith(m.path)
@@ -91,11 +93,11 @@ export default function AdminShell({ title, actions, children }) {
                   key={m.path}
                   to={m.path}
                   className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
-                    active ? 'bg-gold-500 text-cacao-900' : 'text-cacao-700 hover:bg-cream-100'
+                    active ? 'bg-lime-500 text-slate-900' : 'text-slate-700 hover:bg-gray-50'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon size={18} className={active ? 'text-cacao-900' : 'text-cacao-400'} />
+                    <Icon size={18} className={active ? 'text-slate-900' : 'text-slate-500'} />
                     {m.name}
                   </div>
                   {m.badge > 0 && (

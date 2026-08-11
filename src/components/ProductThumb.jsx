@@ -1,4 +1,4 @@
-export default function ProductThumb({ product, size = 64, className = '' }) {
+﻿export default function ProductThumb({ product, size = 64, className = '' }) {
   const imgUrl = product?.images?.[0] || product?.image
   if (imgUrl) {
     return (
@@ -13,7 +13,7 @@ export default function ProductThumb({ product, size = 64, className = '' }) {
   return (
     <div
       style={{ width: size, height: size }}
-      className={`bg-cream-200 border border-cream-300 rounded-lg flex items-center justify-center text-xs text-cacao-400 font-semibold ${className}`}
+      className={`bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center text-xs text-slate-500 font-semibold ${className}`}
     >
       No Image
     </div>

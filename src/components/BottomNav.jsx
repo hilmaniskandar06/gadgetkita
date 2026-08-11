@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom'
+﻿import { useNavigate, useLocation } from 'react-router-dom'
 import { Home, Store, ShoppingBag, Heart, User as UserIcon } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
@@ -15,7 +15,7 @@ export default function BottomNav({ onOpenCart }) {
 
   function navItemClass(isActive) {
     const base = 'flex flex-col items-center justify-center gap-0.5 w-full h-full text-xs font-medium transition-colors select-none touch-manipulation pb-[max(env(safe-area-inset-bottom),4px)]'
-    return isActive ? `${base} text-gold-600` : `${base} text-cacao-400 hover:text-cacao-600`
+    return isActive ? `${base} text-lime-600` : `${base} text-slate-500 hover:text-slate-700`
   }
 
   function handleWishlist() {
@@ -31,7 +31,7 @@ export default function BottomNav({ onOpenCart }) {
   }
 
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-cream-300 shadow-[0_-4px_20px_rgba(26,20,18,0.06)]">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_20px_rgba(15,23,42,0.06)]">
       <ul className="grid grid-cols-5 items-end h-16 relative">
         <li className="h-full col-span-1">
           <button type="button" onClick={() => navigate('/')} className={navItemClass(location.pathname === '/')}>
@@ -53,17 +53,17 @@ export default function BottomNav({ onOpenCart }) {
               type="button"
               aria-label="Keranjang"
               onClick={onOpenCart}
-              className="relative pointer-events-auto flex items-center justify-center w-14 h-14 -mt-1 rounded-full bg-gold-500 text-cacao-900 shadow-[0_6px_18px_rgba(212,193,156,0.55)] ring-4 ring-white hover:scale-[1.03] active:scale-95 transition-transform touch-manipulation"
+              className="relative pointer-events-auto flex items-center justify-center w-14 h-14 -mt-1 rounded-full bg-lime-500 text-slate-900 shadow-[0_6px_18px_rgba(132,204,22,0.45)] ring-4 ring-white hover:scale-[1.03] active:scale-95 transition-transform touch-manipulation"
             >
               <ShoppingBag size={26} strokeWidth={2.3} />
               {totalCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-cacao-900 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
+                <span className="absolute -top-0.5 -right-0.5 bg-slate-900 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
                   {totalCount > 99 ? '99+' : totalCount}
                 </span>
               )}
             </button>
           </div>
-          <div className="h-full flex flex-col items-center justify-end pb-[max(env(safe-area-inset-bottom),8px)] text-[10px] font-semibold text-gold-700">
+          <div className="h-full flex flex-col items-center justify-end pb-[max(env(safe-area-inset-bottom),8px)] text-[10px] font-semibold text-lime-600">
             <span className="mt-6">Keranjang</span>
           </div>
         </li>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
 import { Printer, ChevronLeft } from 'lucide-react'
 import { useSiteContent } from '../context/SiteContentContext'
@@ -42,11 +42,11 @@ export default function Invoice() {
   return (
     <div className="bg-white min-h-screen text-gray-900 font-sans">
       {/* Tombol aksi (Sembunyi saat dicetak) */}
-      <div className="print:hidden bg-cream-100 border-b border-cream-300 px-6 py-4 flex justify-between items-center sticky top-0 z-10 shadow-sm">
-        <button onClick={() => window.close()} className="flex items-center gap-2 text-cacao-700 hover:text-cacao-900 transition-colors">
+      <div className="print:hidden bg-gray-50 border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10 shadow-sm">
+        <button onClick={() => window.close()} className="flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-colors">
           <ChevronLeft size={20} /> Tutup Tab
         </button>
-        <button onClick={() => window.print()} className="bg-gold-500 hover:bg-gold-400 text-cacao-900 font-bold py-2 px-6 rounded-lg flex items-center gap-2 transition-colors shadow-sm">
+        <button onClick={() => window.print()} className="bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-2 px-6 rounded-lg flex items-center gap-2 transition-colors shadow-sm">
           <Printer size={18} /> Cetak / Simpan PDF
         </button>
       </div>
@@ -59,7 +59,7 @@ export default function Invoice() {
             {shopLogo ? (
               <img src={shopLogo} alt={shopName} className="h-16 object-contain" />
             ) : (
-              <div className="text-3xl font-black tracking-tighter text-cacao-900">
+              <div className="text-3xl font-black tracking-tighter text-slate-900">
                 {shopName}
               </div>
             )}
@@ -167,7 +167,7 @@ export default function Invoice() {
                 )}
                 <tr className="text-lg">
                   <td className="py-4 pr-4 font-bold text-gray-800 border-t-2 border-gray-200 mt-2">Total Akhir</td>
-                  <td className="py-4 font-black text-cacao-900 border-t-2 border-gray-200 mt-2">{formatRp(finalTotal)}</td>
+                  <td className="py-4 font-black text-slate-900 border-t-2 border-gray-200 mt-2">{formatRp(finalTotal)}</td>
                 </tr>
               </tbody>
             </table>

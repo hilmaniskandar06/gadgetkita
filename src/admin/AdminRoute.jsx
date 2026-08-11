@@ -1,7 +1,12 @@
 import { Navigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 export default function AdminRoute({ children }) {
-  const authed = sessionStorage.getItem('kk_admin_auth') === 'true'
-  if (!authed) return <Navigate to="/admin/login" replace />
+  const { user, loading } = useAuth()
+
+  // Tunggu sampai sesi Supabase selesai dicek
+  if (loading) return null
+
+  if (!user) return <Navigate to="/admin/login" replace />
   return children
 }

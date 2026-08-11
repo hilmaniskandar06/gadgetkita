@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, Search } from 'lucide-react'
 
 export default function SearchableSelect({
@@ -27,23 +27,23 @@ export default function SearchableSelect({
 
   return (
     <div className="relative" ref={ref}>
-      {label && <label className="block text-xs font-medium text-cacao-600 mb-1.5">{label}</label>}
+      {label && <label className="block text-xs font-medium text-slate-600 mb-1.5">{label}</label>}
       <button
         type="button"
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between bg-cream-100 border border-cream-300 rounded-lg px-3.5 py-2.5 text-sm text-left disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-left disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <span className={displayValue ? 'text-cacao-900 truncate' : 'text-cacao-400 truncate'}>
+        <span className={displayValue ? 'text-slate-900 truncate' : 'text-slate-500 truncate'}>
           {displayValue || placeholder}
         </span>
-        <ChevronDown size={14} className="shrink-0 ml-2 text-cacao-500" />
+        <ChevronDown size={14} className="shrink-0 ml-2 text-slate-500" />
       </button>
 
       {open && !disabled && (
-        <div className="absolute z-30 mt-1 w-full bg-white border border-cream-300 rounded-lg shadow-lg max-h-56 overflow-y-auto">
-          <div className="p-2 sticky top-0 bg-white border-b border-cream-200 flex items-center gap-2">
-            <Search size={13} className="text-cacao-400 shrink-0" />
+        <div className="absolute z-30 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+          <div className="p-2 sticky top-0 bg-white border-b border-gray-100 flex items-center gap-2">
+            <Search size={13} className="text-slate-500 shrink-0" />
             <input
               autoFocus
               value={query}
@@ -53,9 +53,9 @@ export default function SearchableSelect({
             />
           </div>
           {loading ? (
-            <div className="px-3 py-3 text-xs text-cacao-500">Memuat...</div>
+            <div className="px-3 py-3 text-xs text-slate-500">Memuat...</div>
           ) : filtered.length === 0 ? (
-            <div className="px-3 py-3 text-xs text-cacao-500">Tidak ditemukan</div>
+            <div className="px-3 py-3 text-xs text-slate-500">Tidak ditemukan</div>
           ) : (
             filtered.map((o) => (
               <button
@@ -66,7 +66,7 @@ export default function SearchableSelect({
                   setOpen(false)
                   setQuery('')
                 }}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-cream-100 transition-colors"
+                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors"
               >
                 {o.name}
               </button>

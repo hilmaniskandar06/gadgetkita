@@ -18,6 +18,8 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1)
   const [tab, setTab] = useState('desc')
   const [imgIdx, setImgIdx] = useState(0)
+  const sizeOptions = product?.size ? product.size.split(',').map((s) => s.trim()).filter(Boolean) : []
+  const [selectedSize, setSelectedSize] = useState(sizeOptions[0] || '')
   const { addItem } = useCart()
   const { toggle, isWishlisted } = useWishlist()
   const { addToast } = useToast()
@@ -29,7 +31,7 @@ export default function ProductDetail() {
   }, [products])
 
   if (loading) {
-    return <div className="max-w-7xl mx-auto px-5 py-24 text-center text-cacao-500">Memuat produk...</div>
+    return <div className="max-w-7xl mx-auto px-5 py-24 text-center text-slate-500">Memuat produk...</div>
   }
   if (!product) return <Navigate to="/toko" replace />
 
@@ -57,27 +59,27 @@ export default function ProductDetail() {
 
   return (
     <div className="max-w-7xl mx-auto px-5 lg:px-8 py-10">
-      <div className="text-xs text-cacao-600 mb-6 flex gap-1.5">
-        <Link to="/" className="hover:text-cacao-900">Beranda</Link> /
-        <Link to={`/toko?category=${encodeURIComponent(product.category)}`} className="hover:text-cacao-900">{product.category}</Link> /
-        <span className="text-cacao-900 font-medium">{product.name}</span>
+      <div className="text-xs text-slate-600 mb-6 flex gap-1.5">
+        <Link to="/" className="hover:text-slate-900">Beranda</Link> /
+        <Link to={`/toko?category=${encodeURIComponent(product.category)}`} className="hover:text-slate-900">{product.category}</Link> /
+        <span className="text-slate-900 font-medium">{product.name}</span>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-12">
         <div>
-          <div className="relative bg-cream-200 rounded-2xl aspect-square flex items-center justify-center overflow-hidden border border-cream-300">
+          <div className="relative bg-gray-100 rounded-2xl aspect-square flex items-center justify-center overflow-hidden border border-gray-200">
             {images.length > 0 ? (
               <img src={images[imgIdx]} alt={product.name} className="w-full h-full object-cover" />
             ) : (
-              <div className="text-cacao-400">Tidak ada gambar</div>
+              <div className="text-slate-500">Tidak ada gambar</div>
             )}
             
             {images.length > 1 && (
               <>
-                <button onClick={prevImg} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-sm text-cacao-900 transition-colors">
+                <button onClick={prevImg} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-sm text-slate-900 transition-colors">
                   <ChevronLeft size={20} />
                 </button>
-                <button onClick={nextImg} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-sm text-cacao-900 transition-colors">
+                <button onClick={nextImg} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-sm text-slate-900 transition-colors">
                   <ChevronRight size={20} />
                 </button>
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
@@ -85,7 +87,7 @@ export default function ProductDetail() {
                     <button 
                       key={idx} 
                       onClick={() => setImgIdx(idx)}
-                      className={`w-2.5 h-2.5 rounded-full transition-colors ${idx === imgIdx ? 'bg-gold-500 w-6' : 'bg-white/60 hover:bg-white'}`}
+                      className={`w-2.5 h-2.5 rounded-full transition-colors ${idx === imgIdx ? 'bg-lime-500 w-6' : 'bg-white/60 hover:bg-white'}`}
                     />
                   ))}
                 </div>
@@ -99,7 +101,7 @@ export default function ProductDetail() {
                 <button 
                   key={idx} 
                   onClick={() => setImgIdx(idx)}
-                  className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 transition-colors ${idx === imgIdx ? 'border-gold-500' : 'border-transparent opacity-70 hover:opacity-100'}`}
+                  className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 transition-colors ${idx === imgIdx ? 'border-lime-500' : 'border-transparent opacity-70 hover:opacity-100'}`}
                 >
                   <img src={img} alt="thumbnail" className="w-full h-full object-cover" />
                 </button>
@@ -109,33 +111,67 @@ export default function ProductDetail() {
         </div>
 
         <div>
-          <span className="text-xs uppercase tracking-wide text-gold-600 font-bold">{product.category}</span>
-          <h1 className="text-3xl md:text-4xl font-serif font-bold mt-2 text-cacao-900">{product.name}</h1>
+          <span className="text-xs uppercase tracking-wide text-lime-600 font-bold">{product.category}</span>
+          <h1 className="text-3xl md:text-4xl font-display font-bold mt-2 text-slate-900">{product.name}</h1>
 
           <div className="flex items-baseline gap-3 mt-5 flex-wrap">
-            {product.oldPrice && <span className="text-cacao-500 line-through font-mono">{fmt(product.oldPrice)}</span>}
+            {product.oldPrice && <span className="text-slate-500 line-through font-mono">{fmt(product.oldPrice)}</span>}
             <span className="text-xl md:text-2xl font-mono font-extrabold">{fmt(product.price)}</span>
             {Number(product.sold || 0) > 0 && (
-              <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-gold-50 text-gold-700 border border-gold-200">
+              <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-lime-50 text-lime-600 border border-lime-200">
                 {Number(product.sold || 0).toLocaleString('id-ID')} Terjual
               </span>
             )}
           </div>
 
-          <p className="text-sm md:text-base text-cacao-700 leading-relaxed mt-5 max-w-lg">{product.shortDesc}</p>
+          <p className="text-sm md:text-base text-slate-700 leading-relaxed mt-5 max-w-lg">{product.shortDesc}</p>
 
           <div className="flex items-center gap-4 mt-4 text-sm flex-wrap">
-            <span className="text-cacao-600 border-r border-cream-300 pr-4">Berat: <strong className="text-cacao-900">{product.weight}</strong></span>
+            <span className="text-slate-600 border-r border-gray-200 pr-4">Berat: <strong className="text-slate-900">{product.weight}</strong></span>
             {product.contentVolume && (
-              <span className="text-cacao-600 border-r border-cream-300 pr-4">Isi: <strong className="text-cacao-900">{product.contentVolume}</strong></span>
+              <span className="text-slate-600 border-r border-gray-200 pr-4">Isi: <strong className="text-slate-900">{product.contentVolume}</strong></span>
+            )}
+            {product.gender && product.gender !== 'unisex' && (
+              <span className="text-slate-600 border-r border-gray-200 pr-4">Untuk: <strong className="text-slate-900 capitalize">{product.gender}</strong></span>
+            )}
+            {product.sportType && (
+              <span className="text-slate-600 border-r border-gray-200 pr-4">Olahraga: <strong className="text-slate-900 capitalize">{product.sportType}</strong></span>
             )}
             <span className={`font-semibold ${product.inStock ? 'text-ok-500' : 'text-rose-500'}`}>
               {product.inStock ? 'Stok tersedia' : 'Stok habis'}
             </span>
           </div>
 
+          {product.material && (
+            <div className="mt-4 text-sm text-slate-700">
+              Bahan: <span className="font-semibold text-slate-900">{product.material}</span>
+            </div>
+          )}
+
+          {sizeOptions.length > 0 && (
+            <div className="mt-6">
+              <div className="text-xs font-semibold text-slate-600 mb-2.5">Pilih Ukuran{selectedSize && `: ${selectedSize}`}</div>
+              <div className="flex flex-wrap gap-2">
+                {sizeOptions.map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    onClick={() => setSelectedSize(sz)}
+                    className={`min-w-[44px] h-10 px-3 rounded-lg font-bold text-sm transition-colors ${
+                      selectedSize === sz
+                        ? 'bg-slate-900 text-white ring-2 ring-lime-500 ring-offset-1'
+                        : 'bg-gray-100 text-slate-800 border border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    {sz}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center gap-3 mt-8">
-            <div className="flex items-center border border-cream-300 rounded-full">
+            <div className="flex items-center border border-gray-200 rounded-full">
               <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="w-10 h-10 flex items-center justify-center" aria-label="Kurangi jumlah">
                 <Minus size={14} />
               </button>
@@ -153,7 +189,7 @@ export default function ProductDetail() {
                 addToast(wishlisted ? 'Dihapus dari wishlist' : 'Disimpan ke wishlist')
               }}
               aria-label="Simpan ke wishlist"
-              className="w-12 h-12 rounded-full border border-cream-300 flex items-center justify-center hover:border-rose-500 shrink-0"
+              className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-rose-500 shrink-0"
             >
               <Heart size={18} className={wishlisted ? 'fill-rose-500 text-rose-500' : ''} />
             </button>
@@ -163,40 +199,40 @@ export default function ProductDetail() {
             <button
               onClick={handleAdd}
               disabled={!product.inStock}
-              className="flex-1 bg-white border-2 border-cacao-900 text-cacao-900 font-bold py-3 rounded-full hover:bg-cream-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex-1 bg-white border-2 border-slate-900 text-slate-900 font-bold py-3 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               Tambah ke Keranjang
             </button>
             <button
               onClick={handleBuyNow}
               disabled={!product.inStock}
-              className="flex-1 flex items-center justify-center gap-1.5 bg-cacao-900 text-white font-bold py-3 rounded-full hover:bg-cacao-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 text-white font-bold py-3 rounded-full hover:bg-slate-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               {product.inStock ? 'Beli Sekarang' : 'Stok Habis'}
             </button>
           </div>
 
-          <div className="flex flex-col gap-3 mt-8 text-sm text-cacao-700">
-            <div className="flex items-center gap-2"><Truck size={16} className="text-cacao-500" /> Pengiriman ke seluruh Indonesia, 1–3 hari kerja</div>
-            <div className="flex items-center gap-2"><ShieldCheck size={16} className="text-cacao-500" /> Garansi kualitas — retur jika rusak saat pengiriman</div>
+          <div className="flex flex-col gap-3 mt-8 text-sm text-slate-700">
+            <div className="flex items-center gap-2"><Truck size={16} className="text-slate-500" /> Pengiriman ke seluruh Indonesia, 1–3 hari kerja</div>
+            <div className="flex items-center gap-2"><ShieldCheck size={16} className="text-slate-500" /> Garansi kualitas — retur jika rusak saat pengiriman</div>
           </div>
         </div>
       </div>
 
-      <div className="mt-14 border-b border-cream-300 flex gap-8">
+      <div className="mt-14 border-b border-gray-200 flex gap-8">
         {[{ id: 'desc', label: 'Deskripsi' }, { id: 'shipping', label: 'Pengiriman' }].map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`pb-3 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-              tab === t.id ? 'border-gold-500 text-cacao-900' : 'border-transparent text-cacao-500'
+              tab === t.id ? 'border-lime-500 text-slate-900' : 'border-transparent text-slate-500'
             }`}
           >
             {t.label}
           </button>
         ))}
       </div>
-      <div className="py-6 text-sm text-cacao-700 leading-relaxed max-w-3xl">
+      <div className="py-6 text-sm text-slate-700 leading-relaxed max-w-3xl">
         {tab === 'desc' && product.longDesc}
         {tab === 'shipping' && 'Pesanan diproses dalam 1x24 jam pada hari kerja. Pengiriman menggunakan mitra ekspedisi ke seluruh Indonesia dengan estimasi 1–3 hari untuk area Jawa dan 3–6 hari untuk luar Jawa.'}
       </div>
@@ -204,8 +240,8 @@ export default function ProductDetail() {
       {featured.length > 0 && (
         <div className="mt-14">
           <div className="flex items-end justify-between mb-6">
-            <h2 className="text-2xl font-serif font-bold">Produk Pilihan</h2>
-            <Link to="/toko" className="text-sm font-semibold text-gold-600 hover:underline">
+            <h2 className="text-2xl font-display font-bold">Produk Pilihan</h2>
+            <Link to="/toko" className="text-sm font-semibold text-lime-600 hover:underline">
               Lihat semua
             </Link>
           </div>

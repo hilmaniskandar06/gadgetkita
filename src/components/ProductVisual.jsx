@@ -1,4 +1,4 @@
-export default function ProductVisual({ shape, tone, size = 64, className = '' }) {
+﻿export default function ProductVisual({ shape, tone, size = 64, className = '' }) {
   const common = { width: size, height: size, viewBox: '0 0 64 64', className }
 
   if (shape === 'box') {

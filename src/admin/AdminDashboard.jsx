@@ -32,13 +32,13 @@ export default function AdminDashboard() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={handleReset}
-            className="flex items-center gap-1.5 text-sm font-semibold border border-cream-300 rounded-full px-4 py-2 hover:border-gold-500 transition-colors"
+            className="flex items-center gap-1.5 text-sm font-semibold border border-gray-200 rounded-full px-4 py-2 hover:border-lime-500 transition-colors"
           >
             <RotateCcw size={14} /> Reset Data
           </button>
           <Link
             to="/admin/produk/baru"
-            className="flex items-center gap-1.5 text-sm font-bold bg-gold-500 hover:bg-gold-400 text-cacao-900 rounded-full px-4 py-2 transition-colors"
+            className="flex items-center gap-1.5 text-sm font-bold bg-lime-500 hover:bg-lime-400 text-slate-900 rounded-full px-4 py-2 transition-colors"
           >
             <Plus size={14} /> Tambah Produk
           </Link>
@@ -46,11 +46,11 @@ export default function AdminDashboard() {
       }
     >
       {loading ? (
-        <p className="text-cacao-600 text-sm">Memuat produk...</p>
+        <p className="text-slate-600 text-sm">Memuat produk...</p>
       ) : (
-        <div className="bg-white border border-cream-300 rounded-xl overflow-x-auto">
+        <div className="bg-white border border-gray-200 rounded-xl overflow-x-auto">
           <table className="w-full text-sm min-w-[640px]">
-            <thead className="bg-cream-200 text-left text-cacao-700">
+            <thead className="bg-gray-100 text-left text-slate-700">
               <tr>
                 <th className="px-4 py-3 font-semibold">Produk</th>
                 <th className="px-4 py-3 font-semibold">Kategori</th>
@@ -62,19 +62,19 @@ export default function AdminDashboard() {
             </thead>
             <tbody>
               {products.map((p) => (
-                <tr key={p.id} className="border-t border-cream-200">
+                <tr key={p.id} className="border-t border-gray-100">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-cream-200 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
                         <ProductThumb product={p} size={26} />
                       </div>
                       <span className="font-semibold">{p.name}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-cacao-600">{p.category}</td>
+                  <td className="px-4 py-3 text-slate-600">{p.category}</td>
                   <td className="px-4 py-3 font-mono">{fmt(p.price)}</td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-gold-50 text-gold-700 border border-gold-200">
+                    <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-lime-50 text-lime-600 border border-lime-200">
                       {Number(p.sold || 0).toLocaleString('id-ID')} Terjual
                     </span>
                   </td>
@@ -91,7 +91,7 @@ export default function AdminDashboard() {
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label="Buka Link Produk"
-                          className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-cream-200 text-cacao-600 transition-colors"
+                          className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-slate-600 transition-colors"
                         >
                           <ExternalLink size={14} />
                         </a>
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
                       <Link
                         to={`/admin/produk/${p.id}/edit`}
                         aria-label="Edit"
-                        className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-cream-200 transition-colors"
+                        className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
                       >
                         <Pencil size={14} />
                       </Link>
@@ -116,7 +116,7 @@ export default function AdminDashboard() {
               ))}
               {products.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-cacao-500">
+                  <td colSpan={6} className="px-4 py-10 text-center text-slate-500">
                     Belum ada produk.
                   </td>
                 </tr>

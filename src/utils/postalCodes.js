@@ -1,4 +1,4 @@
-export const POSTAL_CODES = {
+﻿export const POSTAL_CODES = {
   '40111': {
     provinsiId: '32', provinsi: 'Jawa Barat',
     kotaId: '3273', kota: 'Kota Bandung',

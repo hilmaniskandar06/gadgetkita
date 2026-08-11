@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase'
+﻿import { supabase } from '../config/supabase'
 
 export async function uploadImage(dataUrl, path, bucketName = 'public') {
   // Convert Data URL to Blob

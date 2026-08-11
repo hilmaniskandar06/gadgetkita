@@ -15,6 +15,7 @@ const emptyForm = {
   price: '',
   oldPrice: '',
   inStock: true,
+  isNew: false,
   sold: 0,
   images: [],
   shortDesc: '',
@@ -22,6 +23,10 @@ const emptyForm = {
   weight: '',
   contentVolume: '',
   externalLink: null,
+  size: '',
+  gender: 'unisex',
+  sportType: '',
+  material: '',
 }
 
 export default function AdminProductForm() {
@@ -133,7 +138,7 @@ export default function AdminProductForm() {
   if (notFound) {
     return (
       <AdminShell title="Produk tidak ditemukan">
-        <Link to="/admin" className="text-gold-600 font-semibold hover:underline">Kembali ke daftar produk</Link>
+        <Link to="/admin" className="text-lime-600 font-semibold hover:underline">Kembali ke daftar produk</Link>
       </AdminShell>
     )
   }
@@ -141,12 +146,12 @@ export default function AdminProductForm() {
   return (
     <AdminShell title={isEdit ? 'Edit Produk' : 'Tambah Produk'}>
       <form onSubmit={handleSubmit} className="grid lg:grid-cols-[1fr_280px] gap-8">
-        <div className="bg-white border border-cream-300 rounded-xl p-6 flex flex-col gap-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col gap-4">
           <TextField label="Nama Produk" value={form.name} onChange={(v) => update('name', v)} required />
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-cacao-600 mb-1.5">Kategori</label>
+              <label className="block text-xs font-medium text-slate-600 mb-1.5">Kategori</label>
               {categories.length === 0 ? (
                 <p className="text-xs text-rose-500 mt-1">
                   Belum ada kategori. <Link to="/admin/kategori" className="underline">Tambah dulu di sini.</Link>
@@ -155,7 +160,7 @@ export default function AdminProductForm() {
                 <select
                   value={form.category}
                   onChange={(e) => update('category', e.target.value)}
-                  className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-gold-500"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500"
                 >
                   {categories.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
                 </select>
@@ -167,6 +172,25 @@ export default function AdminProductForm() {
             </div>
           </div>
 
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <TextField label="Ukuran" value={form.size} onChange={(v) => update('size', v)} placeholder="mis. S,M,L,XL / 39,40,41,42" />
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1.5">Gender</label>
+              <select
+                value={form.gender}
+                onChange={(e) => update('gender', e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500"
+              >
+                <option value="pria">Pria</option>
+                <option value="wanita">Wanita</option>
+                <option value="unisex">Unisex</option>
+                <option value="anak">Anak-anak</option>
+              </select>
+            </div>
+            <TextField label="Jenis Olahraga" value={form.sportType} onChange={(v) => update('sportType', v)} placeholder="lari, futsal, fitness, basket..." />
+            <TextField label="Bahan" value={form.material} onChange={(v) => update('material', v)} placeholder="mis. polyester, mesh, kulit" />
+          </div>
+
           <div className="grid sm:grid-cols-2 gap-4">
             <TextField label="Harga (Rp)" type="number" value={form.price} onChange={(v) => update('price', v)} required />
             <TextField label="Harga Coret (opsional)" type="number" value={form.oldPrice} onChange={(v) => update('oldPrice', v)} />
@@ -174,54 +198,58 @@ export default function AdminProductForm() {
 
           <div className="grid sm:grid-cols-2 gap-4">
             <TextField label="Jumlah Terjual" type="number" min={0} value={form.sold} onChange={(v) => update('sold', v ? Number(v) : 0)} placeholder="mis. 120" />
-            <div className="flex items-end">
+            <div className="flex items-end gap-5">
               <label className="flex items-center gap-2 text-sm pb-2.5">
-                <input type="checkbox" checked={form.inStock} onChange={(e) => update('inStock', e.target.checked)} className="accent-gold-500" />
+                <input type="checkbox" checked={form.inStock} onChange={(e) => update('inStock', e.target.checked)} className="accent-lime-500" />
                 Stok tersedia
+              </label>
+              <label className="flex items-center gap-2 text-sm pb-2.5">
+                <input type="checkbox" checked={form.isNew} onChange={(e) => update('isNew', e.target.checked)} className="accent-lime-500" />
+                Produk Baru
               </label>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-cacao-600 mb-1.5">Deskripsi Singkat</label>
+            <label className="block text-xs font-medium text-slate-600 mb-1.5">Deskripsi Singkat</label>
             <input
               value={form.shortDesc}
               onChange={(e) => update('shortDesc', e.target.value)}
               required
-              className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-gold-500"
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-cacao-600 mb-1.5">Deskripsi Lengkap</label>
+            <label className="block text-xs font-medium text-slate-600 mb-1.5">Deskripsi Lengkap</label>
             <textarea
               rows={4}
               value={form.longDesc}
               onChange={(e) => update('longDesc', e.target.value)}
               required
-              className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-gold-500"
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-cacao-600 mb-1.5">Link Produk (opsional)</label>
+            <label className="block text-xs font-medium text-slate-600 mb-1.5">Link Produk (opsional)</label>
             <input
               value={form.externalLink || ''}
               onChange={(e) => update('externalLink', e.target.value || null)}
               placeholder="https://..."
-              className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-gold-500"
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500"
             />
           </div>
         </div>
 
         <div className="flex flex-col gap-5">
-          <div className="bg-white border border-cream-300 rounded-xl p-6">
+          <div className="bg-white border border-gray-200 rounded-xl p-6">
             <h3 className="font-bold text-sm mb-1">Gambar Produk</h3>
-            <p className="text-[10px] text-cacao-500 mb-3">Maks 3 Gambar. Maks 2MB/gambar. Format: JPG/PNG/WEBP. Disarankan rasio 1:1 (persegi).</p>
+            <p className="text-[10px] text-slate-500 mb-3">Maks 3 Gambar. Maks 2MB/gambar. Format: JPG/PNG/WEBP. Disarankan rasio 1:1 (persegi).</p>
             
             <div className="grid grid-cols-3 gap-3 mb-4">
               {form.images.map((img, idx) => (
-                <div key={idx} className="relative aspect-square bg-cream-200 rounded-lg overflow-hidden border border-cream-300">
+                <div key={idx} className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
                   <img src={img} alt={`Gambar ${idx+1}`} className="w-full h-full object-cover" />
                   <button
                     type="button"
@@ -231,14 +259,14 @@ export default function AdminProductForm() {
                   >
                     <X size={12} />
                   </button>
-                  {idx === 0 && <span className="absolute bottom-1 left-1 bg-cacao-900 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">UTAMA</span>}
+                  {idx === 0 && <span className="absolute bottom-1 left-1 bg-slate-900 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">UTAMA</span>}
                 </div>
               ))}
               
               {form.images.length < 3 && (
                 <div 
                   onClick={() => !uploading && fileInputRef.current?.click()}
-                  className="aspect-square bg-cream-50 border-2 border-dashed border-cream-300 rounded-lg flex flex-col items-center justify-center text-cacao-400 cursor-pointer hover:bg-cream-100 transition-colors"
+                  className="aspect-square bg-white border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center text-slate-500 cursor-pointer hover:bg-gray-50 transition-colors"
                 >
                   <Upload size={20} className="mb-1" />
                   <span className="text-[10px] font-semibold">{uploading ? 'Memproses...' : 'Tambah'}</span>
@@ -251,11 +279,11 @@ export default function AdminProductForm() {
           <div className="flex flex-col gap-2">
             <button
               disabled={saving || categories.length === 0}
-              className="bg-gold-500 hover:bg-gold-400 text-cacao-900 font-bold py-3 rounded-full transition-colors disabled:opacity-50"
+              className="bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-3 rounded-full transition-colors disabled:opacity-50"
             >
               {saving ? 'Menyimpan...' : isEdit ? 'Simpan Perubahan' : 'Tambah Produk'}
             </button>
-            <Link to="/admin" className="text-center text-sm text-cacao-600 hover:text-cacao-900 py-2">
+            <Link to="/admin" className="text-center text-sm text-slate-600 hover:text-slate-900 py-2">
               Batal
             </Link>
           </div>
@@ -268,7 +296,7 @@ export default function AdminProductForm() {
 function TextField({ label, value, onChange, required, type = 'text', placeholder, step, min, max }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-cacao-600 mb-1.5">{label}</label>
+      <label className="block text-xs font-medium text-slate-600 mb-1.5">{label}</label>
       <input
         type={type}
         required={required}
@@ -278,7 +306,7 @@ function TextField({ label, value, onChange, required, type = 'text', placeholde
         min={min}
         max={max}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-gold-500"
+        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500"
       />
     </div>
   )

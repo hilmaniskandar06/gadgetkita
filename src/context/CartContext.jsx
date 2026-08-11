@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+﻿import { createContext, useContext, useEffect, useState } from 'react'
 import { useProducts } from './ProductsContext'
 import { useAuth } from './AuthContext'
 import { supabase } from '../config/supabase'

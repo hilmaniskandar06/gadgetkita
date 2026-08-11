@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -78,7 +78,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-cream-100 text-cacao-900">
+    <div className="min-h-screen flex flex-col bg-gray-50 text-slate-900">
       <AppDownloadBanner content={content} />
       <Header onOpenCart={() => setCartOpen(true)} />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />

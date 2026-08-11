@@ -102,7 +102,7 @@ export default function OrderSuccess() {
   }
 
   if (loading) {
-    return <div className="py-20 text-center text-cacao-500">Memuat detail pesanan...</div>
+    return <div className="py-20 text-center text-slate-500">Memuat detail pesanan...</div>
   }
 
   return (
@@ -112,8 +112,8 @@ export default function OrderSuccess() {
           <CheckCircle2 size={32} />
         </div>
         <h1 className="text-2xl font-extrabold">Pesanan berhasil dibuat!</h1>
-        <p className="text-cacao-600 mt-2">
-          Nomor pesanan kamu <span className="font-mono font-bold text-cacao-900">{order.id}</span>
+        <p className="text-slate-600 mt-2">
+          Nomor pesanan kamu <span className="font-mono font-bold text-slate-900">{order.id}</span>
         </p>
       </div>
 
@@ -123,9 +123,9 @@ export default function OrderSuccess() {
         </div>
 
         {showPaymentFlow && (
-          <div className="bg-white border border-cream-300 p-6 rounded-xl text-left h-fit mt-8 md:mt-0">
+          <div className="bg-white border border-gray-200 p-6 rounded-xl text-left h-fit mt-8 md:mt-0">
             <h3 className="font-bold mb-3 text-center">Konfirmasi Pembayaran</h3>
-            <p className="text-sm text-cacao-600 mb-3 text-center">
+            <p className="text-sm text-slate-600 mb-3 text-center">
               Upload bukti transfer untuk memproses pesanan {order.id}.
             </p>
             <p className="text-[11px] text-rose-600 mb-4 text-center bg-rose-50 rounded-lg py-2 px-3 border border-rose-200">
@@ -137,7 +137,7 @@ export default function OrderSuccess() {
                 <button
                   type="button"
                   onClick={() => setShowQRModal(true)}
-                  className="flex items-center justify-center gap-2 text-sm font-bold border border-2 border-gold-400 text-cacao-900 bg-gold-50 py-2 rounded-lg hover:bg-gold-100 transition-colors"
+                  className="flex items-center justify-center gap-2 text-sm font-bold border border-2 border-lime-400 text-slate-900 bg-lime-50 py-2 rounded-lg hover:bg-lime-100 transition-colors"
                 >
                   <QrCode size={18} /> Lihat Gambar QRIS
                 </button>
@@ -145,16 +145,16 @@ export default function OrderSuccess() {
               {proof ? (
                 <img src={proof} alt="Bukti Transfer" className="w-full h-40 object-cover rounded border" />
               ) : (
-                <div className="h-40 bg-cream-100 border-2 border-dashed border-cream-300 rounded flex flex-col items-center justify-center text-cacao-400">
+                <div className="h-40 bg-gray-50 border-2 border-dashed border-gray-200 rounded flex flex-col items-center justify-center text-slate-500">
                   <Upload size={24} className="mb-2" />
                   <span className="text-xs">Pilih Gambar</span>
                 </div>
               )}
               <input type="file" accept="image/*" className="hidden" ref={fileRef} onChange={handleUpload} />
-              <button type="button" onClick={() => fileRef.current.click()} className="text-sm font-semibold border border-cream-300 py-2 rounded-lg hover:bg-cream-100">
+              <button type="button" onClick={() => fileRef.current.click()} className="text-sm font-semibold border border-gray-200 py-2 rounded-lg hover:bg-gray-50">
                 {proof ? 'Ganti Gambar' : 'Pilih Bukti Transfer'}
               </button>
-              <button type="button" onClick={handleConfirm} disabled={!proof} className="bg-gold-500 hover:bg-gold-400 text-cacao-900 font-bold py-2 rounded-lg transition-colors disabled:opacity-50">
+              <button type="button" onClick={handleConfirm} disabled={!proof} className="bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-2 rounded-lg transition-colors disabled:opacity-50">
                 Konfirmasi Pembayaran
               </button>
             </div>
@@ -171,10 +171,10 @@ export default function OrderSuccess() {
 
       {!showPaymentFlow && (
         <div className="flex gap-3 justify-center mt-8 flex-wrap">
-          <Link to="/toko" className="bg-cacao-900 text-white font-bold px-6 py-3 rounded-full hover:bg-cacao-800 transition-colors">
+          <Link to="/toko" className="bg-slate-900 text-white font-bold px-6 py-3 rounded-full hover:bg-slate-800 transition-colors">
             Belanja Lagi
           </Link>
-          <Link to="/pesanan" className="border border-cream-300 font-semibold px-6 py-3 rounded-full hover:border-gold-500 transition-colors">
+          <Link to="/pesanan" className="border border-gray-200 font-semibold px-6 py-3 rounded-full hover:border-lime-500 transition-colors">
             Lihat Riwayat Pesanan
           </Link>
         </div>
@@ -183,28 +183,28 @@ export default function OrderSuccess() {
       {showQRModal && paymentFull?.qr && (
         <div className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4" onClick={() => setShowQRModal(false)}>
           <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowQRModal(false)} className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-cream-100 transition-colors text-cacao-500 hover:text-cacao-900" aria-label="Tutup">
+            <button onClick={() => setShowQRModal(false)} className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-gray-50 transition-colors text-slate-500 hover:text-slate-900" aria-label="Tutup">
               <X size={20} />
             </button>
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gold-100 text-gold-700 mb-3">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-lime-100 text-lime-600 mb-3">
                 <QrCode size={28} />
               </div>
-              <h3 className="text-xl font-extrabold text-cacao-900">QRIS {paymentFull.name}</h3>
-              <p className="text-sm text-cacao-500 mt-1 mb-4">Scan QRIS di bawah untuk pembayaran</p>
+              <h3 className="text-xl font-extrabold text-slate-900">QRIS {paymentFull.name}</h3>
+              <p className="text-sm text-slate-500 mt-1 mb-4">Scan QRIS di bawah untuk pembayaran</p>
               {paymentFull.account && (
-                <div className="text-center mb-4 bg-cream-50 rounded-lg py-2 px-3 border border-cream-200">
-                  <div className="text-[10px] uppercase text-cacao-500 font-semibold">Nomor Akun</div>
-                  <div className="font-mono font-bold text-cacao-900 text-lg">{paymentFull.account}</div>
+                <div className="text-center mb-4 bg-white rounded-lg py-2 px-3 border border-gray-100">
+                  <div className="text-[10px] uppercase text-slate-500 font-semibold">Nomor Akun</div>
+                  <div className="font-mono font-bold text-slate-900 text-lg">{paymentFull.account}</div>
                 </div>
               )}
-              <div className="rounded-xl border-2 border-cream-200 p-3 bg-white shadow-inner">
+              <div className="rounded-xl border-2 border-gray-100 p-3 bg-white shadow-inner">
                 <img src={paymentFull.qr} alt={`QRIS ${paymentFull.name}`} className="w-full aspect-square object-contain rounded-lg" />
               </div>
-              <p className="text-[11px] text-cacao-500 mt-4">
-                Total tagihan: <strong className="text-cacao-900">Rp{(order.total || 0).toLocaleString('id-ID')}</strong>
+              <p className="text-[11px] text-slate-500 mt-4">
+                Total tagihan: <strong className="text-slate-900">Rp{(order.total || 0).toLocaleString('id-ID')}</strong>
               </p>
-              <button onClick={() => setShowQRModal(false)} className="mt-5 w-full bg-gold-500 hover:bg-gold-400 text-cacao-900 font-bold py-2.5 rounded-xl transition-colors">
+              <button onClick={() => setShowQRModal(false)} className="mt-5 w-full bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-2.5 rounded-xl transition-colors">
                 Tutup
               </button>
             </div>
@@ -220,8 +220,8 @@ export default function OrderSuccess() {
                 <AlertCircle size={28} />
               </div>
               <div>
-                <h3 className="text-lg font-extrabold text-cacao-900">Yakin ingin keluar dari halaman ini?</h3>
-                <p className="text-sm text-cacao-500 mt-1">Pesanan Anda <span className="font-mono font-bold">{order?.id || ''}</span> menunggu bukti pembayaran.</p>
+                <h3 className="text-lg font-extrabold text-slate-900">Yakin ingin keluar dari halaman ini?</h3>
+                <p className="text-sm text-slate-500 mt-1">Pesanan Anda <span className="font-mono font-bold">{order?.id || ''}</span> menunggu bukti pembayaran.</p>
               </div>
             </div>
             <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 mb-5 text-rose-900 text-xs space-y-1.5">
@@ -230,16 +230,16 @@ export default function OrderSuccess() {
               <p>• Jika lewat batas waktu & belum upload bukti, pesanan akan <strong>OTOMATIS DIBATALKAN</strong> oleh sistem.</p>
               <p>• <strong>Voucher yang sudah dipakai TIDAK AKAN DIKEMBALIKAN</strong> jika dibatalkan karena lewat batas waktu.</p>
             </div>
-            <div className="bg-cream-50 border border-cream-200 rounded-xl p-3 mb-5 text-cacao-700 text-xs">
-              <p className="font-bold text-cacao-900">TENANG, ANDA TIDAK KEHILANGAN CARA UPLOAD:</p>
+            <div className="bg-white border border-gray-100 rounded-xl p-3 mb-5 text-slate-700 text-xs">
+              <p className="font-bold text-slate-900">TENANG, ANDA TIDAK KEHILANGAN CARA UPLOAD:</p>
               <p className="mt-1">Walaupun keluar halaman ini, Anda masih bisa upload bukti transfer nanti lewat menu:</p>
-              <p className="font-semibold mt-1"><span className="bg-white border border-cream-300 rounded px-1.5 py-0.5">Akun / Riwayat Pesanan / Detail Pesanan</span></p>
+              <p className="font-semibold mt-1"><span className="bg-white border border-gray-200 rounded px-1.5 py-0.5">Akun / Riwayat Pesanan / Detail Pesanan</span></p>
             </div>
             <div className="flex flex-col gap-2.5">
               <button onClick={confirmLeave} className="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl transition-colors shadow-sm">
                 Ya, Keluar Halaman (saya akan upload nanti)
               </button>
-              <button onClick={cancelLeave} className="w-full border border-cream-300 font-semibold text-cacao-800 hover:bg-cream-50 py-3 rounded-xl transition-colors">
+              <button onClick={cancelLeave} className="w-full border border-gray-200 font-semibold text-slate-800 hover:bg-white py-3 rounded-xl transition-colors">
                 Tetap di Halaman & Upload Bukti Sekarang
               </button>
             </div>

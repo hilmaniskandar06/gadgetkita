@@ -1,4 +1,4 @@
-// Mengubah file gambar menjadi dataURL base64 yang sudah dikompres.
+﻿// Mengubah file gambar menjadi dataURL base64 yang sudah dikompres.
 // Format output menyesuaikan file asli: PNG/WebP -> PNG (agar transparansi tetap).
 // JPG/JPEG/GIF -> JPEG (hemat size, tapi tanpa transparansi).
 export function resizeImage(file, maxWidth = 640, quality = 0.8) {

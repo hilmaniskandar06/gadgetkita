@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,18 +9,22 @@ html {
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Syne', sans-serif;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #D9B96B transparent;
+  scrollbar-color: #84CC16 transparent;
 }
 
 :focus-visible {
-  outline: 2px solid #C9A24B;
+  outline: 2px solid #84CC16;
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -39,4 +45,20 @@ body {
 
 .leaflet-container {
   z-index: 0 !important;
+}
+
+/* Brand Logo Ticker */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  animation: marquee 28s linear infinite;
+  will-change: transform;
+}
+
+.ticker-track:hover .animate-marquee {
+  animation-play-state: paused;
 }

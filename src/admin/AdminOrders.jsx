@@ -7,8 +7,8 @@ import OrderSummaryCard from '../components/OrderSummaryCard'
 import * as orderService from '../services/orderService'
 
 const STATUS_LABELS = {
-  belum_dibayar: { label: 'Belum Dibayar', class: 'bg-cacao-100 text-cacao-700' },
-  menunggu_verifikasi: { label: 'Menunggu Verifikasi', class: 'bg-gold-100 text-gold-700' },
+  belum_dibayar: { label: 'Belum Dibayar', class: 'bg-slate-100 text-slate-700' },
+  menunggu_verifikasi: { label: 'Menunggu Verifikasi', class: 'bg-lime-100 text-lime-600' },
   diproses: { label: 'Diproses', class: 'bg-sky-100 text-sky-700' },
   dikirim: { label: 'Dikirim', class: 'bg-indigo-100 text-indigo-700' },
   selesai: { label: 'Selesai', class: 'bg-ok-100 text-ok-700' },
@@ -122,9 +122,9 @@ export default function AdminOrders() {
 
   return (
     <AdminShell title="Kelola Pesanan">
-      <div className="bg-white border border-cream-300 rounded-xl overflow-x-auto">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-cream-200 text-left text-cacao-700">
+          <thead className="bg-gray-100 text-left text-slate-700">
             <tr>
               <th className="px-4 py-3 font-semibold">ID & Tanggal</th>
               <th className="px-4 py-3 font-semibold">Pelanggan</th>
@@ -139,14 +139,14 @@ export default function AdminOrders() {
               const statusData = STATUS_LABELS[status] || STATUS_LABELS['belum_dibayar']
               
               return (
-                <tr key={o.id} className="border-t border-cream-200">
+                <tr key={o.id} className="border-t border-gray-100">
                   <td className="px-4 py-3">
-                    <div className="font-bold text-cacao-900">{o.id}</div>
-                    <div className="text-xs text-cacao-500">{new Date(o.date).toLocaleDateString('id-ID')}</div>
+                    <div className="font-bold text-slate-900">{o.id}</div>
+                    <div className="text-xs text-slate-500">{new Date(o.date).toLocaleDateString('id-ID')}</div>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="font-medium text-cacao-900">{o.customer?.name}</div>
-                    <div className="text-xs text-cacao-500">{o.customer?.phone}</div>
+                    <div className="font-medium text-slate-900">{o.customer?.name}</div>
+                    <div className="text-xs text-slate-500">{o.customer?.phone}</div>
                   </td>
                   <td className="px-4 py-3 font-mono font-semibold">
                     Rp{o.total?.toLocaleString('id-ID')}
@@ -156,7 +156,7 @@ export default function AdminOrders() {
                       {statusData.label}
                     </span>
                     {o.paymentProof && (
-                      <button onClick={() => setViewProof(o.paymentProof)} className="mt-2 text-xs flex items-center gap-1 text-gold-600 hover:text-gold-500 font-semibold">
+                      <button onClick={() => setViewProof(o.paymentProof)} className="mt-2 text-xs flex items-center gap-1 text-lime-600 hover:text-lime-500 font-semibold">
                         <ImageIcon size={14} /> Bukti Transfer
                       </button>
                     )}
@@ -166,28 +166,28 @@ export default function AdminOrders() {
                       <select 
                         value={status} 
                         onChange={(e) => updateStatus(o.id, e.target.value)}
-                        className="text-xs border rounded-lg px-2 py-1.5 outline-none bg-cream-50"
+                        className="text-xs border rounded-lg px-2 py-1.5 outline-none bg-white"
                       >
                         {Object.entries(STATUS_LABELS).map(([key, val]) => (
                           <option key={key} value={key}>{val.label}</option>
                         ))}
                       </select>
-                      <button onClick={() => setSelectedOrder(o)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gold-50 text-gold-600" title="Lihat Detail">
+                      <button onClick={() => setSelectedOrder(o)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-lime-50 text-lime-600" title="Lihat Detail">
                         <Eye size={14} />
                       </button>
-                      <a href={`/invoice/${o.id}`} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-cacao-100 text-cacao-600" title="Cetak Invoice">
+                      <a href={`/invoice/${o.id}`} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-600" title="Cetak Invoice">
                         <Printer size={14} />
                       </a>
                       <div ref={openDropdownId === o.id ? dropdownRef : null} className="relative">
                         <button
                           onClick={() => setOpenDropdownId(openDropdownId === o.id ? null : o.id)}
-                          className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-cream-100 text-cacao-500"
+                          className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50 text-slate-500"
                           title="Menu"
                         >
                           <MoreVertical size={14} />
                         </button>
                         {openDropdownId === o.id && (
-                          <div className="absolute right-0 top-full mt-1 bg-white border border-cream-200 rounded-lg shadow-lg z-40 min-w-[140px]">
+                          <div className="absolute right-0 top-full mt-1 bg-white border border-gray-100 rounded-lg shadow-lg z-40 min-w-[140px]">
                             <button
                               onClick={() => deleteOrder(o.id)}
                               className="w-full text-left px-4 py-2.5 text-sm text-rose-500 hover:bg-rose-50 rounded-lg flex items-center gap-2"
@@ -203,17 +203,17 @@ export default function AdminOrders() {
                 </tr>
               )
             })}
-            {orders.length === 0 && <tr><td colSpan={5} className="px-4 py-10 text-center text-cacao-500">Belum ada pesanan</td></tr>}
+            {orders.length === 0 && <tr><td colSpan={5} className="px-4 py-10 text-center text-slate-500">Belum ada pesanan</td></tr>}
           </tbody>
         </table>
       </div>
 
       {viewProof && (
-        <div className="fixed inset-0 z-50 bg-cacao-900/80 flex items-center justify-center p-5">
+        <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-5">
           <div className="bg-white rounded-xl overflow-hidden max-w-lg w-full">
-            <div className="p-4 border-b flex justify-between items-center bg-cream-100">
-              <h3 className="font-bold text-cacao-900">Bukti Transfer</h3>
-              <button onClick={() => setViewProof(null)} className="text-cacao-500 hover:text-cacao-900"><XCircle size={20} /></button>
+            <div className="p-4 border-b flex justify-between items-center bg-gray-50">
+              <h3 className="font-bold text-slate-900">Bukti Transfer</h3>
+              <button onClick={() => setViewProof(null)} className="text-slate-500 hover:text-slate-900"><XCircle size={20} /></button>
             </div>
             <div className="p-5 flex justify-center">
               <img src={viewProof} alt="Bukti Transfer" className="max-w-full max-h-[70vh] rounded border" />
@@ -223,11 +223,11 @@ export default function AdminOrders() {
       )}
 
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 bg-cacao-900/80 flex items-center justify-center p-5">
+        <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-5">
           <div className="bg-white rounded-xl overflow-hidden max-w-2xl w-full max-h-[90vh] flex flex-col">
-            <div className="p-4 border-b flex justify-between items-center bg-cream-100 shrink-0">
-              <h3 className="font-bold text-cacao-900">Detail Pesanan: {selectedOrder.id}</h3>
-              <button onClick={() => setSelectedOrder(null)} className="text-cacao-500 hover:text-cacao-900"><XCircle size={20} /></button>
+            <div className="p-4 border-b flex justify-between items-center bg-gray-50 shrink-0">
+              <h3 className="font-bold text-slate-900">Detail Pesanan: {selectedOrder.id}</h3>
+              <button onClick={() => setSelectedOrder(null)} className="text-slate-500 hover:text-slate-900"><XCircle size={20} /></button>
             </div>
             <div className="p-5 overflow-y-auto">
               <OrderSummaryCard order={selectedOrder} />
@@ -237,23 +237,23 @@ export default function AdminOrders() {
       )}
 
       {statusPrompt && (
-        <div className="fixed inset-0 z-50 bg-cacao-900/80 flex items-center justify-center p-5">
+        <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-5">
           <div className="bg-white rounded-xl overflow-hidden max-w-md w-full">
-            <div className="p-4 border-b flex justify-between items-center bg-cream-100 shrink-0">
-              <h3 className="font-bold text-cacao-900">
+            <div className="p-4 border-b flex justify-between items-center bg-gray-50 shrink-0">
+              <h3 className="font-bold text-slate-900">
                 {statusPrompt.newStatus === 'dikirim' ? 'Input Nomor Resi' : 'Alasan Pembatalan'}
               </h3>
-              <button onClick={() => setStatusPrompt(null)} className="text-cacao-500 hover:text-cacao-900"><XCircle size={20} /></button>
+              <button onClick={() => setStatusPrompt(null)} className="text-slate-500 hover:text-slate-900"><XCircle size={20} /></button>
             </div>
             <form onSubmit={handlePromptSubmit} className="p-5 flex flex-col gap-4">
               {statusPrompt.newStatus === 'dikirim' ? (
                 <div>
-                  <label className="block text-sm font-medium text-cacao-900 mb-1">Nomor Resi Ekspedisi</label>
+                  <label className="block text-sm font-medium text-slate-900 mb-1">Nomor Resi Ekspedisi</label>
                   <input 
                     type="text" 
                     value={trackingNumber}
                     onChange={e => setTrackingNumber(e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2 outline-none focus:border-gold-500" 
+                    className="w-full border rounded-lg px-3 py-2 outline-none focus:border-lime-500" 
                     placeholder="Contoh: JNT-123456789"
                     required
                   />
@@ -261,7 +261,7 @@ export default function AdminOrders() {
               ) : (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-cacao-900 mb-1">Pilih Alasan</label>
+                    <label className="block text-sm font-medium text-slate-900 mb-1">Pilih Alasan</label>
                     <select 
                       value={cancelReasonType}
                       onChange={e => setCancelReasonType(e.target.value)}
@@ -275,11 +275,11 @@ export default function AdminOrders() {
                   </div>
                   {cancelReasonType === 'Lainnya' && (
                     <div>
-                      <label className="block text-sm font-medium text-cacao-900 mb-1">Tulis Alasan Manual</label>
+                      <label className="block text-sm font-medium text-slate-900 mb-1">Tulis Alasan Manual</label>
                       <textarea 
                         value={cancelReasonText}
                         onChange={e => setCancelReasonText(e.target.value)}
-                        className="w-full border rounded-lg px-3 py-2 outline-none focus:border-gold-500 min-h-[80px]" 
+                        className="w-full border rounded-lg px-3 py-2 outline-none focus:border-lime-500 min-h-[80px]" 
                         placeholder="Tuliskan alasan spesifik..."
                         required
                       />
@@ -288,8 +288,8 @@ export default function AdminOrders() {
                 </>
               )}
               <div className="flex justify-end gap-2 mt-2">
-                <button type="button" onClick={() => setStatusPrompt(null)} className="px-4 py-2 text-sm font-bold text-cacao-600 hover:bg-cream-100 rounded-lg">Batal</button>
-                <button type="submit" className="px-4 py-2 text-sm font-bold bg-gold-500 hover:bg-gold-400 text-cacao-900 rounded-lg">
+                <button type="button" onClick={() => setStatusPrompt(null)} className="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-gray-50 rounded-lg">Batal</button>
+                <button type="submit" className="px-4 py-2 text-sm font-bold bg-lime-500 hover:bg-lime-400 text-slate-900 rounded-lg">
                   Simpan & Kirim Notif
                 </button>
               </div>

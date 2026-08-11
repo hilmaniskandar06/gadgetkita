@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase'
+﻿import { supabase } from '../config/supabase'
 import { SEED_CATEGORIES } from '../data/products'
 
 function mapFromDb(c) {

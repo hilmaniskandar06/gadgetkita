@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState } from 'react'
+﻿import { createContext, useCallback, useContext, useState } from 'react'
 import { CheckCircle2, XCircle } from 'lucide-react'
 
 const ToastContext = createContext(null)
@@ -21,12 +21,12 @@ export function ToastProvider({ children }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="flex items-center gap-2 bg-cacao-900 text-cream-50 text-sm font-medium px-4 py-3 rounded-lg shadow-lg animate-[fadeIn_.2s_ease]"
+            className="flex items-center gap-2 bg-slate-900 text-white text-sm font-medium px-4 py-3 rounded-lg shadow-lg animate-[fadeIn_.2s_ease]"
           >
             {t.type === 'error' ? (
               <XCircle size={16} className="text-rose-500 shrink-0" />
             ) : (
-              <CheckCircle2 size={16} className="text-gold-400 shrink-0" />
+              <CheckCircle2 size={16} className="text-lime-400 shrink-0" />
             )}
             {t.message}
           </div>

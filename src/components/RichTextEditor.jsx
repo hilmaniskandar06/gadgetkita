@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+﻿import { useRef, useEffect } from 'react'
 import { Bold, Italic, Underline, List, ListOrdered, AlignLeft, AlignCenter, AlignRight } from 'lucide-react'
 
 export default function RichTextEditor({ value, onChange }) {
@@ -21,49 +21,49 @@ export default function RichTextEditor({ value, onChange }) {
   }
 
   return (
-    <div className="border border-cream-300 rounded-lg overflow-hidden bg-white">
+    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
       {/* Toolbar */}
-      <div className="flex flex-wrap gap-1 p-2 bg-cream-100 border-b border-cream-300 items-center">
-        <button type="button" onClick={() => exec('bold')} className="p-1.5 hover:bg-cream-200 rounded text-cacao-700" title="Bold">
+      <div className="flex flex-wrap gap-1 p-2 bg-gray-50 border-b border-gray-200 items-center">
+        <button type="button" onClick={() => exec('bold')} className="p-1.5 hover:bg-gray-100 rounded text-slate-700" title="Bold">
           <Bold size={16} />
         </button>
-        <button type="button" onClick={() => exec('italic')} className="p-1.5 hover:bg-cream-200 rounded text-cacao-700" title="Italic">
+        <button type="button" onClick={() => exec('italic')} className="p-1.5 hover:bg-gray-100 rounded text-slate-700" title="Italic">
           <Italic size={16} />
         </button>
-        <button type="button" onClick={() => exec('underline')} className="p-1.5 hover:bg-cream-200 rounded text-cacao-700" title="Underline">
+        <button type="button" onClick={() => exec('underline')} className="p-1.5 hover:bg-gray-100 rounded text-slate-700" title="Underline">
           <Underline size={16} />
         </button>
-        <div className="w-px h-5 bg-cream-300 mx-1" />
-        <button type="button" onClick={() => exec('formatBlock', 'H1')} className="p-1.5 hover:bg-cream-200 rounded text-cacao-700 font-bold text-xs" title="Heading 1">
+        <div className="w-px h-5 bg-gray-200 mx-1" />
+        <button type="button" onClick={() => exec('formatBlock', 'H1')} className="p-1.5 hover:bg-gray-100 rounded text-slate-700 font-bold text-xs" title="Heading 1">
           H1
         </button>
-        <button type="button" onClick={() => exec('formatBlock', 'H2')} className="p-1.5 hover:bg-cream-200 rounded text-cacao-700 font-bold text-xs" title="Heading 2">
+        <button type="button" onClick={() => exec('formatBlock', 'H2')} className="p-1.5 hover:bg-gray-100 rounded text-slate-700 font-bold text-xs" title="Heading 2">
           H2
         </button>
-        <button type="button" onClick={() => exec('formatBlock', 'P')} className="p-1.5 hover:bg-cream-200 rounded text-cacao-700 font-bold text-xs" title="Paragraph">
+        <button type="button" onClick={() => exec('formatBlock', 'P')} className="p-1.5 hover:bg-gray-100 rounded text-slate-700 font-bold text-xs" title="Paragraph">
           P
         </button>
-        <div className="w-px h-5 bg-cream-300 mx-1" />
-        <button type="button" onClick={() => exec('justifyLeft')} className="p-1.5 hover:bg-cream-200 rounded text-cacao-700" title="Align Left">
+        <div className="w-px h-5 bg-gray-200 mx-1" />
+        <button type="button" onClick={() => exec('justifyLeft')} className="p-1.5 hover:bg-gray-100 rounded text-slate-700" title="Align Left">
           <AlignLeft size={16} />
         </button>
-        <button type="button" onClick={() => exec('justifyCenter')} className="p-1.5 hover:bg-cream-200 rounded text-cacao-700" title="Align Center">
+        <button type="button" onClick={() => exec('justifyCenter')} className="p-1.5 hover:bg-gray-100 rounded text-slate-700" title="Align Center">
           <AlignCenter size={16} />
         </button>
-        <button type="button" onClick={() => exec('justifyRight')} className="p-1.5 hover:bg-cream-200 rounded text-cacao-700" title="Align Right">
+        <button type="button" onClick={() => exec('justifyRight')} className="p-1.5 hover:bg-gray-100 rounded text-slate-700" title="Align Right">
           <AlignRight size={16} />
         </button>
-        <div className="w-px h-5 bg-cream-300 mx-1" />
-        <button type="button" onClick={() => exec('insertUnorderedList')} className="p-1.5 hover:bg-cream-200 rounded text-cacao-700" title="Bullet List">
+        <div className="w-px h-5 bg-gray-200 mx-1" />
+        <button type="button" onClick={() => exec('insertUnorderedList')} className="p-1.5 hover:bg-gray-100 rounded text-slate-700" title="Bullet List">
           <List size={16} />
         </button>
-        <button type="button" onClick={() => exec('insertOrderedList')} className="p-1.5 hover:bg-cream-200 rounded text-cacao-700" title="Number List">
+        <button type="button" onClick={() => exec('insertOrderedList')} className="p-1.5 hover:bg-gray-100 rounded text-slate-700" title="Number List">
           <ListOrdered size={16} />
         </button>
-        <div className="w-px h-5 bg-cream-300 mx-1" />
+        <div className="w-px h-5 bg-gray-200 mx-1" />
         <select 
           onChange={(e) => exec('fontName', e.target.value)} 
-          className="text-xs bg-white border border-cream-300 rounded px-1.5 py-1 text-cacao-700 outline-none"
+          className="text-xs bg-white border border-gray-200 rounded px-1.5 py-1 text-slate-700 outline-none"
           title="Font Family"
         >
           <option value="Inter, sans-serif">Default Font</option>

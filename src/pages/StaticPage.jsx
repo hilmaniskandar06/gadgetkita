@@ -1,4 +1,4 @@
-import { useParams, Navigate, Link } from 'react-router-dom'
+﻿import { useParams, Navigate, Link } from 'react-router-dom'
 import { useSiteContent } from '../context/SiteContentContext'
 import { ChevronLeft } from 'lucide-react'
 
@@ -16,7 +16,7 @@ export default function StaticPage() {
   const { content, loading } = useSiteContent()
 
   if (loading) {
-    return <div className="max-w-3xl mx-auto px-5 py-24 text-center text-cacao-500">Memuat halaman...</div>
+    return <div className="max-w-3xl mx-auto px-5 py-24 text-center text-slate-500">Memuat halaman...</div>
   }
 
   const pageDef = SLUG_TO_KEY[slug]
@@ -28,17 +28,17 @@ export default function StaticPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-5 lg:px-8 py-14">
-      <Link to="/" className="inline-flex items-center gap-1 text-sm text-cacao-600 hover:text-gold-600 font-semibold mb-8 transition-colors">
+      <Link to="/" className="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-lime-600 font-semibold mb-8 transition-colors">
         <ChevronLeft size={16} /> Kembali
       </Link>
       
-      <div className="bg-white border border-cream-300 rounded-2xl p-8 lg:p-12 shadow-sm">
-        <h1 className="text-3xl font-extrabold text-cacao-900 mb-8 pb-6 border-b border-cream-200">
+      <div className="bg-white border border-gray-200 rounded-2xl p-8 lg:p-12 shadow-sm">
+        <h1 className="text-3xl font-extrabold text-slate-900 mb-8 pb-6 border-b border-gray-100">
           {pageDef.title}
         </h1>
         
         <div 
-          className="prose prose-cacao max-w-none prose-headings:text-cacao-900 prose-a:text-gold-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl"
+          className="prose prose-cacao max-w-none prose-headings:text-slate-900 prose-a:text-lime-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl"
           dangerouslySetInnerHTML={{ __html: htmlContent || '<p>Halaman ini belum diisi.</p>' }}
         />
       </div>

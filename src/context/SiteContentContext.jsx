@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+﻿import { createContext, useContext, useEffect, useState } from 'react'
 import * as siteContentService from '../services/siteContentService'
 import { DEFAULT_CONTENT } from '../services/siteContentService'
 
@@ -24,8 +24,8 @@ export function SiteContentProvider({ children }) {
   return (
     <SiteContentContext.Provider value={{ content, loading, updateContent }}>
       {!loading ? children : (
-        <div className="min-h-screen flex items-center justify-center bg-cream-100">
-          <div className="w-10 h-10 border-4 border-cacao-200 border-t-cacao-600 rounded-full animate-spin"></div>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin"></div>
         </div>
       )}
     </SiteContentContext.Provider>

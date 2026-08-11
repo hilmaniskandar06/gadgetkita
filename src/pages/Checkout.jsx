@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { AlertTriangle, QrCode } from 'lucide-react'
 import ProductThumb from '../components/ProductThumb'
@@ -299,9 +299,9 @@ export default function Checkout() {
       <h1 className="text-2xl font-extrabold mb-8">Checkout</h1>
       <form onSubmit={handleSubmit} className="grid lg:grid-cols-[1fr_360px] gap-10">
         <div className="flex flex-col gap-6">
-          <div className="bg-white border border-cream-300 rounded-xl p-6">
+          <div className="bg-white border border-gray-200 rounded-xl p-6">
             <h3 className="font-bold mb-1">Informasi Pengiriman</h3>
-            <p className="text-xs text-cacao-500 mb-4">Pastikan alamat dan kontak Anda sudah benar.</p>
+            <p className="text-xs text-slate-500 mb-4">Pastikan alamat dan kontak Anda sudah benar.</p>
 
             <div className="grid sm:grid-cols-2 gap-4 mb-5">
               <Field label="Nama Penerima" value={form.name} onChange={(v) => update('name', v)} required />
@@ -332,50 +332,50 @@ export default function Checkout() {
                 <div className="grid sm:grid-cols-[140px_1fr] gap-4 mb-4">
                   <Field label="Kode Pos" value={form.postal} onChange={(v) => update('postal', v)} required />
                   <div>
-                    <label className="block text-xs font-medium text-cacao-600 mb-1.5">Detail Alamat (jalan, no. rumah, RT/RW)</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1.5">Detail Alamat (jalan, no. rumah, RT/RW)</label>
                     <input
                       required
                       value={form.addressDetail}
                       onChange={(e) => update('addressDetail', e.target.value)}
-                      className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-gold-500"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500"
                     />
                   </div>
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-xs font-medium text-cacao-600 mb-1.5">Catatan Pesanan (opsional)</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1.5">Catatan Pesanan (opsional)</label>
                   <textarea
                     value={form.note}
                     onChange={(e) => update('note', e.target.value)}
                     placeholder="Contoh: Tolong dibungkus rapi ya..."
-                    className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-gold-500 min-h-[80px]"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500 min-h-[80px]"
                   ></textarea>
                 </div>
 
                 {user && (
-                  <div className="mt-5 p-3 bg-cream-50 border border-cream-200 rounded-lg">
+                  <div className="mt-5 p-3 bg-white border border-gray-100 rounded-lg">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input 
                         type="checkbox" 
                         checked={form.saveToProfile} 
                         onChange={(e) => update('saveToProfile', e.target.checked)}
-                        className="accent-gold-500 w-4 h-4 rounded"
+                        className="accent-lime-500 w-4 h-4 rounded"
                       />
-                      <span className="text-sm font-semibold text-cacao-900">Simpan/perbarui sebagai alamat utama profil saya</span>
+                      <span className="text-sm font-semibold text-slate-900">Simpan/perbarui sebagai alamat utama profil saya</span>
                     </label>
                   </div>
                 )}
           </div>
 
-          <div className="bg-white border border-cream-300 rounded-xl p-6">
+          <div className="bg-white border border-gray-200 rounded-xl p-6">
             <h3 className="font-bold mb-4">Metode Pembayaran</h3>
             <div className="flex gap-4 mb-4">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="payCat" className="accent-gold-500" checked={paymentCategory === 'bank'} onChange={() => setPaymentCategory('bank')} />
+                <input type="radio" name="payCat" className="accent-lime-500" checked={paymentCategory === 'bank'} onChange={() => setPaymentCategory('bank')} />
                 <span className="text-sm font-semibold">Transfer Bank</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="payCat" className="accent-gold-500" checked={paymentCategory === 'ewallet'} onChange={() => setPaymentCategory('ewallet')} />
+                <input type="radio" name="payCat" className="accent-lime-500" checked={paymentCategory === 'ewallet'} onChange={() => setPaymentCategory('ewallet')} />
                 <span className="text-sm font-semibold">E-Wallet</span>
               </label>
             </div>
@@ -385,17 +385,17 @@ export default function Checkout() {
                 <label
                   key={p.id}
                   className={`border rounded-lg px-4 py-3 flex items-center justify-between cursor-pointer transition-colors ${
-                    form.payment === p.id ? 'border-gold-500 bg-gold-500/10' : 'border-cream-300'
+                    form.payment === p.id ? 'border-lime-500 bg-lime-500/10' : 'border-gray-200'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <input type="radio" name="payment" className="accent-gold-500" checked={form.payment === p.id} onChange={() => update('payment', p.id)} />
+                    <input type="radio" name="payment" className="accent-lime-500" checked={form.payment === p.id} onChange={() => update('payment', p.id)} />
                     <div className="w-10 h-10 bg-white rounded flex items-center justify-center shrink-0">
                       {p.logo ? <img src={p.logo} alt="" className="w-full h-full object-contain" /> : <div className="font-bold text-lg">{p.name.charAt(0)}</div>}
                     </div>
                     <div>
                       <div className="text-sm font-bold">{p.name}</div>
-                      <div className="text-xs text-cacao-600 font-mono flex items-center gap-2">
+                      <div className="text-xs text-slate-600 font-mono flex items-center gap-2">
                         {p.account}
                         <button 
                           type="button"
@@ -404,29 +404,29 @@ export default function Checkout() {
                             navigator.clipboard.writeText(p.account); 
                             addToast('Nomor berhasil disalin!'); 
                           }} 
-                          className="hover:text-cacao-900" title="Salin"
+                          className="hover:text-slate-900" title="Salin"
                         >
                           <Copy size={12} />
                         </button>
                       </div>
-                      {p.accountName && <div className="text-[11px] text-cacao-500 font-semibold mt-0.5">A/N: {p.accountName}</div>}
+                      {p.accountName && <div className="text-[11px] text-slate-500 font-semibold mt-0.5">A/N: {p.accountName}</div>}
                     </div>
                   </div>
                   {p.type === 'ewallet' && p.qr && (
-                    <button type="button" onClick={(e) => { e.preventDefault(); setShowQR(p.qr) }} className="w-8 h-8 flex items-center justify-center border rounded-full hover:bg-white text-cacao-900 border-cacao-300" title="Lihat QR">
+                    <button type="button" onClick={(e) => { e.preventDefault(); setShowQR(p.qr) }} className="w-8 h-8 flex items-center justify-center border rounded-full hover:bg-white text-slate-900 border-slate-500" title="Lihat QR">
                       <QrCode size={16} />
                     </button>
                   )}
                 </label>
               ))}
               {payments.filter(p => p.type === paymentCategory).length === 0 && (
-                <p className="text-sm text-cacao-500 py-4 text-center border border-dashed rounded-lg">Belum ada metode pembayaran.</p>
+                <p className="text-sm text-slate-500 py-4 text-center border border-dashed rounded-lg">Belum ada metode pembayaran.</p>
               )}
             </div>
           </div>
         </div>
 
-        <div className="bg-cream-200 rounded-xl p-6 h-fit">
+        <div className="bg-gray-100 rounded-xl p-6 h-fit">
           <h3 className="font-bold mb-4">Ringkasan Pesanan</h3>
           <div className="flex flex-col gap-3 mb-4 max-h-64 overflow-y-auto pr-1">
             {checkoutItems.map((i) => (
@@ -436,20 +436,20 @@ export default function Checkout() {
                 </div>
                 <div className="flex-1 min-w-0 text-xs">
                   <div className="font-semibold truncate">{i.name}</div>
-                  <div className="text-cacao-500">Qty {i.qty}</div>
+                  <div className="text-slate-500">Qty {i.qty}</div>
                 </div>
                 <span className="font-mono text-xs font-semibold">{fmt(i.price * i.qty)}</span>
               </div>
             ))}
           </div>
-          <div className="flex justify-between text-sm mb-2 text-cacao-700">
+          <div className="flex justify-between text-sm mb-2 text-slate-700">
             <span>Subtotal</span><span className="font-mono">{fmt(checkoutSubtotal)}</span>
           </div>
-          <div className="flex justify-between text-sm mb-2 text-cacao-700">
+          <div className="flex justify-between text-sm mb-2 text-slate-700">
             <span>Ongkos Kirim</span><span className="font-mono">{fmt(shippingFee)}</span>
           </div>
           {serviceFee > 0 && (
-            <div className="flex justify-between text-sm mb-2 text-cacao-700">
+            <div className="flex justify-between text-sm mb-2 text-slate-700">
               <span>Biaya Layanan</span><span className="font-mono">{fmt(serviceFee)}</span>
             </div>
           )}
@@ -459,20 +459,20 @@ export default function Checkout() {
             </div>
           )}
           <div className="flex gap-2 my-4">
-            <input value={voucherCode} onChange={e => setVoucherCode(e.target.value.toUpperCase())} placeholder="Kode Voucher" className="flex-1 bg-white border border-cream-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-gold-500" disabled={!!activeVoucher} />
+            <input value={voucherCode} onChange={e => setVoucherCode(e.target.value.toUpperCase())} placeholder="Kode Voucher" className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-lime-500" disabled={!!activeVoucher} />
             {activeVoucher ? (
               <button type="button" onClick={handleRemoveVoucher} className="bg-rose-100 text-rose-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-rose-200 transition-colors">Batal</button>
             ) : (
-              <button type="button" onClick={handleApplyVoucher} className="bg-cacao-900 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-cacao-800 transition-colors">Pakai</button>
+              <button type="button" onClick={handleApplyVoucher} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-800 transition-colors">Pakai</button>
             )}
           </div>
-          <div className="flex justify-between font-bold text-lg border-t border-cream-300 pt-4 mb-6">
+          <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-4 mb-6">
             <span>Total</span><span className="font-mono">{fmt(checkoutSubtotal - Math.min((activeVoucher?.discount || 0), checkoutSubtotal) + shippingFee + serviceFee)}</span>
           </div>
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-gold-500 hover:bg-gold-400 text-cacao-900 font-bold py-3 rounded-full transition-colors disabled:opacity-50"
+            className="w-full bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-3 rounded-full transition-colors disabled:opacity-50"
           >
             {saving ? 'Memproses...' : 'Buat Pesanan'}
           </button>
@@ -480,15 +480,15 @@ export default function Checkout() {
       </form>
 
       {showModal && (
-        <div className="fixed inset-0 z-[70] bg-cacao-900/50 flex items-center justify-center px-5">
+        <div className="fixed inset-0 z-[70] bg-slate-900/50 flex items-center justify-center px-5">
           <div className="bg-white rounded-xl p-6 w-full max-w-sm text-center">
             <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto mb-4">
               <AlertTriangle size={22} />
             </div>
             <h3 className="font-bold text-lg mb-1">Tinggalkan halaman checkout?</h3>
-            <p className="text-sm text-cacao-600 mb-6">Data pesanan yang sedang kamu isi belum disimpan dan akan hilang.</p>
+            <p className="text-sm text-slate-600 mb-6">Data pesanan yang sedang kamu isi belum disimpan dan akan hilang.</p>
             <div className="flex gap-3">
-              <button onClick={cancelLeave} className="flex-1 border border-cream-300 font-semibold py-2.5 rounded-full hover:border-gold-500 transition-colors">
+              <button onClick={cancelLeave} className="flex-1 border border-gray-200 font-semibold py-2.5 rounded-full hover:border-lime-500 transition-colors">
                 Tetap di Sini
               </button>
               <button onClick={confirmLeave} className="flex-1 bg-rose-500 hover:bg-rose-500/90 text-white font-bold py-2.5 rounded-full transition-colors">
@@ -500,13 +500,13 @@ export default function Checkout() {
       )}
 
       {showQR && (
-        <div className="fixed inset-0 z-[80] bg-cacao-900/50 flex items-center justify-center px-5" onClick={() => setShowQR(null)}>
+        <div className="fixed inset-0 z-[80] bg-slate-900/50 flex items-center justify-center px-5" onClick={() => setShowQR(null)}>
           <div className="bg-white rounded-xl p-6 w-full max-w-xs text-center" onClick={e => e.stopPropagation()}>
             <h3 className="font-bold text-lg mb-4">Scan QRIS</h3>
             <img src={showQR} alt="QRIS" className="w-full object-contain mb-4 border rounded-lg" />
             <div className="flex gap-3">
-              <button type="button" onClick={() => setShowQR(null)} className="flex-1 border border-cream-300 py-2 rounded-full font-semibold">Tutup</button>
-              <a href={showQR} download="QRIS-Payment.png" className="flex-1 bg-gold-500 text-cacao-900 font-bold py-2 rounded-full text-center hover:bg-gold-400">Unduh</a>
+              <button type="button" onClick={() => setShowQR(null)} className="flex-1 border border-gray-200 py-2 rounded-full font-semibold">Tutup</button>
+              <a href={showQR} download="QRIS-Payment.png" className="flex-1 bg-lime-500 text-slate-900 font-bold py-2 rounded-full text-center hover:bg-lime-400">Unduh</a>
             </div>
           </div>
         </div>
@@ -518,14 +518,14 @@ export default function Checkout() {
 function Field({ label, value, onChange, required, type = 'text', disabled }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-cacao-600 mb-1.5">{label}</label>
+      <label className="block text-xs font-medium text-slate-600 mb-1.5">{label}</label>
       <input
         type={type}
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-gold-500 disabled:opacity-60"
+        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500 disabled:opacity-60"
       />
     </div>
   )

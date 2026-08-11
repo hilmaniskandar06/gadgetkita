@@ -12,6 +12,7 @@ function mapFromDb(dbItem) {
     shortDesc: dbItem.short_desc,
     longDesc: dbItem.description,
     externalLink: dbItem.external_link || null,
+    sportType: dbItem.sport_type,
     sold: Number(dbItem.sold || 0)
   }
 }
@@ -22,8 +23,6 @@ function mapToDb(item) {
     name: item.name,
     price: item.price,
     old_price: item.oldPrice,
-    rating: item.rating,
-    reviews: item.reviews,
     category: item.category,
     weight: item.weight,
     in_stock: item.inStock,
@@ -33,6 +32,10 @@ function mapToDb(item) {
     description: item.longDesc || item.description,
     images: item.images || [],
     external_link: item.externalLink || null,
+    size: item.size || null,
+    gender: item.gender || null,
+    sport_type: item.sportType || item.sport_type || null,
+    material: item.material || null,
     sold: Number(item.sold || 0)
   }
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { X } from 'lucide-react'
 
 export default function AppDownloadBanner({ content }) {
@@ -10,7 +10,7 @@ export default function AppDownloadBanner({ content }) {
   const text = (content.appDownloadBannerText || '').trim() || 'Download Aplikasi'
 
   return (
-    <div className="md:hidden bg-cacao-900 text-white z-50">
+    <div className="md:hidden bg-slate-900 text-white z-50">
       <div className="max-w-7xl mx-auto px-3 py-2.5 flex items-center justify-between gap-3">
         <button
           type="button"
@@ -27,7 +27,7 @@ export default function AppDownloadBanner({ content }) {
 
         <a
           href="/api/download-apk"
-          className="shrink-0 px-3.5 py-1.5 bg-white text-cacao-900 text-xs font-bold rounded-full hover:bg-cream-100 transition-colors"
+          className="shrink-0 px-3.5 py-1.5 bg-white text-slate-900 text-xs font-bold rounded-full hover:bg-gray-50 transition-colors"
         >
           Download
         </a>

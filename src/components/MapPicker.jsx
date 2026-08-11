@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+﻿import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
@@ -62,5 +62,5 @@ export default function MapPicker({ lat, lng, onChange }) {
     }
   }, [lat, lng])
 
-  return <div ref={mapElRef} className="w-full h-64 rounded-lg overflow-hidden border border-cream-300" />
+  return <div ref={mapElRef} className="w-full h-64 rounded-lg overflow-hidden border border-gray-200" />
 }

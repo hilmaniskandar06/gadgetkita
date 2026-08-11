@@ -84,11 +84,11 @@ CREATE TABLE IF NOT EXISTS orders (
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Read own orders" ON orders FOR SELECT USING (
-  auth.uid() = user_id OR (auth.jwt() ->> 'email') LIKE '%@admin%' OR (auth.jwt() ->> 'email') LIKE '%@kakaokita%'
+  auth.uid() = user_id OR (auth.jwt() ->> 'email') LIKE '%@admin%' OR (auth.jwt() ->> 'email') LIKE '%@sportkita%'
 );
 CREATE POLICY "Insert order auth or anon" ON orders FOR INSERT WITH CHECK (true);
 CREATE POLICY "Update order own or admin" ON orders FOR UPDATE USING (
-  auth.uid() = user_id OR (auth.jwt() ->> 'email') LIKE '%@admin%' OR (auth.jwt() ->> 'email') LIKE '%@kakaokita%'
+  auth.uid() = user_id OR (auth.jwt() ->> 'email') LIKE '%@admin%' OR (auth.jwt() ->> 'email') LIKE '%@sportkita%'
 );
 ```
 
@@ -111,15 +111,23 @@ CREATE TABLE IF NOT EXISTS products (
   images TEXT[] DEFAULT '{}'::text[],
   external_link TEXT,
   sold INTEGER DEFAULT 0 NOT NULL,
+  size TEXT,
+  gender TEXT DEFAULT 'unisex',
+  sport_type TEXT,
+  material TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Read products publicly" ON products FOR SELECT USING (true);
 ```
 
-**Untuk database lama (sudah ada tanpa kolom `external_link`):**
+**Untuk database lama (sudah ada tanpa kolom `external_link`, `size`, `gender`, `sport_type`, `material`):**
 ```sql
 ALTER TABLE products ADD COLUMN IF NOT EXISTS external_link TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS size TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS gender TEXT DEFAULT 'unisex';
+ALTER TABLE products ADD COLUMN IF NOT EXISTS sport_type TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS material TEXT;
 ```
 
 ---

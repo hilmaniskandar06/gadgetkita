@@ -1,4 +1,4 @@
-// geoService.js
+﻿// geoService.js
 //
 // - listProvinces/listRegencies/listDistricts/listVillages: data wilayah Indonesia
 //   resmi (provinsi → kabupaten/kota → kecamatan → desa/kelurahan), dari API publik

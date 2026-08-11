@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+﻿import { useState, useRef } from 'react'
 import { Plus, Trash2, Edit2, X } from 'lucide-react'
 import AdminShell from './AdminShell'
 import { useCategories } from '../context/CategoriesContext'
@@ -85,28 +85,28 @@ export default function AdminCategories() {
       <div className="grid md:grid-cols-[1fr_300px] gap-8">
         <div>
           {loading ? (
-            <p className="text-sm text-cacao-600">Memuat...</p>
+            <p className="text-sm text-slate-600">Memuat...</p>
           ) : (
-            <div className="bg-white border border-cream-300 rounded-xl divide-y divide-cream-200">
+            <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100">
               {categories.map((c) => {
                 const count = products.filter((p) => p.category === c.name).length
                 return (
-                  <div key={c.name} className="flex items-center justify-between p-4 hover:bg-cream-50 transition-colors">
+                  <div key={c.name} className="flex items-center justify-between p-4 hover:bg-white transition-colors">
                     <div className="flex items-center gap-4">
                       {c.image ? (
-                        <div className="w-12 h-12 rounded bg-cream-200 flex items-center justify-center overflow-hidden shrink-0">
+                        <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
                           <img src={c.image} alt="" className="w-full h-full object-cover" />
                         </div>
                       ) : (
-                        <div className="w-12 h-12 rounded bg-cream-200 border-2 border-dashed border-cream-300 shrink-0" />
+                        <div className="w-12 h-12 rounded bg-gray-100 border-2 border-dashed border-gray-200 shrink-0" />
                       )}
                       <div>
-                        <div className="font-bold text-cacao-900">{c.name}</div>
-                        <div className="text-xs text-cacao-500">{count} produk</div>
+                        <div className="font-bold text-slate-900">{c.name}</div>
+                        <div className="text-xs text-slate-500">{count} produk</div>
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => handleEdit(c)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-cream-200 text-cacao-600 transition-colors" title="Edit">
+                      <button onClick={() => handleEdit(c)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-slate-600 transition-colors" title="Edit">
                         <Edit2 size={14} />
                       </button>
                       <button onClick={() => handleDelete(c.name)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-rose-50 text-rose-500 transition-colors" title="Hapus">
@@ -117,41 +117,41 @@ export default function AdminCategories() {
                 )
               })}
               {categories.length === 0 && (
-                <p className="px-4 py-6 text-sm text-cacao-500 text-center">Belum ada kategori.</p>
+                <p className="px-4 py-6 text-sm text-slate-500 text-center">Belum ada kategori.</p>
               )}
             </div>
           )}
         </div>
 
         <div>
-          <form onSubmit={handleSubmit} className="bg-white border border-cream-300 rounded-xl p-5 sticky top-24">
+          <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-5 sticky top-24">
             <h3 className="font-bold text-lg mb-4">{isEdit ? 'Edit Kategori' : 'Tambah Kategori'}</h3>
             {error && <p className="text-xs text-rose-500 mb-4 bg-rose-50 p-2 rounded">{error}</p>}
             
             <div className="flex flex-col gap-4">
               <div>
-                <label className="block text-xs font-semibold text-cacao-600 mb-1.5">Nama Kategori</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Nama Kategori</label>
                 <input
                   required
                   value={form.name}
                   onChange={(e) => setForm(s => ({ ...s, name: e.target.value }))}
-                  className="w-full bg-cream-100 border border-cream-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-gold-500"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-lime-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-cacao-600 mb-1">Foto Background</label>
-                <p className="text-[10px] text-cacao-500 mb-2">Maks 5MB. Format: JPG/PNG/WEBP. Disarankan rasio 1:1 atau gambar persegi. (Otomatis dikecilkan)</p>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">Foto Background</label>
+                <p className="text-[10px] text-slate-500 mb-2">Maks 5MB. Format: JPG/PNG/WEBP. Disarankan rasio 1:1 atau gambar persegi. (Otomatis dikecilkan)</p>
                 {form.image ? (
-                  <div className="relative w-full h-24 rounded-lg overflow-hidden group border border-cream-300 mb-2">
+                  <div className="relative w-full h-24 rounded-lg overflow-hidden group border border-gray-200 mb-2">
                     <img src={form.image} alt="" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity gap-2">
-                      <button type="button" onClick={() => fileRef.current.click()} className="text-xs bg-white text-cacao-900 px-2 py-1 rounded font-bold">Ganti</button>
+                      <button type="button" onClick={() => fileRef.current.click()} className="text-xs bg-white text-slate-900 px-2 py-1 rounded font-bold">Ganti</button>
                       <button type="button" onClick={() => setForm(s => ({ ...s, image: '' }))} className="text-xs bg-rose-500 text-white px-2 py-1 rounded font-bold">Hapus</button>
                     </div>
                   </div>
                 ) : (
-                  <button type="button" onClick={() => fileRef.current.click()} className="w-full h-24 border-2 border-dashed border-cream-300 rounded-lg text-xs font-semibold text-cacao-500 hover:bg-cream-50 hover:text-cacao-900 transition-colors mb-2">
+                  <button type="button" onClick={() => fileRef.current.click()} className="w-full h-24 border-2 border-dashed border-gray-200 rounded-lg text-xs font-semibold text-slate-500 hover:bg-white hover:text-slate-900 transition-colors mb-2">
                     + Pilih Foto
                   </button>
                 )}
@@ -159,19 +159,19 @@ export default function AdminCategories() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-cacao-600 mb-1.5">Warna Teks</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Warna Teks</label>
                 <div className="flex items-center gap-3">
                   <input type="color" value={form.textColor} onChange={e => setForm(s => ({ ...s, textColor: e.target.value }))} className="w-8 h-8 rounded cursor-pointer" />
                   <span className="text-xs font-mono">{form.textColor}</span>
                 </div>
               </div>
 
-              <div className="flex gap-2 mt-4 pt-4 border-t border-cream-200">
-                <button type="submit" className="flex-1 bg-gold-500 hover:bg-gold-400 text-cacao-900 font-bold py-2 rounded-lg transition-colors text-sm">
+              <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                <button type="submit" className="flex-1 bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-2 rounded-lg transition-colors text-sm">
                   {isEdit ? 'Simpan' : 'Tambah'}
                 </button>
                 {isEdit && (
-                  <button type="button" onClick={reset} className="px-3 bg-cream-200 hover:bg-cream-300 text-cacao-900 rounded-lg transition-colors" title="Batal">
+                  <button type="button" onClick={reset} className="px-3 bg-gray-100 hover:bg-gray-200 text-slate-900 rounded-lg transition-colors" title="Batal">
                     <X size={18} />
                   </button>
                 )}

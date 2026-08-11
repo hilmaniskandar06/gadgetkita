@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import AdminShell from './AdminShell'
 import { useSiteContent } from '../context/SiteContentContext'
 import { useToast } from '../context/ToastContext'
@@ -47,7 +47,7 @@ export default function AdminPages() {
   if (loading) {
     return (
       <AdminShell title="Halaman Statis">
-        <p className="text-sm text-cacao-600">Memuat...</p>
+        <p className="text-sm text-slate-600">Memuat...</p>
       </AdminShell>
     )
   }
@@ -56,9 +56,9 @@ export default function AdminPages() {
 
   return (
     <AdminShell title="Halaman Statis">
-      <div className="bg-white border border-cream-300 rounded-xl overflow-hidden flex flex-col md:flex-row min-h-[500px]">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col md:flex-row min-h-[500px]">
         {/* Sidebar tabs */}
-        <div className="w-full md:w-56 bg-cream-100 border-b md:border-b-0 md:border-r border-cream-300 flex flex-col">
+        <div className="w-full md:w-56 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col">
           {PAGES.map(p => (
             <button
               key={p.key}
@@ -66,8 +66,8 @@ export default function AdminPages() {
               onClick={() => setActiveTab(p.key)}
               className={`text-left px-4 py-3 text-sm font-semibold border-l-4 transition-colors ${
                 activeTab === p.key 
-                ? 'border-gold-500 bg-white text-cacao-900' 
-                : 'border-transparent text-cacao-600 hover:bg-cream-200'
+                ? 'border-lime-500 bg-white text-slate-900' 
+                : 'border-transparent text-slate-600 hover:bg-gray-100'
               }`}
             >
               {p.label}
@@ -76,17 +76,17 @@ export default function AdminPages() {
         </div>
         
         {/* Editor Area */}
-        <div className="flex-1 p-6 flex flex-col bg-cream-50">
+        <div className="flex-1 p-6 flex flex-col bg-white">
           <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="font-bold text-lg text-cacao-900">{activePage.label}</h2>
-                <p className="text-xs text-cacao-500 font-mono mt-0.5">/halaman/{activePage.slug}</p>
+                <h2 className="font-bold text-lg text-slate-900">{activePage.label}</h2>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">/halaman/{activePage.slug}</p>
               </div>
               <button 
                 type="submit" 
                 disabled={saving}
-                className="bg-gold-500 hover:bg-gold-400 text-cacao-900 font-bold px-5 py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
+                className="bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold px-5 py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
               >
                 {saving ? 'Menyimpan...' : 'Simpan Halaman'}
               </button>
@@ -99,7 +99,7 @@ export default function AdminPages() {
               />
             </div>
             
-            <p className="text-xs text-cacao-500 mt-4 text-center">
+            <p className="text-xs text-slate-500 mt-4 text-center">
               Perubahan akan langsung terlihat di website pembeli setelah disimpan.
             </p>
           </form>

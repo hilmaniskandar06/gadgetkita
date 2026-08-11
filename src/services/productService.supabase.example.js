@@ -1,4 +1,4 @@
-// productService.supabase.example.js
+﻿// productService.supabase.example.js
 //
 // CONTOH implementasi productService memakai Supabase (database sungguhan).
 // File ini BELUM aktif — hanya template. Cara mengaktifkan:

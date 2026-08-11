@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase'
+﻿import { supabase } from '../config/supabase'
 
 const DEFAULT_PAYMENTS = [
   { id: '1', type: 'bank', name: 'Bank BCA', account: '1234567890', accountName: 'Kakao Kita', logo: '', qr: '' },
