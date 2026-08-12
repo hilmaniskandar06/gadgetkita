@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -6,7 +6,6 @@ import CartDrawer from './components/CartDrawer'
 import ChatWidget from './components/ChatWidget'
 import BottomNav from './components/BottomNav'
 import AppDownloadBanner from './components/AppDownloadBanner'
-import AppLoadingScreen from './components/AppLoadingScreen'
 import Home from './pages/Home'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
@@ -36,70 +35,17 @@ import AdminChats from './admin/AdminChats'
 import AdminPages from './admin/AdminPages'
 import StaticPage from './pages/StaticPage'
 import { useSiteContent } from './context/SiteContentContext'
-import { useCategories } from './context/CategoriesContext'
-import { useProducts } from './context/ProductsContext'
-import { useVouchers } from './context/VoucherContext'
-import { usePayments } from './context/PaymentContext'
-import { useAuth } from './context/AuthContext'
 
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false)
   const location = useLocation()
-  const { content, loading: scLoading } = useSiteContent()
-  const { loading: catLoading } = useCategories()
-  const { loading: prodLoading } = useProducts()
-  const { loading: vocLoading } = useVouchers()
-  const { loading: payLoading } = usePayments()
-  const { loading: authLoading } = useAuth()
-
-  // Hitung progress berdasarkan 6 provider async primer
-  const totalSteps = 6
-  const loadedCount = useMemo(() => {
-    let n = 0
-    if (!scLoading) n++
-    if (!catLoading) n++
-    if (!prodLoading) n++
-    if (!vocLoading) n++
-    if (!payLoading) n++
-    if (!authLoading) n++
-    return n
-  }, [scLoading, catLoading, prodLoading, vocLoading, payLoading, authLoading])
-  const progressPct = Math.round((loadedCount / totalSteps) * 100)
-
-  // Minimal durasi loading agar tidak flicker jika data super cepat
-  const [minTimePassed, setMinTimePassed] = useState(false)
-  useEffect(() => {
-    const t = setTimeout(() => setMinTimePassed(true), 450)
-    return () => clearTimeout(t)
-  }, [])
-
-  // SYARAT: data primer minimal 3 step + auth + siteContent siap
-  const primingReady = minTimePassed && loadedCount >= 3 && !authLoading && !scLoading
-
-  // HANYA tampilkan loading SCREEN SEKALI SAAT APP FIRST LOAD / REFRESH.
-  // Setelah first load selesai, user navigate SPA tidak akan lihat loading lagi.
-  const [firstLoadDone, setFirstLoadDone] = useState(false)
-  useEffect(() => {
-    if (primingReady && !firstLoadDone) setFirstLoadDone(true)
-  }, [primingReady, firstLoadDone])
-
-  const showLoading = !firstLoadDone || !primingReady
+  const { content } = useSiteContent()
 
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [location.pathname])
 
   const isAdmin = location.pathname.startsWith('/admin')
-
-  // ──────────────────────────────────────────────────────────────────────
-  // SELALU tampilkan loading screen saat app pertama kali mount / refresh
-  // Sampai data primer Supabase (min 3/6 + auth + siteContent) siap +
-  // minimal 450ms lewat. User TIDAK akan lihat fallback content (flash
-  // SPORTKITA → GADGETKITA) sama sekali.
-  // ──────────────────────────────────────────────────────────────────────
-  if (showLoading) {
-    return <AppLoadingScreen progress={progressPct} />
-  }
 
   if (isAdmin) {
     return (

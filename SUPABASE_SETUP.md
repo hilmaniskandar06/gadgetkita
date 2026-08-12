@@ -84,11 +84,11 @@ CREATE TABLE IF NOT EXISTS orders (
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Read own orders" ON orders FOR SELECT USING (
-  auth.uid() = user_id OR (auth.jwt() ->> 'email') LIKE '%@admin%' OR (auth.jwt() ->> 'email') LIKE '%@sportkita%'
+  auth.uid() = user_id OR (auth.jwt() ->> 'email') LIKE '%@admin%' OR (auth.jwt() ->> 'email') LIKE '%@gadgetkita%'
 );
 CREATE POLICY "Insert order auth or anon" ON orders FOR INSERT WITH CHECK (true);
 CREATE POLICY "Update order own or admin" ON orders FOR UPDATE USING (
-  auth.uid() = user_id OR (auth.jwt() ->> 'email') LIKE '%@admin%' OR (auth.jwt() ->> 'email') LIKE '%@sportkita%'
+  auth.uid() = user_id OR (auth.jwt() ->> 'email') LIKE '%@admin%' OR (auth.jwt() ->> 'email') LIKE '%@gadgetkita%'
 );
 ```
 

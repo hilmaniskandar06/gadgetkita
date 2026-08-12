@@ -1,8 +1,8 @@
 import { supabase } from '../config/supabase'
 
 export const DEFAULT_CONTENT = {
-  heroTitle: 'Lengkapi Keperluan Gadgetmu Disini.',
-  footerDescription: 'Toko aksesoris HP dan gadget terlengkap untuk semua kalangan.',
+  heroTitle: 'Lengkapi Gadgetmu, Maksimalkan Harimu.',
+  footerDescription: 'Toko aksesoris HP terlengkap untuk semua kebutuhan gadgetmu — case, charger, earphone, powerbank, dan banyak lagi.',
   footerEmail: 'hello@gadgetkita.id',
   footerAddress: 'Bandung, Indonesia',
   shippingFee: 15000,
@@ -21,7 +21,7 @@ export const DEFAULT_CONTENT = {
   socialFacebook: '',
   socialTiktok: '',
   socialTwitter: '',
-  pageAbout: '<p>Tentang GADGETKITA, toko aksesoris gadget terpercaya.</p>',
+  pageAbout: '<p>Tentang GADGETKITA, toko aksesoris HP terpercaya.</p>',
   pageFaq: '<h2>Tanya Jawab</h2>',
   pageTos: '<p>Syarat dan Ketentuan layanan GADGETKITA.</p>',
   pageRefund: '<p>Kebijakan pengembalian dana.</p>',
