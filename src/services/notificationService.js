@@ -1,4 +1,4 @@
-﻿import { supabase } from '../config/supabase'
+import { supabase } from '../config/supabase'
 
 function mapFromDb(item) {
   if (!item) return null
@@ -69,26 +69,31 @@ export async function addNotification(userId, title, message, link = null) {
 }
 
 export async function markAsRead(id, userId) {
-  const { data: current, error: getErr } = await supabase.from('notifications').select('*').eq('id', id).single()
-  if (getErr) throw new Error(getErr.message)
-  if (!current) return null
+  try {
+    const { data: current, error: getErr } = await supabase.from('notifications').select('*').eq('id', id).maybeSingle()
+    if (getErr) throw new Error(getErr.message)
+    if (!current) return null
 
-  if (current.user_id === 'ALL') {
-    const readBy = Array.isArray(current.read_by) ? [...current.read_by] : []
-    if (!readBy.includes(userId)) readBy.push(userId)
-    const { data, error } = await supabase
-      .from('notifications')
-      .update({ read_by: readBy })
-      .eq('id', id)
-      .select()
-      .single()
-    if (error) throw new Error(error.message)
-    return mapFromDb(data)
-  } else {
-    if (current.is_read) return mapFromDb(current)
-    const { data, error } = await supabase.from('notifications').update({ is_read: true }).eq('id', id).select().single()
-    if (error) throw new Error(error.message)
-    return mapFromDb(data)
+    if (current.user_id === 'ALL') {
+      const readBy = Array.isArray(current.read_by) ? [...current.read_by] : []
+      if (!readBy.includes(userId)) readBy.push(userId)
+      const { data, error } = await supabase
+        .from('notifications')
+        .update({ read_by: readBy })
+        .eq('id', id)
+        .select()
+        .maybeSingle()
+      if (error) throw new Error(error.message)
+      return data ? mapFromDb(data) : mapFromDb({ ...current, read_by: readBy })
+    } else {
+      if (current.is_read) return mapFromDb(current)
+      const { data, error } = await supabase.from('notifications').update({ is_read: true }).eq('id', id).select().maybeSingle()
+      if (error) throw new Error(error.message)
+      return data ? mapFromDb(data) : mapFromDb({ ...current, is_read: true })
+    }
+  } catch (err) {
+    console.error('markAsRead error:', err)
+    throw err
   }
 }
 

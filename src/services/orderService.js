@@ -1,90 +1,122 @@
-﻿import { supabase } from '../config/supabase'
+import { supabase } from '../config/supabase'
 
 export async function createOrder(orderPayload) {
-  const { data, error } = await supabase.from('orders').insert({
-    id: orderPayload.id,
-    user_id: orderPayload.userId,
-    status: orderPayload.status,
-    payment_status: orderPayload.paymentStatus,
-    total: orderPayload.total,
-    items: orderPayload.items,
-    customer_info: {
-      ...orderPayload.customer,
-      subtotal: orderPayload.subtotal,
-      discount: orderPayload.discount,
-      voucherCode: orderPayload.voucherCode,
-      shipping: orderPayload.shipping,
-      serviceFee: orderPayload.serviceFee,
-      note: orderPayload.note
-    },
-    created_at: orderPayload.date || new Date().toISOString()
-  }).select().single()
+  try {
+    const { data, error } = await supabase.from('orders').insert({
+      id: orderPayload.id,
+      user_id: orderPayload.userId,
+      status: orderPayload.status,
+      payment_status: orderPayload.paymentStatus,
+      total: orderPayload.total,
+      items: orderPayload.items,
+      customer_info: {
+        ...orderPayload.customer,
+        subtotal: orderPayload.subtotal,
+        discount: orderPayload.discount,
+        voucherCode: orderPayload.voucherCode,
+        shipping: orderPayload.shipping,
+        serviceFee: orderPayload.serviceFee,
+        note: orderPayload.note
+      },
+      created_at: orderPayload.date || new Date().toISOString()
+    }).select().maybeSingle()
 
-  if (error) throw new Error(error.message)
-  return data
+    if (error) throw new Error(error.message)
+    return data
+  } catch (err) {
+    console.error('createOrder error:', err)
+    throw err
+  }
 }
 
 export async function getOrdersByUser(userId) {
-  const { data, error } = await supabase.from('orders').select('*').eq('user_id', userId).order('created_at', { ascending: false })
-  if (error) throw new Error(error.message)
-  return data.map(mapOrderFromDb)
+  try {
+    const { data, error } = await supabase.from('orders').select('*').eq('user_id', userId).order('created_at', { ascending: false })
+    if (error) throw new Error(error.message)
+    return (data || []).map(mapOrderFromDb)
+  } catch (err) {
+    console.error('getOrdersByUser error:', err)
+    return []
+  }
 }
 
 export async function getOrderById(id) {
-  const { data, error } = await supabase.from('orders').select('*').eq('id', id).maybeSingle()
-  if (error || !data) return null
-  return mapOrderFromDb(data)
+  try {
+    const { data, error } = await supabase.from('orders').select('*').eq('id', id).maybeSingle()
+    if (error || !data) return null
+    return mapOrderFromDb(data)
+  } catch (err) {
+    console.error('getOrderById error:', err)
+    return null
+  }
 }
 
 export async function getAllOrders() {
-  const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
-  if (error) throw new Error(error.message)
-  return data.map(mapOrderFromDb)
+  try {
+    const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
+    if (error) throw new Error(error.message)
+    return (data || []).map(mapOrderFromDb)
+  } catch (err) {
+    console.error('getAllOrders error:', err)
+    return []
+  }
 }
 
 export async function updateOrderStatus(id, status, extraData = {}) {
-  const { data: existing, error: fetchErr } = await supabase.from('orders').select('customer_info').eq('id', id).single()
-  if (fetchErr) throw new Error(fetchErr.message)
+  try {
+    const { data: existing, error: fetchErr } = await supabase.from('orders').select('customer_info').eq('id', id).maybeSingle()
+    if (fetchErr) throw new Error(fetchErr.message)
+    if (!existing) throw new Error(`Order ${id} tidak ditemukan`)
 
-  const payload = { status }
-  if (extraData.trackingNumber) payload.tracking_number = extraData.trackingNumber
-  if (extraData.paymentStatus) {
-    payload.payment_status = extraData.paymentStatus
-  } else if (status === 'menunggu_verifikasi') {
-    payload.payment_status = 'menunggu_verifikasi'
-  } else if (status === 'dibatalkan') {
-    payload.payment_status = 'dibatalkan'
-  } else if (status === 'diproses') {
-    payload.payment_status = 'lunas'
-  } else if (status === 'dikirim') {
-    payload.payment_status = 'dikirim'
-  } else if (status === 'selesai') {
-    payload.payment_status = 'selesai'
-  }
+    const payload = { status }
+    if (extraData.trackingNumber) payload.tracking_number = extraData.trackingNumber
+    if (extraData.paymentStatus) {
+      payload.payment_status = extraData.paymentStatus
+    } else if (status === 'menunggu_verifikasi') {
+      payload.payment_status = 'menunggu_verifikasi'
+    } else if (status === 'dibatalkan') {
+      payload.payment_status = 'dibatalkan'
+    } else if (status === 'diproses') {
+      payload.payment_status = 'lunas'
+    } else if (status === 'dikirim') {
+      payload.payment_status = 'dikirim'
+    } else if (status === 'selesai') {
+      payload.payment_status = 'selesai'
+    }
 
-  const updatedCustomerInfo = { ...existing.customer_info }
-  let customerInfoChanged = false
-  if (extraData.paymentProof) {
-    updatedCustomerInfo.paymentProof = extraData.paymentProof
-    customerInfoChanged = true
-  }
-  if (extraData.cancelReason) {
-    updatedCustomerInfo.cancelReason = extraData.cancelReason
-    customerInfoChanged = true
-  }
-  if (customerInfoChanged) {
-    payload.customer_info = updatedCustomerInfo
-  }
+    const updatedCustomerInfo = { ...existing.customer_info }
+    let customerInfoChanged = false
+    if (extraData.paymentProof) {
+      updatedCustomerInfo.paymentProof = extraData.paymentProof
+      customerInfoChanged = true
+    }
+    if (extraData.cancelReason) {
+      updatedCustomerInfo.cancelReason = extraData.cancelReason
+      customerInfoChanged = true
+    }
+    if (customerInfoChanged) {
+      payload.customer_info = updatedCustomerInfo
+    }
 
-  const { data, error } = await supabase.from('orders').update(payload).eq('id', id).select().single()
-  if (error) throw new Error(error.message)
-  return mapOrderFromDb(data)
+    const { data, error } = await supabase.from('orders').update(payload).eq('id', id).select().maybeSingle()
+    if (error) throw new Error(error.message)
+    if (!data) throw new Error('Gagal update order - data tidak ditemukan setelah update')
+    return mapOrderFromDb(data)
+  } catch (err) {
+    console.error('updateOrderStatus error:', err)
+    throw err
+  }
 }
 
 export async function deleteOrder(id) {
-  const { error } = await supabase.from('orders').delete().eq('id', id)
-  if (error) throw new Error(error.message)
-  return true
+  try {
+    const { error } = await supabase.from('orders').delete().eq('id', id)
+    if (error) throw new Error(error.message)
+    return true
+  } catch (err) {
+    console.error('deleteOrder error:', err)
+    throw err
+  }
 }
 
 function mapOrderFromDb(dbItem) {

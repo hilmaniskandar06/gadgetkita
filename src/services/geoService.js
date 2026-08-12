@@ -1,4 +1,4 @@
-﻿// geoService.js
+// geoService.js
 //
 // - listProvinces/listRegencies/listDistricts/listVillages: data wilayah Indonesia
 //   resmi (provinsi → kabupaten/kota → kecamatan → desa/kelurahan), dari API publik
@@ -12,9 +12,16 @@ const WILAYAH_BASE = 'https://www.emsifa.com/api-wilayah-indonesia/api'
 const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org'
 
 async function getJSON(url) {
-  const res = await fetch(url)
-  if (!res.ok) throw new Error('Gagal mengambil data dari ' + url)
-  return res.json()
+  try {
+    const res = await fetch(url)
+    if (!res.ok) {
+      throw new Error('Gagal mengambil data dari ' + url + ` (status ${res.status})`)
+    }
+    return await res.json()
+  } catch (err) {
+    console.error('geoService.getJSON error untuk', url, ':', err?.message || err)
+    throw err
+  }
 }
 
 export async function listProvinces() {

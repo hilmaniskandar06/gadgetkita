@@ -1,4 +1,4 @@
-﻿import { supabase } from '../config/supabase'
+import { supabase } from '../config/supabase'
 
 const DEFAULT_VOUCHERS = [
   {
@@ -105,12 +105,13 @@ export async function updateVoucher(id, payload) {
 
 export async function incrementVoucherUsage(id) {
   try {
-    const { data: current } = await supabase.from('vouchers').select('used').eq('id', id).single()
+    const { data: current } = await supabase.from('vouchers').select('used').eq('id', id).maybeSingle()
     const newUsed = Number(current?.used || 0) + 1
-    const { data, error } = await supabase.from('vouchers').update({ used: newUsed }).eq('id', id).select().single()
+    const { data, error } = await supabase.from('vouchers').update({ used: newUsed }).eq('id', id).select().maybeSingle()
     if (error) throw new Error(error.message)
-    return mapFromDb(data)
+    return data ? mapFromDb(data) : null
   } catch (err) {
+    console.error('incrementVoucherUsage error:', err)
     throw err
   }
 }
@@ -120,10 +121,11 @@ export async function decrementVoucherUsage(id) {
     const { data: current } = await supabase.from('vouchers').select('used').eq('id', id).maybeSingle()
     if (!current) return null
     const newUsed = Math.max(0, Number(current.used || 0) - 1)
-    const { data, error } = await supabase.from('vouchers').update({ used: newUsed }).eq('id', id).select().single()
+    const { data, error } = await supabase.from('vouchers').update({ used: newUsed }).eq('id', id).select().maybeSingle()
     if (error) throw new Error(error.message)
-    return mapFromDb(data)
+    return data ? mapFromDb(data) : null
   } catch (err) {
+    console.error('decrementVoucherUsage error:', err)
     throw err
   }
 }
