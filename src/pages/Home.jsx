@@ -121,9 +121,19 @@ export default function Home() {
         {content.heroMedia && (
           <div className="absolute inset-0 z-0">
             {content.heroMediaType === 'video' ? (
-              <video src={content.heroMedia} className="w-full h-full object-cover opacity-20" autoPlay loop muted playsInline />
+              <video 
+                src={content.heroMedia} 
+                className="w-full h-full object-cover" 
+                style={{ opacity: (content.heroOpacity ?? 20) / 100 }} 
+                autoPlay loop muted playsInline 
+              />
             ) : (
-              <img src={content.heroMedia} className="w-full h-full object-cover opacity-20" alt="" />
+              <img 
+                src={content.heroMedia} 
+                className="w-full h-full object-cover" 
+                style={{ opacity: (content.heroOpacity ?? 20) / 100 }} 
+                alt="" 
+              />
             )}
           </div>
         )}

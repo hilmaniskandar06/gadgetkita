@@ -1,9 +1,7 @@
 import { supabase } from '../config/supabase'
 
 export const DEFAULT_CONTENT = {
-  heroEyebrow: 'Perlengkapan Olahraga Premium',
   heroTitle: 'Bergerak Lebih Jauh, Tampil Lebih Percaya Diri.',
-  heroSubtitle: 'Koleksi sepatu lari, jersey, baju fitness, dan alat olahraga kualitas terbaik untuk performa maksimalmu setiap hari.',
   footerDescription: 'Toko perlengkapan olahraga terlengkap untuk atlet dan pecinta olahraga dari semua kalangan.',
   footerEmail: 'hello@sportkita.id',
   footerAddress: 'Bandung, Indonesia',
@@ -11,6 +9,7 @@ export const DEFAULT_CONTENT = {
   serviceFee: 0,
   heroMedia: '',
   heroMediaType: 'image',
+  heroOpacity: 20,
   shopName: 'SPORTKITA',
   shopLogo: '',
   logoDark: '',

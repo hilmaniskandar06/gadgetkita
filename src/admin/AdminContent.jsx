@@ -6,9 +6,8 @@ import { resizeImage } from '../utils/image'
 
 const FIELDS = [
   { key: 'shopName', label: 'Nama Toko (Tampil di navigasi & footer)', type: 'input' },
-  { key: 'heroEyebrow', label: 'Label kecil di atas judul hero', type: 'input' },
   { key: 'heroTitle', label: 'Judul Hero (halaman beranda)', type: 'textarea' },
-  { key: 'heroSubtitle', label: 'Subjudul Hero', type: 'textarea' },
+  { key: 'heroOpacity', label: 'Opacity Latar Belakang Hero (0-100)', type: 'number' },
   { key: 'footerDescription', label: 'Deskripsi Singkat di Footer', type: 'textarea' },
   { key: 'appDownloadBannerText', label: 'Teks Banner Download Aplikasi', type: 'input' },
   { key: 'appDownloadLink', label: 'Link Download APK (GitHub Releases)', type: 'input' },
@@ -20,7 +19,6 @@ const FIELDS = [
   { key: 'shippingFee', label: 'Ongkos Kirim (Rp)', type: 'number' },
   { key: 'serviceFee', label: 'Biaya Layanan (Rp)', type: 'number' },
 ]
-
 export default function AdminContent() {
   const { content, loading, updateContent } = useSiteContent()
   const { addToast } = useToast()
@@ -44,6 +42,7 @@ export default function AdminContent() {
       const payload = { ...form }
       if ('shippingFee' in payload) payload.shippingFee = Number(payload.shippingFee)
       if ('serviceFee' in payload) payload.serviceFee = Number(payload.serviceFee)
+      if ('heroOpacity' in payload) payload.heroOpacity = Number(payload.heroOpacity)
 
       // Upload media
       const { uploadImage } = await import('../services/storageService')
