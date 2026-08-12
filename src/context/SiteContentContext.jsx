@@ -9,25 +9,39 @@ export function SiteContentProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    siteContentService.getContent().then((c) => {
-      setContent(c)
-      setLoading(false)
-    })
+    let mounted = true
+    ;(async () => {
+      try {
+        const c = await siteContentService.getContent()
+        if (mounted) {
+          setContent(c)
+          setLoading(false)
+        }
+      } catch (err) {
+        console.error('SiteContentProvider init error:', err)
+        if (mounted) setLoading(false)
+      }
+    })()
+    return () => { mounted = false }
   }, [])
 
   async function updateContent(partial) {
-    const next = await siteContentService.updateContent(partial)
-    setContent(next)
-    return next
+    try {
+      const next = await siteContentService.updateContent(partial)
+      setContent(next)
+      return next
+    } catch (err) {
+      console.error('updateContent error:', err)
+      throw err
+    }
   }
 
+  // SELALU render children. JANGAN sembunyikan, karena akan menyebabkan
+  // unmount semua provider nested (Products, Cart, Wishlist, dll)
+  // yang memicu React #300 error.
   return (
     <SiteContentContext.Provider value={{ content, loading, updateContent }}>
-      {!loading ? children : (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin"></div>
-        </div>
-      )}
+      {children}
     </SiteContentContext.Provider>
   )
 }

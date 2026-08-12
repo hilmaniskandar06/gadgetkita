@@ -8,14 +8,24 @@ export function VoucherProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
-    setLoading(true)
-    const list = await voucherService.listVouchers()
-    setVouchers(list)
-    setLoading(false)
+    try {
+      setLoading(true)
+      const list = await voucherService.listVouchers()
+      setVouchers(list || [])
+    } catch (err) {
+      console.error('VoucherProvider refresh error:', err)
+      setVouchers([])
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
-    refresh()
+    let mounted = true
+    ;(async () => {
+      try { await refresh() } catch (_) {}
+    })()
+    return () => { mounted = false }
   }, [refresh])
 
   async function addVoucher(voucher) {

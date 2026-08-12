@@ -8,14 +8,24 @@ export function ProductsProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
-    setLoading(true)
-    const list = await productService.listProducts()
-    setProducts(list)
-    setLoading(false)
+    try {
+      setLoading(true)
+      const list = await productService.listProducts()
+      setProducts(list || [])
+    } catch (err) {
+      console.error('ProductsProvider refresh error:', err)
+      setProducts([])
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
-    refresh()
+    let mounted = true
+    ;(async () => {
+      try { await refresh() } catch (_) {}
+    })()
+    return () => { mounted = false }
   }, [refresh])
 
   async function addProduct(payload) {

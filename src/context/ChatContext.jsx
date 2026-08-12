@@ -8,14 +8,23 @@ export function ChatProvider({ children }) {
   const mountedRef = useRef(true)
 
   const refresh = useCallback(async () => {
-    const list = await chatService.listChats()
-    if (mountedRef.current) setChats(list)
+    try {
+      const list = await chatService.listChats()
+      if (mountedRef.current) setChats(list || [])
+    } catch (err) {
+      console.error('ChatProvider refresh error:', err)
+      if (mountedRef.current) setChats([])
+    }
   }, [])
 
   useEffect(() => {
     mountedRef.current = true
-    refresh()
-    const interval = setInterval(refresh, 4000)
+    ;(async () => {
+      try { await refresh() } catch (_) {}
+    })()
+    const interval = setInterval(() => {
+      if (mountedRef.current) refresh().catch(() => {})
+    }, 4000)
     return () => {
       mountedRef.current = false
       clearInterval(interval)

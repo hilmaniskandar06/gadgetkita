@@ -8,14 +8,24 @@ export function CategoriesProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
-    setLoading(true)
-    const list = await categoryService.listCategories()
-    setCategories(list)
-    setLoading(false)
+    try {
+      setLoading(true)
+      const list = await categoryService.listCategories()
+      setCategories(list || [])
+    } catch (err) {
+      console.error('CategoriesProvider refresh error:', err)
+      setCategories([])
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
-    refresh()
+    let mounted = true
+    ;(async () => {
+      try { await refresh() } catch (_) {}
+    })()
+    return () => { mounted = false }
   }, [refresh])
 
   async function addCategory(categoryObj) {

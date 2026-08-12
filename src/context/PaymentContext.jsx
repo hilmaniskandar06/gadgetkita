@@ -8,14 +8,24 @@ export function PaymentProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
-    setLoading(true)
-    const list = await paymentService.listPayments()
-    setPayments(list)
-    setLoading(false)
+    try {
+      setLoading(true)
+      const list = await paymentService.listPayments()
+      setPayments(list || [])
+    } catch (err) {
+      console.error('PaymentProvider refresh error:', err)
+      setPayments([])
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
   useEffect(() => {
-    refresh()
+    let mounted = true
+    ;(async () => {
+      try { await refresh() } catch (_) {}
+    })()
+    return () => { mounted = false }
   }, [refresh])
 
   async function addPayment(payment) {

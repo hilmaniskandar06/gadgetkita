@@ -11,40 +11,70 @@ export function AuthProvider({ children }) {
   const { addToast } = useToast()
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        fetchProfile(session.user)
-      } else {
-        setUser(null)
-        setLoading(false)
+    let mounted = true
+    ;(async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!mounted) return
+        if (session) {
+          await fetchProfile(session.user, mounted)
+        } else {
+          setUser(null)
+          setLoading(false)
+        }
+      } catch (err) {
+        console.error('Auth init error:', err)
+        if (mounted) setLoading(false)
       }
-    })
+    })()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        fetchProfile(session.user)
-      } else {
-        setUser(null)
-        setLoading(false)
+    let subscriptionRef
+    ;(async () => {
+      try {
+        const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+          if (!mounted) return
+          if (session) {
+            fetchProfile(session.user, mounted)
+          } else {
+            setUser(null)
+            setLoading(false)
+          }
+        })
+        subscriptionRef = data?.subscription
+      } catch (err) {
+        console.error('Auth subscription setup error:', err)
       }
-    })
+    })()
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      try { subscriptionRef?.unsubscribe?.() } catch (_) {}
+    }
   }, [])
 
-  async function fetchProfile(authUser) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', authUser.id)
-      .single()
-      
-    if (data) {
-      setUser({ ...data, email: authUser.email })
-    } else {
-      setUser({ id: authUser.id, email: authUser.email })
+  async function fetchProfile(authUser, mountedRef = true) {
+    try {
+      // GUNAKAN maybeSingle() BUKAN single() — single() THROW ERROR jika data tidak ketemu
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authUser.id)
+        .maybeSingle()
+
+      if (!mountedRef) return
+      if (data && !error) {
+        setUser({ ...data, email: authUser.email })
+      } else {
+        setUser({ id: authUser.id, email: authUser.email })
+      }
+    } catch (err) {
+      console.error('fetchProfile error:', err)
+      if (mountedRef) {
+        setUser({ id: authUser.id, email: authUser.email })
+      }
+    } finally {
+      if (mountedRef) setLoading(false)
     }
-    setLoading(false)
   }
 
   async function login(email, password) {

@@ -11,14 +11,26 @@ export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([])
 
   const refresh = useCallback(async () => {
-    const list = await notificationService.listAllNotifications()
-    setNotifications(list)
+    try {
+      const list = await notificationService.listAllNotifications()
+      setNotifications(list || [])
+    } catch (err) {
+      console.error('NotificationProvider refresh error:', err)
+    }
   }, [])
 
   useEffect(() => {
-    refresh()
-    const interval = setInterval(refresh, 8000)
-    return () => clearInterval(interval)
+    let mounted = true
+    ;(async () => {
+      try { await refresh() } catch (_) {}
+    })()
+    const interval = setInterval(() => {
+      if (mounted) refresh().catch(() => {})
+    }, 8000)
+    return () => {
+      mounted = false
+      clearInterval(interval)
+    }
   }, [refresh])
 
   async function addNotification(userId, title, message, link = null) {
