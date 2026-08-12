@@ -49,7 +49,7 @@ export default function App() {
 
   if (isAdmin) {
     return (
-      <Routes location={location} key={location.pathname}>
+      <Routes location={location}>
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         <Route path="/admin/produk/baru" element={<AdminRoute><AdminProductForm /></AdminRoute>} />
@@ -71,7 +71,7 @@ export default function App() {
   const isInvoice = location.pathname.startsWith('/invoice')
   if (isInvoice) {
     return (
-      <Routes location={location} key={location.pathname}>
+      <Routes location={location}>
         <Route path="/invoice/:id" element={<Invoice />} />
       </Routes>
     )
@@ -84,7 +84,7 @@ export default function App() {
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
 
       <main className="flex-1 pb-10 md:pb-0">
-        <Routes location={location} key={location.pathname}>
+        <Routes location={location}>
           <Route path="/" element={<Home />} />
           <Route path="/toko" element={<Shop />} />
           <Route path="/produk/:id" element={<ProductDetail />} />

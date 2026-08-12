@@ -16,31 +16,29 @@ import { ChatProvider } from './context/ChatContext.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <ToastProvider>
-        <AuthProvider>
-          <CategoriesProvider>
-            <SiteContentProvider>
-              <ProductsProvider>
-                <VoucherProvider>
-                  <PaymentProvider>
-                    <CartProvider>
-                      <WishlistProvider>
-                        <NotificationProvider>
-                          <ChatProvider>
-                            <App />
-                          </ChatProvider>
-                        </NotificationProvider>
-                      </WishlistProvider>
-                    </CartProvider>
-                  </PaymentProvider>
-                </VoucherProvider>
-              </ProductsProvider>
-            </SiteContentProvider>
-          </CategoriesProvider>
-        </AuthProvider>
-      </ToastProvider>
-    </BrowserRouter>
-  </React.StrictMode>
+  <BrowserRouter>
+    <ToastProvider>
+      <AuthProvider>
+        <CategoriesProvider>
+          <SiteContentProvider>
+            <ProductsProvider>
+              <VoucherProvider>
+                <PaymentProvider>
+                  <CartProvider>
+                    <WishlistProvider>
+                      <NotificationProvider>
+                        <ChatProvider>
+                          <App />
+                        </ChatProvider>
+                      </NotificationProvider>
+                    </WishlistProvider>
+                  </CartProvider>
+                </PaymentProvider>
+              </VoucherProvider>
+            </ProductsProvider>
+          </SiteContentProvider>
+        </CategoriesProvider>
+      </AuthProvider>
+    </ToastProvider>
+  </BrowserRouter>
 )
