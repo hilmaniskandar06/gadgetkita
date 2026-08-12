@@ -14,7 +14,16 @@ export function AuthProvider({ children }) {
     let mounted = true
     ;(async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        // Retry getSession 3x dengan jeda (mengatasi race condition localStorage lambat di refresh)
+        let session = null
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const r = await supabase.auth.getSession()
+            session = r?.data?.session || null
+            if (session) break
+          } catch (_) { /* abaikan error di attempt awal, coba lagi */ }
+          if (attempt < 2) await new Promise((res) => setTimeout(res, 200))
+        }
         if (!mounted) return
         if (session) {
           await fetchProfile(session.user, mounted)

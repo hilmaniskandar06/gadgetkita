@@ -11,26 +11,26 @@ export default function ChatWidget() {
   const { user } = useAuth()
   const scrollRef = useRef(null)
 
-  // Avoid showing widget for admin (admins have their own chat UI)
-  if (user?.role === 'admin') return null
-
   const unreadCount = user ? getUnreadCount(user.id, 'user') : 0
   const myChat = user ? chats.find(c => c.userId === user.id) : null
   const messages = myChat?.messages || []
 
-  // Auto scroll to bottom when messages change or window opens
+  // ⚠️ SEMUA HOOK WAJIB DI-PANGGIL SEBELUM CONDITIONAL RETURN APA PUN (Rules of Hooks)
   useEffect(() => {
     if (isOpen && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   }, [isOpen, messages.length])
 
-  // Mark as read when opened
   useEffect(() => {
     if (isOpen && user && unreadCount > 0) {
       markAsRead(user.id, 'user')
     }
   }, [isOpen, user, unreadCount, markAsRead])
+
+  // ✅ Early return SETELAH semua hook selesai dipanggil — AMAN.
+  // Widget tidak tampil untuk admin (admin punya UI chat sendiri).
+  if (user?.role === 'admin') return null
 
   const handleSubmit = (e) => {
     e.preventDefault()

@@ -1,17 +1,54 @@
 import { Link } from 'react-router-dom'
-import { ChevronDown, ArrowRight } from 'lucide-react'
-import ProductCard from '../components/ProductCard'
-import { useProducts } from '../context/ProductsContext'
+import { ArrowRight } from 'lucide-react'
 import { useCategories } from '../context/CategoriesContext'
 import { useSiteContent } from '../context/SiteContentContext'
-import { useState, useMemo, useRef, useEffect } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 
-const SORTS = [
-  { value: 'default', label: 'Paling Relevan' },
-  { value: 'price-asc', label: 'Harga Terendah' },
-  { value: 'price-desc', label: 'Harga Tertinggi' },
-  { value: 'sold', label: 'Terlaris' },
-]
+// ─── Seeded helpers ──────────────────────────────────────────────────────────
+function getCollageSeed() {
+  const KEY = 'cat_collage_seed'
+  try {
+    let s = localStorage.getItem(KEY)
+    if (s) return Number(s)
+    const ns = Date.now() + Math.floor(Math.random() * 100000)
+    localStorage.setItem(KEY, String(ns))
+    return ns
+  } catch (_) {
+    return Date.now()
+  }
+}
+function mulberry32(seed) {
+  return function () {
+    seed |= 0
+    seed = (seed + 0x6D2B79F5) | 0
+    let t = seed
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+// Ukuran ACAK BESAR: HAPUS varian 1x2 TINGGI (bikin gambar potong parah).
+// Probabilitas: 45% BESAR (2x2), 25% LEBAR (2x1), 30% KECIL (1x1)
+// → 70% ukuran bukan kecil. Height tiap row: 200px (tinggi cukup, gambar tidak kepotong2)
+function pickSize(rand) {
+  const r = rand()
+  if (r < 0.45) return { span: 'md:col-span-2 md:row-span-2' }   // BESAR (square, aman gambar)
+  if (r < 0.70) return { span: 'md:col-span-2 md:row-span-1' }   // LEBAR (2x1, tinggi 200px cukup)
+  return { span: 'md:col-span-1 md:row-span-1' }                 // KECIL (1x1, 200px cukup)
+}
+// ⚠️ JANGAN PANGGIL getCollageSeed DARI DALAM HOOK (useMemo/dll) — localStorage API bisa throw
+// (misal QuotaExceeded / private mode) yang bikin React menganggap hook TIDAK TER-CALL.
+// Solusi: hitung seed di useEffect terpisah, simpan ke state, lalu baru build layout.
+function buildCollageLayoutWithSeed(categories, seed) {
+  if (!categories || categories.length === 0) return []
+  const rand = mulberry32(seed)
+  const arr = categories.slice()
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1))
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr.map((c) => ({ ...c, size: pickSize(rand) }))
+}
 
 const PLACEHOLDER_BRANDS = [
   'SAMSUNG', 'APPLE', 'XIAOMI', 'OPPO', 'VIVO', 'REALME', 'ANKER', 'BASEUS',
@@ -53,66 +90,82 @@ function BrandTicker({ logos }) {
   )
 }
 
-// ─── Dropdown filter ─────────────────────────────────────────────────────────
-function DropdownFilter({ label, children, active }) {
-  const [open, setOpen] = useState(false)
-  const ref = useRef(null)
+// ─── Category Collage (PURE COMPONENT — TANPA HOOK, terima prop) ───────────
+function CategoryCollage({ categories, loading, layouted }) {
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[110px] md:auto-rows-[200px] grid-flow-dense">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div
+            key={i}
+            className={`bg-gray-200 animate-pulse rounded-2xl w-full h-full min-h-[110px] md:min-h-[200px] ${
+              i === 0 ? 'md:col-span-2 md:row-span-2' : i === 4 ? 'md:col-span-2 md:row-span-1' : ''
+            }`}
+          />
+        ))}
+      </div>
+    )
+  }
 
-  useEffect(() => {
-    function handleClick(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
+  if (layouted.length === 0) {
+    return (
+      <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-12 text-center text-slate-500">
+        <p className="font-semibold">Belum ada kategori.</p>
+        <p className="text-sm mt-1">Tambahkan kategori melalui halaman Admin.</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="relative" ref={ref}>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className={`flex items-center gap-1.5 px-4 py-2 border text-sm font-semibold transition-all ${
-          active
-            ? 'bg-black text-white border-black shadow-md'
-            : 'bg-white border-gray-300 text-slate-700 hover:border-black'
-        }`}
-      >
-        {label}
-        <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
-      </button>
-      {open && (
-        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 shadow-xl z-30 min-w-[180px] p-3">
-          {children}
-        </div>
-      )}
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[110px] md:auto-rows-[200px] grid-flow-dense">
+      {layouted.map((c) => {
+        const textColor = c.textColor || '#ffffff'
+        return (
+          <Link
+            key={c.id || c.name}
+            to={`/toko?category=${encodeURIComponent(c.name)}`}
+            className={`group relative overflow-hidden rounded-2xl ${c.size.span} block bg-gray-300 w-full h-full min-h-[110px] md:min-h-[200px] hover:-translate-y-1 transition-transform duration-200 shadow-sm hover:shadow-xl`}
+          >
+            {c.image ? (
+              <img
+                src={c.image}
+                alt={c.name}
+                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-300 to-gray-400" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            <div
+              className="absolute bottom-3 left-3 md:bottom-5 md:left-5 right-3 md:right-5 font-bold font-display tracking-tight leading-tight drop-shadow-lg"
+              style={{ color: textColor }}
+            >
+              <div className="text-xl md:text-3xl">{c.name}</div>
+            </div>
+          </Link>
+        )
+      })}
     </div>
   )
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 export default function Home() {
-  const { products, loading } = useProducts()
-  const { categories } = useCategories()
+  const { categories, loading: catsLoading } = useCategories()
   const { content } = useSiteContent()
 
-  const [activeCategory, setActiveCategory] = useState('')
-  const [sort, setSort] = useState('default')
-  const [maxPrice, setMaxPrice] = useState(1000000)
-  const [inStockOnly, setInStockOnly] = useState(false)
+  // Seed di-resolve SEBELUM hook lain, DILUAR useMemo.
+  // Jika localStorage throw error, seed fallback ke Date.now() dan TIDAK mempengaruhi urutan hook.
+  const [seed, setSeed] = useState(() => {
+    try { return getCollageSeed() } catch (_) { return Date.now() }
+  })
+  // Recompute seed kalau categories berubah (mirip resetCollageSeed effect di Provider)
+  useEffect(() => {
+    try { setSeed(getCollageSeed()) } catch (_) { setSeed(Date.now()) }
+  }, [categories.length])
 
-  const results = useMemo(() => {
-    let list = products.filter((p) => p.price <= maxPrice)
-    if (activeCategory) list = list.filter((p) => p.category === activeCategory)
-    if (inStockOnly) list = list.filter((p) => p.inStock)
-    if (sort === 'price-asc') list = [...list].sort((a, b) => a.price - b.price)
-    if (sort === 'price-desc') list = [...list].sort((a, b) => b.price - a.price)
-    if (sort === 'sold') list = [...list].sort((a, b) => Number(b.sold || 0) - Number(a.sold || 0))
-    return list
-  }, [products, activeCategory, sort, maxPrice, inStockOnly])
-
-  const activeSortLabel = SORTS.find((s) => s.value === sort)?.label || 'Urutkan'
-  const priceActive = maxPrice < 1000000
-  const stockActive = inStockOnly
+  const layouted = useMemo(() => buildCollageLayoutWithSeed(categories, seed), [categories, seed])
 
   return (
     <div>
@@ -150,154 +203,29 @@ export default function Home() {
       {/* ── Brand Logo Ticker ── */}
       <BrandTicker logos={content.brandLogos} />
 
-      {/* ── Katalog + Filter ── */}
-      <section id="katalog" className="max-w-7xl mx-auto px-5 lg:px-8 py-12">
-        {/* Header */}
-        <div className="mb-8 flex items-end justify-between">
+      {/* ── Kategori Collage ── */}
+      <section id="kategori" className="max-w-7xl mx-auto px-5 lg:px-8 py-12 md:py-16">
+        <div className="mb-8 md:mb-10 flex items-end justify-between flex-wrap gap-4">
           <div>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-slate-900 mb-1">
-              Semua Produk
+            <h2 className="font-display text-3xl md:text-5xl font-bold text-slate-900 mb-2 leading-tight">
+              Jelajahi Kategori
             </h2>
-            <p className="text-sm text-slate-500">
-              {loading ? 'Memuat...' : `${results.length} produk tersedia`}
+            <p className="text-sm md:text-base text-slate-500">
+              {catsLoading ? 'Memuat...' : `${categories.length} kategori tersedia — pilih sesuai kebutuhanmu.`}
             </p>
           </div>
+        </div>
+
+        <CategoryCollage categories={categories} loading={catsLoading} layouted={layouted} />
+
+        <div className="text-center mt-12 md:mt-16">
           <Link
             to="/toko"
-            className="hidden md:inline-flex items-center gap-2 text-sm font-semibold text-black border-b border-black pb-0.5 hover:opacity-70 transition-opacity"
+            className="inline-flex items-center gap-2 border-2 border-black text-black font-bold px-8 py-4 hover:bg-black hover:text-white transition-colors text-sm md:text-base tracking-tight"
           >
-            Lihat Semua <ArrowRight size={14} />
+            Lihat Semua Produk <ArrowRight size={16} />
           </Link>
         </div>
-
-        {/* Filter Bar */}
-        <div className="flex flex-wrap items-center gap-2 mb-8 pb-6 border-b-2 border-black">
-          {/* Kategori chips */}
-          <button
-            type="button"
-            onClick={() => setActiveCategory('')}
-            className={`px-4 py-2 border text-sm font-semibold transition-all ${
-              !activeCategory
-                ? 'bg-black text-white border-black'
-                : 'bg-white border-gray-300 text-slate-600 hover:border-black'
-            }`}
-          >
-            Semua
-          </button>
-          {categories.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => setActiveCategory(activeCategory === c.name ? '' : c.name)}
-              className={`px-4 py-2 border text-sm font-semibold transition-all ${
-                activeCategory === c.name
-                  ? 'bg-black text-white border-black'
-                  : 'bg-white border-gray-300 text-slate-600 hover:border-black'
-              }`}
-            >
-              {c.name}
-            </button>
-          ))}
-
-          {/* Divider */}
-          <div className="w-px h-6 bg-gray-200 mx-1" />
-
-          {/* Urutkan dropdown */}
-          <DropdownFilter label={sort !== 'default' ? activeSortLabel : 'Urutkan'} active={sort !== 'default'}>
-            {SORTS.map((s) => (
-              <button
-                key={s.value}
-                type="button"
-                onClick={() => setSort(s.value)}
-                className={`w-full text-left px-3 py-2 text-sm font-semibold transition-colors ${
-                  sort === s.value ? 'bg-gray-100 text-slate-900' : 'text-slate-600 hover:bg-gray-50'
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </DropdownFilter>
-
-          {/* Harga dropdown */}
-          <DropdownFilter label={priceActive ? `< Rp${(maxPrice / 1000).toFixed(0)}rb` : 'Harga'} active={priceActive}>
-            <div className="px-2 py-1">
-              <p className="text-xs font-semibold text-slate-500 mb-3">Harga Maksimum</p>
-              <input
-                type="range"
-                min="50000"
-                max="1000000"
-                step="50000"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="w-full accent-black"
-              />
-              <p className="text-xs text-slate-600 font-mono mt-1">
-                s/d Rp{Number(maxPrice).toLocaleString('id-ID')}
-              </p>
-              {priceActive && (
-                <button
-                  type="button"
-                  onClick={() => setMaxPrice(1000000)}
-                  className="text-xs text-rose-500 font-semibold mt-2 hover:underline"
-                >
-                  Reset
-                </button>
-              )}
-            </div>
-          </DropdownFilter>
-
-          {/* Stok toggle */}
-          <button
-            type="button"
-            onClick={() => setInStockOnly((v) => !v)}
-            className={`px-4 py-2 border text-sm font-semibold transition-all ${
-              stockActive
-                ? 'bg-black text-white border-black'
-                : 'bg-white border-gray-300 text-slate-600 hover:border-black'
-            }`}
-          >
-            {stockActive ? '✓ ' : ''}Tersedia
-          </button>
-
-          {/* Reset semua */}
-          {(activeCategory || sort !== 'default' || priceActive || stockActive) && (
-            <button
-              type="button"
-              onClick={() => { setActiveCategory(''); setSort('default'); setMaxPrice(1000000); setInStockOnly(false) }}
-              className="text-xs text-rose-500 font-semibold hover:underline ml-1"
-            >
-              Reset semua
-            </button>
-          )}
-        </div>
-
-        {/* Grid Produk */}
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="bg-gray-100 aspect-[3/4] animate-pulse" />
-            ))}
-          </div>
-        ) : results.length === 0 ? (
-          <div className="text-center py-24 text-slate-500">
-            <p className="font-semibold text-lg">Produk tidak ditemukan.</p>
-            <p className="text-sm mt-1">Coba ubah filter yang digunakan.</p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {results.map((p) => <ProductCard key={p.id} product={p} />)}
-            </div>
-            <div className="text-center mt-10">
-              <Link
-                to="/toko"
-                className="inline-flex items-center gap-2 border-2 border-black text-black font-bold px-8 py-3 hover:bg-black hover:text-white transition-colors text-sm"
-              >
-                Lihat Semua Produk <ArrowRight size={15} />
-              </Link>
-            </div>
-          </>
-        )}
       </section>
     </div>
   )

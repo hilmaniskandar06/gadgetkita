@@ -34,7 +34,16 @@ export default class GlobalErrorBoundary extends Component {
 
   handleClearStorage = () => {
     try {
-      localStorage.clear()
+      // HANYA hapus key application cache, JANGAN hapus key SUPABASE AUTH "sb-*"
+      // session login admin/user harus TETAP ADA meskipun clear cache error UI
+      const keysToRemove = []
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key && !key.startsWith('sb-') && !key.startsWith('capacitor')) {
+          keysToRemove.push(key)
+        }
+      }
+      keysToRemove.forEach((k) => localStorage.removeItem(k))
       sessionStorage.clear()
     } catch (_) {}
     window.location.reload()

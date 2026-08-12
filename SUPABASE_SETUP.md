@@ -144,6 +144,9 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Read categories publicly" ON categories FOR SELECT USING (true);
+CREATE POLICY "Insert categories admin only" ON categories FOR INSERT WITH CHECK (auth.jwt() ->> 'email' = 'admin@gadgetkita.com');
+CREATE POLICY "Update categories admin only" ON categories FOR UPDATE USING (auth.jwt() ->> 'email' = 'admin@gadgetkita.com') WITH CHECK (auth.jwt() ->> 'email' = 'admin@gadgetkita.com');
+CREATE POLICY "Delete categories admin only" ON categories FOR DELETE USING (auth.jwt() ->> 'email' = 'admin@gadgetkita.com');
 ```
 
 ---

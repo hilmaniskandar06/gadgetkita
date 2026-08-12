@@ -28,21 +28,30 @@ export function CategoriesProvider({ children }) {
     return () => { mounted = false }
   }, [refresh])
 
+  function resetCollageSeed() {
+    try {
+      localStorage.removeItem('cat_collage_seed')
+    } catch (_) {}
+  }
+
   async function addCategory(categoryObj) {
     const next = await categoryService.addCategory(categoryObj)
     setCategories(next)
+    resetCollageSeed()
     return next
   }
 
   async function updateCategory(oldName, updatedObj) {
     const next = await categoryService.updateCategory(oldName, updatedObj)
     setCategories(next)
+    resetCollageSeed()
     return next
   }
 
   async function removeCategory(name) {
     const next = await categoryService.deleteCategory(name)
     setCategories(next)
+    resetCollageSeed()
     return next
   }
 
