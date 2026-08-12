@@ -1,4 +1,4 @@
-﻿import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Home, Store, ShoppingBag, Heart, User as UserIcon } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
@@ -15,7 +15,7 @@ export default function BottomNav({ onOpenCart }) {
 
   function navItemClass(isActive) {
     const base = 'flex flex-col items-center justify-center gap-0.5 w-full h-full text-xs font-medium transition-colors select-none touch-manipulation pb-[max(env(safe-area-inset-bottom),4px)]'
-    return isActive ? `${base} text-lime-600` : `${base} text-slate-500 hover:text-slate-700`
+    return isActive ? `${base} text-black` : `${base} text-slate-500 hover:text-slate-700`
   }
 
   function handleWishlist() {
@@ -53,17 +53,17 @@ export default function BottomNav({ onOpenCart }) {
               type="button"
               aria-label="Keranjang"
               onClick={onOpenCart}
-              className="relative pointer-events-auto flex items-center justify-center w-14 h-14 -mt-1 rounded-full bg-lime-500 text-slate-900 shadow-[0_6px_18px_rgba(132,204,22,0.45)] ring-4 ring-white hover:scale-[1.03] active:scale-95 transition-transform touch-manipulation"
+              className="relative pointer-events-auto flex items-center justify-center w-14 h-14 -mt-1 bg-black text-white shadow-[0_6px_18px_rgba(0,0,0,0.25)] ring-4 ring-white hover:scale-[1.03] active:scale-95 transition-transform touch-manipulation"
             >
               <ShoppingBag size={26} strokeWidth={2.3} />
               {totalCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-slate-900 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
+                <span className="absolute -top-0.5 -right-0.5 bg-white text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center border-2 border-black">
                   {totalCount > 99 ? '99+' : totalCount}
                 </span>
               )}
             </button>
           </div>
-          <div className="h-full flex flex-col items-center justify-end pb-[max(env(safe-area-inset-bottom),8px)] text-[10px] font-semibold text-lime-600">
+          <div className="h-full flex flex-col items-center justify-end pb-[max(env(safe-area-inset-bottom),8px)] text-[10px] font-semibold text-black">
             <span className="mt-6">Keranjang</span>
           </div>
         </li>
@@ -73,7 +73,7 @@ export default function BottomNav({ onOpenCart }) {
             <div className="relative">
               <Heart size={20} strokeWidth={location.pathname === '/wishlist' ? 2.6 : 2} />
               {wishlistItems.length > 0 && (
-                <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">
+                <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center border border-white">
                   {wishlistItems.length > 99 ? '99+' : wishlistItems.length}
                 </span>
               )}

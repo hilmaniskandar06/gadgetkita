@@ -4,69 +4,62 @@ import { useAuth } from '../context/AuthContext'
 import { useSiteContent } from '../context/SiteContentContext'
 import { Loader2 } from 'lucide-react'
 
+// Email admin yang dipakai untuk login — tidak ditampilkan ke user
+const ADMIN_EMAIL = 'admin@gadgetkita.com'
+
 export default function AdminLogin() {
   const { user, loading, login } = useAuth()
   const { content } = useSiteContent()
-  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
 
-  // Sudah login → langsung ke dashboard
-  if (!loading && user) return <Navigate to="/admin" replace />
+  // Sudah login sebagai admin → langsung ke dashboard
+  if (!loading && user && user.email === ADMIN_EMAIL) return <Navigate to="/admin" replace />
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
     setSubmitting(true)
-    const result = await login(email, password)
+    const result = await login(ADMIN_EMAIL, password)
     setSubmitting(false)
     if (result.success) {
       navigate('/admin')
     } else {
-      setError(result.error || 'Login gagal. Periksa email & password.')
+      setError('Password salah. Coba lagi.')
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-5">
-      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-8 w-full max-w-sm">
+      <form onSubmit={handleSubmit} className="bg-white border-2 border-black p-8 w-full max-w-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
         <div className="flex justify-center mb-4">
           {content.logoDark || content.shopLogo ? (
             <img src={content.logoDark || content.shopLogo} alt={content.shopName} className="h-12 w-auto object-contain" />
           ) : (
-            <div className="font-extrabold text-2xl tracking-tight text-slate-900">{content.shopName || 'SPORTKITA'}</div>
+            <div className="font-extrabold text-2xl tracking-widest uppercase text-slate-900">{content.shopName || 'GADGETKITA'}</div>
           )}
         </div>
         <h1 className="text-xl font-extrabold mb-1">Masuk Admin</h1>
-        <p className="text-sm text-slate-600 mb-6">Kelola toko {content.shopName || 'Sportkita'}.</p>
+        <p className="text-sm text-slate-600 mb-6">Kelola toko {content.shopName || 'GadgetKita'}.</p>
 
-        <label className="block text-xs font-medium text-slate-600 mb-1.5">Email</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          autoFocus
-          required
-          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500 mb-4"
-          placeholder="admin@email.com"
-        />
-
-        <label className="block text-xs font-medium text-slate-600 mb-1.5">Password</label>
+        <label className="block text-xs font-medium text-slate-600 mb-1.5">Password Admin</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          autoFocus
           required
-          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500"
+          placeholder="Masukkan password admin"
+          className="w-full bg-gray-50 border border-gray-200 px-3.5 py-2.5 text-sm outline-none focus:border-black"
         />
 
         {error && <p className="text-xs text-rose-500 mt-2">{error}</p>}
 
         <button
           disabled={submitting}
-          className="w-full bg-slate-900 text-white font-bold py-3 rounded-full mt-5 hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+          className="w-full bg-black text-white font-bold py-3 mt-5 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
         >
           {submitting && <Loader2 size={16} className="animate-spin" />}
           {submitting ? 'Memproses...' : 'Masuk'}

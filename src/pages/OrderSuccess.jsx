@@ -108,7 +108,7 @@ export default function OrderSuccess() {
   return (
     <div className="max-w-5xl mx-auto px-5 py-16">
       <div className="text-center mb-10">
-        <div className="w-16 h-16 rounded-full bg-ok-50 text-ok-500 flex items-center justify-center mx-auto mb-5">
+          <div className="w-16 h-16 bg-ok-50 text-ok-500 flex items-center justify-center mx-auto mb-5 border border-ok-200">
           <CheckCircle2 size={32} />
         </div>
         <h1 className="text-2xl font-extrabold">Pesanan berhasil dibuat!</h1>
@@ -123,12 +123,12 @@ export default function OrderSuccess() {
         </div>
 
         {showPaymentFlow && (
-          <div className="bg-white border border-gray-200 p-6 rounded-xl text-left h-fit mt-8 md:mt-0">
+          <div className="bg-white border border-gray-200 p-6 text-left h-fit mt-8 md:mt-0">
             <h3 className="font-bold mb-3 text-center">Konfirmasi Pembayaran</h3>
             <p className="text-sm text-slate-600 mb-3 text-center">
               Upload bukti transfer untuk memproses pesanan {order.id}.
             </p>
-            <p className="text-[11px] text-rose-600 mb-4 text-center bg-rose-50 rounded-lg py-2 px-3 border border-rose-200">
+            <p className="text-[11px] text-rose-600 mb-4 text-center bg-rose-50 py-2 px-3 border border-rose-200">
               <strong>Wajib upload bukti dalam 24 jam</strong>. Lewat batas waktu, pesanan otomatis dibatalkan & voucher tidak dapat digunakan kembali.
             </p>
             
@@ -137,7 +137,7 @@ export default function OrderSuccess() {
                 <button
                   type="button"
                   onClick={() => setShowQRModal(true)}
-                  className="flex items-center justify-center gap-2 text-sm font-bold border border-2 border-lime-400 text-slate-900 bg-lime-50 py-2 rounded-lg hover:bg-lime-100 transition-colors"
+                  className="flex items-center justify-center gap-2 text-sm font-bold border-2 border-black text-slate-900 py-2 hover:bg-gray-100 transition-colors"
                 >
                   <QrCode size={18} /> Lihat Gambar QRIS
                 </button>
@@ -145,16 +145,16 @@ export default function OrderSuccess() {
               {proof ? (
                 <img src={proof} alt="Bukti Transfer" className="w-full h-40 object-cover rounded border" />
               ) : (
-                <div className="h-40 bg-gray-50 border-2 border-dashed border-gray-200 rounded flex flex-col items-center justify-center text-slate-500">
+                <div className="h-40 bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-slate-500">
                   <Upload size={24} className="mb-2" />
                   <span className="text-xs">Pilih Gambar</span>
                 </div>
               )}
               <input type="file" accept="image/*" className="hidden" ref={fileRef} onChange={handleUpload} />
-              <button type="button" onClick={() => fileRef.current.click()} className="text-sm font-semibold border border-gray-200 py-2 rounded-lg hover:bg-gray-50">
+              <button type="button" onClick={() => fileRef.current.click()} className="text-sm font-semibold border border-gray-200 py-2 hover:bg-gray-50">
                 {proof ? 'Ganti Gambar' : 'Pilih Bukti Transfer'}
               </button>
-              <button type="button" onClick={handleConfirm} disabled={!proof} className="bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-2 rounded-lg transition-colors disabled:opacity-50">
+              <button type="button" onClick={handleConfirm} disabled={!proof} className="bg-black hover:bg-gray-800 text-white font-bold py-2 transition-colors disabled:opacity-50">
                 Konfirmasi Pembayaran
               </button>
             </div>
@@ -163,7 +163,7 @@ export default function OrderSuccess() {
       </div>
 
       {(confirmed || order.status === 'menunggu_verifikasi') && (
-        <div className="mt-8 bg-ok-50 border border-ok-200 p-4 rounded-xl flex flex-col items-center gap-2 max-w-sm mx-auto text-ok-700">
+        <div className="mt-8 bg-ok-50 border border-ok-200 p-4 flex flex-col items-center gap-2 max-w-sm mx-auto text-ok-700">
           <AlertCircle size={24} />
           <p className="text-sm font-medium text-center">Bukti transfer berhasil diunggah. Menunggu verifikasi admin.</p>
         </div>
@@ -171,10 +171,10 @@ export default function OrderSuccess() {
 
       {!showPaymentFlow && (
         <div className="flex gap-3 justify-center mt-8 flex-wrap">
-          <Link to="/toko" className="bg-slate-900 text-white font-bold px-6 py-3 rounded-full hover:bg-slate-800 transition-colors">
+          <Link to="/toko" className="bg-black text-white font-bold px-6 py-3 hover:bg-gray-800 transition-colors">
             Belanja Lagi
           </Link>
-          <Link to="/pesanan" className="border border-gray-200 font-semibold px-6 py-3 rounded-full hover:border-lime-500 transition-colors">
+          <Link to="/pesanan" className="border border-gray-200 font-semibold px-6 py-3 hover:border-black transition-colors">
             Lihat Riwayat Pesanan
           </Link>
         </div>
@@ -182,18 +182,18 @@ export default function OrderSuccess() {
 
       {showQRModal && paymentFull?.qr && (
         <div className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4" onClick={() => setShowQRModal(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowQRModal(false)} className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-gray-50 transition-colors text-slate-500 hover:text-slate-900" aria-label="Tutup">
+          <div className="bg-white shadow-2xl max-w-sm w-full p-6 relative" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowQRModal(false)} className="absolute top-3 right-3 p-1.5 hover:bg-gray-50 transition-colors text-slate-500 hover:text-slate-900" aria-label="Tutup">
               <X size={20} />
             </button>
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-lime-100 text-lime-600 mb-3">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 text-slate-800 mb-3">
                 <QrCode size={28} />
               </div>
               <h3 className="text-xl font-extrabold text-slate-900">QRIS {paymentFull.name}</h3>
               <p className="text-sm text-slate-500 mt-1 mb-4">Scan QRIS di bawah untuk pembayaran</p>
               {paymentFull.account && (
-                <div className="text-center mb-4 bg-white rounded-lg py-2 px-3 border border-gray-100">
+                <div className="text-center mb-4 bg-white border border-gray-200 py-2 px-3">
                   <div className="text-[10px] uppercase text-slate-500 font-semibold">Nomor Akun</div>
                   <div className="font-mono font-bold text-slate-900 text-lg">{paymentFull.account}</div>
                 </div>
@@ -204,7 +204,7 @@ export default function OrderSuccess() {
               <p className="text-[11px] text-slate-500 mt-4">
                 Total tagihan: <strong className="text-slate-900">Rp{(order.total || 0).toLocaleString('id-ID')}</strong>
               </p>
-              <button onClick={() => setShowQRModal(false)} className="mt-5 w-full bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-2.5 rounded-xl transition-colors">
+              <button onClick={() => setShowQRModal(false)} className="mt-5 w-full bg-black hover:bg-gray-800 text-white font-bold py-2.5 transition-colors">
                 Tutup
               </button>
             </div>

@@ -1,4 +1,4 @@
-﻿import { useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { Plus, Trash2, Edit2, X } from 'lucide-react'
 import AdminShell from './AdminShell'
 import { useCategories } from '../context/CategoriesContext'
@@ -135,7 +135,7 @@ export default function AdminCategories() {
                   required
                   value={form.name}
                   onChange={(e) => setForm(s => ({ ...s, name: e.target.value }))}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-lime-500"
+                  className="w-full bg-gray-50 border border-gray-200 px-3 py-2 text-sm outline-none focus:border-black"
                 />
               </div>
 
@@ -167,7 +167,7 @@ export default function AdminCategories() {
               </div>
 
               <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
-                <button type="submit" className="flex-1 bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-2 rounded-lg transition-colors text-sm">
+                <button type="submit" className="flex-1 bg-black hover:bg-gray-800 text-white font-bold py-2 transition-colors text-sm">
                   {isEdit ? 'Simpan' : 'Tambah'}
                 </button>
                 {isEdit && (

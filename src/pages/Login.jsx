@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -31,9 +31,9 @@ export default function Login() {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-5">
-      <div className="bg-white p-8 rounded-2xl w-full max-w-md shadow-sm border border-gray-100">
+      <div className="bg-white p-8 w-full max-w-md border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center mx-auto mb-3 border border-gray-100">
+          <div className="w-16 h-16 overflow-hidden bg-gray-100 flex items-center justify-center mx-auto mb-3 border-2 border-black">
             {logoSrc ? (
               <img src={logoSrc} alt={shopName} className="w-full h-full object-contain p-1" />
             ) : (
@@ -52,7 +52,7 @@ export default function Login() {
               required 
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all bg-white"
+              className="w-full px-4 py-2.5 border border-gray-200 outline-none focus:border-black transition-all bg-white"
               placeholder="contoh@email.com"
             />
           </div>
@@ -63,11 +63,11 @@ export default function Login() {
               required 
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all bg-white"
+              className="w-full px-4 py-2.5 border border-gray-200 outline-none focus:border-black transition-all bg-white"
               placeholder="••••••••"
             />
           </div>
-          <button type="submit" className="w-full bg-slate-600 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-colors mt-2">
+          <button type="submit" className="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 transition-colors mt-2">
             Masuk
           </button>
         </form>

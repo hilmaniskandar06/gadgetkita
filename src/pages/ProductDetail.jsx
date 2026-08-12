@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useParams, Link, Navigate, useNavigate } from 'react-router-dom'
-import { Minus, Plus, Heart, Truck, ShieldCheck, Zap, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Minus, Plus, Heart, Truck, ShieldCheck, Package, ChevronLeft, ChevronRight } from 'lucide-react'
 import ProductThumb from '../components/ProductThumb'
 import ProductCard from '../components/ProductCard'
 import { useProducts } from '../context/ProductsContext'
@@ -13,13 +13,11 @@ const fmt = (n) => 'Rp' + n.toLocaleString('id-ID')
 
 export default function ProductDetail() {
   const { id } = useParams()
-  const { products, getById, getRelated, loading } = useProducts()
+  const { products, getById, loading } = useProducts()
   const product = getById(id)
   const [qty, setQty] = useState(1)
   const [tab, setTab] = useState('desc')
   const [imgIdx, setImgIdx] = useState(0)
-  const sizeOptions = product?.size ? product.size.split(',').map((s) => s.trim()).filter(Boolean) : []
-  const [selectedSize, setSelectedSize] = useState(sizeOptions[0] || '')
   const { addItem } = useCart()
   const { toggle, isWishlisted } = useWishlist()
   const { addToast } = useToast()
@@ -45,7 +43,6 @@ export default function ProductDetail() {
     addToast(`${qty}x ${product.name} ditambahkan ke keranjang`)
   }
 
-  // Handle images
   const images = product.images?.length > 0 ? product.images : (product.image ? [product.image] : [])
   const nextImg = () => setImgIdx((i) => (i + 1) % images.length)
   const prevImg = () => setImgIdx((i) => (i - 1 + images.length) % images.length)
@@ -59,49 +56,51 @@ export default function ProductDetail() {
 
   return (
     <div className="max-w-7xl mx-auto px-5 lg:px-8 py-10">
+      {/* Breadcrumb */}
       <div className="text-xs text-slate-600 mb-6 flex gap-1.5">
-        <Link to="/" className="hover:text-slate-900">Beranda</Link> /
-        <Link to={`/toko?category=${encodeURIComponent(product.category)}`} className="hover:text-slate-900">{product.category}</Link> /
-        <span className="text-slate-900 font-medium">{product.name}</span>
+        <Link to="/" className="hover:text-black">Beranda</Link> /
+        <Link to={`/toko?category=${encodeURIComponent(product.category)}`} className="hover:text-black">{product.category}</Link> /
+        <span className="text-black font-medium">{product.name}</span>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-12">
+        {/* Gambar */}
         <div>
-          <div className="relative bg-gray-100 rounded-2xl aspect-square flex items-center justify-center overflow-hidden border border-gray-200">
+          <div className="relative bg-gray-100 aspect-square flex items-center justify-center overflow-hidden border border-gray-200">
             {images.length > 0 ? (
               <img src={images[imgIdx]} alt={product.name} className="w-full h-full object-cover" />
             ) : (
               <div className="text-slate-500">Tidak ada gambar</div>
             )}
-            
+
             {images.length > 1 && (
               <>
-                <button onClick={prevImg} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-sm text-slate-900 transition-colors">
+                <button onClick={prevImg} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white flex items-center justify-center shadow-sm text-slate-900 transition-colors border border-gray-200">
                   <ChevronLeft size={20} />
                 </button>
-                <button onClick={nextImg} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-sm text-slate-900 transition-colors">
+                <button onClick={nextImg} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white flex items-center justify-center shadow-sm text-slate-900 transition-colors border border-gray-200">
                   <ChevronRight size={20} />
                 </button>
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                   {images.map((_, idx) => (
-                    <button 
-                      key={idx} 
+                    <button
+                      key={idx}
                       onClick={() => setImgIdx(idx)}
-                      className={`w-2.5 h-2.5 rounded-full transition-colors ${idx === imgIdx ? 'bg-lime-500 w-6' : 'bg-white/60 hover:bg-white'}`}
+                      className={`w-2 h-2 transition-all ${idx === imgIdx ? 'bg-black w-6' : 'bg-white/60 hover:bg-white'}`}
                     />
                   ))}
                 </div>
               </>
             )}
           </div>
-          
+
           {images.length > 1 && (
-            <div className="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-2 mt-3 overflow-x-auto pb-2">
               {images.map((img, idx) => (
-                <button 
-                  key={idx} 
+                <button
+                  key={idx}
                   onClick={() => setImgIdx(idx)}
-                  className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 transition-colors ${idx === imgIdx ? 'border-lime-500' : 'border-transparent opacity-70 hover:opacity-100'}`}
+                  className={`relative w-20 h-20 overflow-hidden border-2 shrink-0 transition-colors ${idx === imgIdx ? 'border-black' : 'border-transparent opacity-60 hover:opacity-100'}`}
                 >
                   <img src={img} alt="thumbnail" className="w-full h-full object-cover" />
                 </button>
@@ -110,15 +109,16 @@ export default function ProductDetail() {
           )}
         </div>
 
+        {/* Info Produk */}
         <div>
-          <span className="text-xs uppercase tracking-wide text-lime-600 font-bold">{product.category}</span>
-          <h1 className="text-3xl md:text-4xl font-display font-bold mt-2 text-slate-900">{product.name}</h1>
+          <span className="text-xs uppercase tracking-widest text-gray-500 font-bold">{product.category}</span>
+          <h1 className="text-3xl md:text-4xl font-display font-bold mt-2 text-black">{product.name}</h1>
 
           <div className="flex items-baseline gap-3 mt-5 flex-wrap">
             {product.oldPrice && <span className="text-slate-500 line-through font-mono">{fmt(product.oldPrice)}</span>}
             <span className="text-xl md:text-2xl font-mono font-extrabold">{fmt(product.price)}</span>
             {Number(product.sold || 0) > 0 && (
-              <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-lime-50 text-lime-600 border border-lime-200">
+              <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 bg-gray-100 text-gray-700 border border-gray-200">
                 {Number(product.sold || 0).toLocaleString('id-ID')} Terjual
               </span>
             )}
@@ -126,57 +126,60 @@ export default function ProductDetail() {
 
           <p className="text-sm md:text-base text-slate-700 leading-relaxed mt-5 max-w-lg">{product.shortDesc}</p>
 
-          <div className="flex items-center gap-4 mt-4 text-sm flex-wrap">
-            <span className="text-slate-600 border-r border-gray-200 pr-4">Berat: <strong className="text-slate-900">{product.weight}</strong></span>
+          {/* Spesifikasi Gadget */}
+          <div className="flex flex-col gap-2 mt-5 text-sm">
+            {product.weight && (
+              <div className="flex items-center gap-2 py-2 border-b border-gray-100">
+                <span className="text-slate-500 w-32 shrink-0">Berat</span>
+                <span className="font-semibold text-slate-900">{product.weight}</span>
+              </div>
+            )}
+            {product.compatibility && (
+              <div className="flex items-start gap-2 py-2 border-b border-gray-100">
+                <span className="text-slate-500 w-32 shrink-0">Kompatibilitas</span>
+                <span className="font-semibold text-slate-900">{product.compatibility}</span>
+              </div>
+            )}
+            {product.connector && (
+              <div className="flex items-center gap-2 py-2 border-b border-gray-100">
+                <span className="text-slate-500 w-32 shrink-0">Konektor</span>
+                <span className="font-semibold text-slate-900">{product.connector}</span>
+              </div>
+            )}
+            {product.material && (
+              <div className="flex items-center gap-2 py-2 border-b border-gray-100">
+                <span className="text-slate-500 w-32 shrink-0">Bahan</span>
+                <span className="font-semibold text-slate-900">{product.material}</span>
+              </div>
+            )}
+            {product.color && (
+              <div className="flex items-center gap-2 py-2 border-b border-gray-100">
+                <span className="text-slate-500 w-32 shrink-0">Warna</span>
+                <span className="font-semibold text-slate-900">{product.color}</span>
+              </div>
+            )}
             {product.contentVolume && (
-              <span className="text-slate-600 border-r border-gray-200 pr-4">Isi: <strong className="text-slate-900">{product.contentVolume}</strong></span>
+              <div className="flex items-center gap-2 py-2 border-b border-gray-100">
+                <span className="text-slate-500 w-32 shrink-0">Isi / Paket</span>
+                <span className="font-semibold text-slate-900">{product.contentVolume}</span>
+              </div>
             )}
-            {product.gender && product.gender !== 'unisex' && (
-              <span className="text-slate-600 border-r border-gray-200 pr-4">Untuk: <strong className="text-slate-900 capitalize">{product.gender}</strong></span>
-            )}
-            {product.sportType && (
-              <span className="text-slate-600 border-r border-gray-200 pr-4">Olahraga: <strong className="text-slate-900 capitalize">{product.sportType}</strong></span>
-            )}
-            <span className={`font-semibold ${product.inStock ? 'text-ok-500' : 'text-rose-500'}`}>
-              {product.inStock ? 'Stok tersedia' : 'Stok habis'}
-            </span>
+            <div className="flex items-center gap-2 py-2">
+              <span className="text-slate-500 w-32 shrink-0">Ketersediaan</span>
+              <span className={`font-semibold ${product.inStock ? 'text-ok-500' : 'text-rose-500'}`}>
+                {product.inStock ? '✓ Stok tersedia' : '✗ Stok habis'}
+              </span>
+            </div>
           </div>
 
-          {product.material && (
-            <div className="mt-4 text-sm text-slate-700">
-              Bahan: <span className="font-semibold text-slate-900">{product.material}</span>
-            </div>
-          )}
-
-          {sizeOptions.length > 0 && (
-            <div className="mt-6">
-              <div className="text-xs font-semibold text-slate-600 mb-2.5">Pilih Ukuran{selectedSize && `: ${selectedSize}`}</div>
-              <div className="flex flex-wrap gap-2">
-                {sizeOptions.map((sz) => (
-                  <button
-                    key={sz}
-                    type="button"
-                    onClick={() => setSelectedSize(sz)}
-                    className={`min-w-[44px] h-10 px-3 rounded-lg font-bold text-sm transition-colors ${
-                      selectedSize === sz
-                        ? 'bg-slate-900 text-white ring-2 ring-lime-500 ring-offset-1'
-                        : 'bg-gray-100 text-slate-800 border border-gray-200 hover:bg-gray-50'
-                    }`}
-                  >
-                    {sz}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
+          {/* Qty + Wishlist */}
           <div className="flex items-center gap-3 mt-8">
-            <div className="flex items-center border border-gray-200 rounded-full">
-              <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="w-10 h-10 flex items-center justify-center" aria-label="Kurangi jumlah">
+            <div className="flex items-center border-2 border-black">
+              <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors" aria-label="Kurangi jumlah">
                 <Minus size={14} />
               </button>
-              <span className="w-10 text-center font-mono">{qty}</span>
-              <button type="button" onClick={() => setQty((q) => q + 1)} className="w-10 h-10 flex items-center justify-center" aria-label="Tambah jumlah">
+              <span className="w-10 text-center font-mono font-bold">{qty}</span>
+              <button type="button" onClick={() => setQty((q) => q + 1)} className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors" aria-label="Tambah jumlah">
                 <Plus size={14} />
               </button>
             </div>
@@ -189,43 +192,47 @@ export default function ProductDetail() {
                 addToast(wishlisted ? 'Dihapus dari wishlist' : 'Disimpan ke wishlist')
               }}
               aria-label="Simpan ke wishlist"
-              className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-rose-500 shrink-0"
+              className="w-12 h-12 border-2 border-gray-200 flex items-center justify-center hover:border-rose-500 shrink-0 transition-colors"
             >
               <Heart size={18} className={wishlisted ? 'fill-rose-500 text-rose-500' : ''} />
             </button>
           </div>
 
-          <div className="flex gap-3 mt-3">
+          {/* CTA Buttons */}
+          <div className="flex gap-3 mt-4">
             <button
               onClick={handleAdd}
               disabled={!product.inStock}
-              className="flex-1 bg-white border-2 border-slate-900 text-slate-900 font-bold py-3 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex-1 bg-white border-2 border-black text-black font-bold py-3.5 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-sm tracking-wide"
             >
               Tambah ke Keranjang
             </button>
             <button
               onClick={handleBuyNow}
               disabled={!product.inStock}
-              className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 text-white font-bold py-3 rounded-full hover:bg-slate-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-1.5 bg-black text-white font-bold py-3.5 hover:bg-gray-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-sm tracking-wide"
             >
               {product.inStock ? 'Beli Sekarang' : 'Stok Habis'}
             </button>
           </div>
 
-          <div className="flex flex-col gap-3 mt-8 text-sm text-slate-700">
-            <div className="flex items-center gap-2"><Truck size={16} className="text-slate-500" /> Pengiriman ke seluruh Indonesia, 1–3 hari kerja</div>
-            <div className="flex items-center gap-2"><ShieldCheck size={16} className="text-slate-500" /> Garansi kualitas — retur jika rusak saat pengiriman</div>
+          {/* Info tambahan */}
+          <div className="flex flex-col gap-2 mt-6 text-sm text-slate-600 border-t border-gray-100 pt-6">
+            <div className="flex items-center gap-2"><Truck size={15} className="text-slate-400 shrink-0" /> Pengiriman ke seluruh Indonesia, 1–3 hari kerja</div>
+            <div className="flex items-center gap-2"><ShieldCheck size={15} className="text-slate-400 shrink-0" /> Garansi produk — retur jika rusak saat pengiriman</div>
+            <div className="flex items-center gap-2"><Package size={15} className="text-slate-400 shrink-0" /> Dikemas aman dengan bubble wrap & kardus</div>
           </div>
         </div>
       </div>
 
-      <div className="mt-14 border-b border-gray-200 flex gap-8">
-        {[{ id: 'desc', label: 'Deskripsi' }, { id: 'shipping', label: 'Pengiriman' }].map((t) => (
+      {/* Tab Deskripsi */}
+      <div className="mt-14 border-b-2 border-black flex gap-8">
+        {[{ id: 'desc', label: 'Deskripsi Produk' }, { id: 'shipping', label: 'Info Pengiriman' }].map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`pb-3 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-              tab === t.id ? 'border-lime-500 text-slate-900' : 'border-transparent text-slate-500'
+              tab === t.id ? 'border-black text-black' : 'border-transparent text-slate-400'
             }`}
           >
             {t.label}
@@ -234,18 +241,19 @@ export default function ProductDetail() {
       </div>
       <div className="py-6 text-sm text-slate-700 leading-relaxed max-w-3xl">
         {tab === 'desc' && product.longDesc}
-        {tab === 'shipping' && 'Pesanan diproses dalam 1x24 jam pada hari kerja. Pengiriman menggunakan mitra ekspedisi ke seluruh Indonesia dengan estimasi 1–3 hari untuk area Jawa dan 3–6 hari untuk luar Jawa.'}
+        {tab === 'shipping' && 'Pesanan diproses dalam 1×24 jam pada hari kerja. Dikemas aman dengan bubble wrap dan kardus. Pengiriman menggunakan mitra ekspedisi ke seluruh Indonesia — estimasi 1–3 hari untuk area Jawa dan 3–6 hari untuk luar Jawa.'}
       </div>
 
+      {/* Produk Pilihan */}
       {featured.length > 0 && (
         <div className="mt-14">
           <div className="flex items-end justify-between mb-6">
-            <h2 className="text-2xl font-display font-bold">Produk Pilihan</h2>
-            <Link to="/toko" className="text-sm font-semibold text-lime-600 hover:underline">
+            <h2 className="text-2xl font-display font-bold">Produk Lainnya</h2>
+            <Link to="/toko" className="text-sm font-semibold text-black border-b border-black pb-0.5 hover:opacity-70 transition-opacity">
               Lihat semua
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {featured.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
         </div>

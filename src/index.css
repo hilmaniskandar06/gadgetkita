@@ -16,15 +16,27 @@ h1, h2, h3, h4 {
   font-family: 'Syne', sans-serif;
 }
 
+/* Scrollbar monokromatik */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #84CC16 transparent;
+  scrollbar-color: #0A0A0A transparent;
 }
 
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #0A0A0A;
+  border-radius: 0;
+}
+
+/* Focus outline kotak */
 :focus-visible {
-  outline: 2px solid #84CC16;
+  outline: 2px solid #0A0A0A;
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: 0px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -61,4 +73,17 @@ h1, h2, h3, h4 {
 
 .ticker-track:hover .animate-marquee {
   animation-play-state: paused;
+}
+
+/* Grid pattern background — boxy aesthetic */
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, #E0E0E0 1px, transparent 1px),
+    linear-gradient(to bottom, #E0E0E0 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Input/select semua kotak */
+input, select, textarea, button {
+  border-radius: 0 !important;
 }

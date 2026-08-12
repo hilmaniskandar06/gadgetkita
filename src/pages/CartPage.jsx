@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Minus, Plus, ShoppingBag } from 'lucide-react'
 import ProductThumb from '../components/ProductThumb'
 import { useCart } from '../context/CartContext'
@@ -15,7 +15,7 @@ export default function CartPage() {
         <ShoppingBag size={40} className="text-gray-200" />
         <h1 className="text-xl font-extrabold">Keranjangmu masih kosong</h1>
         <p className="text-sm text-slate-600">Yuk pilih cokelat favoritmu di halaman toko.</p>
-        <Link to="/toko" className="bg-slate-900 text-white font-bold px-6 py-3 rounded-full mt-2 hover:bg-slate-800 transition-colors">
+        <Link to="/toko" className="bg-black text-white font-bold px-6 py-3 mt-2 hover:bg-gray-800 transition-colors">
           Mulai Belanja
         </Link>
       </div>
@@ -29,15 +29,15 @@ export default function CartPage() {
         <div className="flex flex-col divide-y divide-gray-200 border-t border-b border-gray-200">
           {cartList.map((item) => (
             <div key={item.id} className="flex items-center gap-4 py-5">
-              <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+              <div className="w-16 h-16 bg-gray-100 flex items-center justify-center shrink-0 border border-gray-100">
                 <ProductThumb product={item} size={42} />
               </div>
               <div className="flex-1 min-w-0">
-                <Link to={`/produk/${item.id}`} className="font-semibold text-sm hover:text-lime-600">{item.name}</Link>
+                <Link to={`/produk/${item.id}`} className="font-semibold text-sm hover:text-black hover:underline">{item.name}</Link>
                 <div className="text-xs text-slate-500">{item.category}</div>
                 <button onClick={() => removeItem(item.id)} className="text-xs text-rose-500 hover:underline mt-1">Hapus</button>
               </div>
-              <div className="flex items-center border border-gray-200 rounded-full">
+              <div className="flex items-center border border-gray-200">
                 <button onClick={() => setQty(item.id, item.qty - 1)} className="w-8 h-8 flex items-center justify-center" aria-label="Kurangi"><Minus size={13} /></button>
                 <span className="w-8 text-center text-sm font-mono">{item.qty}</span>
                 <button onClick={() => setQty(item.id, item.qty + 1)} className="w-8 h-8 flex items-center justify-center" aria-label="Tambah"><Plus size={13} /></button>
@@ -47,7 +47,7 @@ export default function CartPage() {
           ))}
         </div>
 
-        <div className="bg-gray-100 rounded-xl p-6 h-fit">
+        <div className="bg-gray-100 p-6 h-fit border border-gray-200">
           <h3 className="font-bold mb-4">Ringkasan Pesanan</h3>
           <div className="flex justify-between text-sm mb-2 text-slate-700">
             <span>Subtotal</span><span className="font-mono">{fmt(subtotal)}</span>
@@ -58,7 +58,7 @@ export default function CartPage() {
           <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-4 mb-6">
             <span>Total</span><span className="font-mono">{fmt(subtotal + SHIPPING)}</span>
           </div>
-          <Link to="/checkout" className="block text-center bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-3 rounded-full transition-colors">
+          <Link to="/checkout" className="block text-center bg-black hover:bg-gray-800 text-white font-bold py-3 transition-colors">
             Lanjut ke Checkout
           </Link>
         </div>

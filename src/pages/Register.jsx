@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { UserPlus } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -32,9 +32,9 @@ export default function Register() {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-5">
-      <div className="bg-white p-8 rounded-2xl w-full max-w-md shadow-sm border border-gray-100 my-8">
+      <div className="bg-white p-8 w-full max-w-md border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] my-8">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="w-12 h-12 bg-gray-100 text-slate-600 flex items-center justify-center mx-auto mb-3 border-2 border-black">
             <UserPlus size={24} />
           </div>
           <h1 className="text-2xl font-bold text-slate-900">Daftar Akun Baru</h1>
@@ -49,7 +49,7 @@ export default function Register() {
               required 
               value={formData.name}
               onChange={e => setFormData({...formData, name: e.target.value})}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all bg-white"
+              className="w-full px-4 py-2.5 border border-gray-200 outline-none focus:border-black transition-all bg-white"
               placeholder="Budi Santoso"
             />
           </div>
@@ -62,7 +62,7 @@ export default function Register() {
               title="Nomor telepon harus diawali 08 atau +62 dan berisi angka"
               value={formData.phone}
               onChange={e => setFormData({...formData, phone: e.target.value})}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all bg-white"
+              className="w-full px-4 py-2.5 border border-gray-200 outline-none focus:border-black transition-all bg-white"
               placeholder="081234567890"
             />
           </div>
@@ -75,7 +75,7 @@ export default function Register() {
               title="Harus menggunakan email @gmail.com"
               value={formData.email}
               onChange={e => setFormData({...formData, email: e.target.value})}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all bg-white"
+              className="w-full px-4 py-2.5 border border-gray-200 outline-none focus:border-black transition-all bg-white"
               placeholder="contoh@gmail.com"
             />
           </div>
@@ -86,11 +86,11 @@ export default function Register() {
               required 
               value={formData.password}
               onChange={e => setFormData({...formData, password: e.target.value})}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200 transition-all bg-white"
+              className="w-full px-4 py-2.5 border border-gray-200 outline-none focus:border-black transition-all bg-white"
               placeholder="Minimal 6 karakter"
             />
           </div>
-          <button type="submit" className="w-full bg-slate-600 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-colors mt-4">
+          <button type="submit" className="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 transition-colors mt-4">
             Daftar Sekarang
           </button>
         </form>

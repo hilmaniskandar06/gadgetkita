@@ -12,7 +12,10 @@ function mapFromDb(dbItem) {
     shortDesc: dbItem.short_desc,
     longDesc: dbItem.description,
     externalLink: dbItem.external_link || null,
-    sportType: dbItem.sport_type,
+    compatibility: dbItem.compatibility || null,
+    connector: dbItem.connector || null,
+    material: dbItem.material || null,
+    color: dbItem.color || null,
     sold: Number(dbItem.sold || 0)
   }
 }
@@ -32,10 +35,10 @@ function mapToDb(item) {
     description: item.longDesc || item.description,
     images: item.images || [],
     external_link: item.externalLink || null,
-    size: item.size || null,
-    gender: item.gender || null,
-    sport_type: item.sportType || item.sport_type || null,
+    compatibility: item.compatibility || null,
+    connector: item.connector || null,
     material: item.material || null,
+    color: item.color || null,
     sold: Number(item.sold || 0)
   }
 }

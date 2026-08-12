@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { AlertTriangle, QrCode } from 'lucide-react'
 import ProductThumb from '../components/ProductThumb'
@@ -46,7 +46,10 @@ export default function Checkout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { addToast } = useToast()
-  const { user } = useAuth()
+  const { user, updateProfile } = useAuth()
+  
+  const hasSavedAddress = !!(user && user.address?.provinsiId)
+  const [useSavedAddress, setUseSavedAddress] = useState(hasSavedAddress)
   const { addNotification } = useNotifications()
   
   const directItem = location.state?.directItem
@@ -88,24 +91,40 @@ export default function Checkout() {
         ...f,
         name: user.name || '',
         phone: user.phone || '',
-        ...(user.address?.provinsiId ? {
-          provinceId: user.address.provinsiId, provinceName: user.address.provinsi,
-          regencyId: user.address.kotaId, regencyName: user.address.kota,
-          districtId: user.address.kecamatanId, districtName: user.address.kecamatan,
-          villageId: user.address.desaId, villageName: user.address.desa,
-          postal: user.address.kodePos || '',
-          addressDetail: user.address.detail || ''
-        } : {})
       }))
-      
-      // Load dropdown options if address exists
-      if (user.address?.provinsiId) {
-        geo.listRegencies(user.address.provinsiId).then(setRegencies)
-        geo.listDistricts(user.address.kotaId).then(setDistricts)
-        geo.listVillages(user.address.kecamatanId).then(setVillages)
-      }
     }
   }, [user])
+
+  useEffect(() => {
+    if (!user) return
+    if (useSavedAddress && user.address?.provinsiId) {
+      setForm(f => ({
+        ...f,
+        provinceId: user.address.provinsiId, provinceName: user.address.provinsi,
+        regencyId: user.address.kotaId, regencyName: user.address.kota,
+        districtId: user.address.kecamatanId, districtName: user.address.kecamatan,
+        villageId: user.address.desaId, villageName: user.address.desa,
+        postal: user.address.kodePos || '',
+        addressDetail: user.address.detail || ''
+      }))
+      geo.listRegencies(user.address.provinsiId).then(setRegencies)
+      geo.listDistricts(user.address.kotaId).then(setDistricts)
+      geo.listVillages(user.address.kecamatanId).then(setVillages)
+    } else {
+      setForm(f => ({
+        ...f,
+        provinceId: '', provinceName: '',
+        regencyId: '', regencyName: '',
+        districtId: '', districtName: '',
+        villageId: '', villageName: '',
+        postal: '',
+        addressDetail: ''
+      }))
+      setRegencies([])
+      setDistricts([])
+      setVillages([])
+    }
+  }, [useSavedAddress])
 
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname, state: location.state }} />
 
@@ -270,21 +289,14 @@ export default function Checkout() {
     }
 
     if (user && form.saveToProfile) {
-      const savedUsers = JSON.parse(localStorage.getItem('kk_users') || '[]')
-      const userIndex = savedUsers.findIndex(u => u.id === user.id)
-      if (userIndex !== -1) {
-        const updatedAddress = {
-          provinsiId: form.provinceId, provinsi: form.provinceName,
-          kotaId: form.regencyId, kota: form.regencyName,
-          kecamatanId: form.districtId, kecamatan: form.districtName,
-          desaId: form.villageId, desa: form.villageName,
-          kodePos: form.postal, detail: form.addressDetail
-        }
-        savedUsers[userIndex].address = updatedAddress
-        localStorage.setItem('kk_users', JSON.stringify(savedUsers))
-        const sessionUser = { ...user, address: updatedAddress }
-        sessionStorage.setItem('kk_auth_session', JSON.stringify(sessionUser))
+      const updatedAddress = {
+        provinsiId: form.provinceId, provinsi: form.provinceName,
+        kotaId: form.regencyId, kota: form.regencyName,
+        kecamatanId: form.districtId, kecamatan: form.districtName,
+        desaId: form.villageId, desa: form.villageName,
+        kodePos: form.postal, detail: form.addressDetail
       }
+      updateProfile({ address: updatedAddress }).catch(e => console.warn('Gagal update profile', e))
     }
 
     if (!directItem) {
@@ -302,6 +314,22 @@ export default function Checkout() {
           <div className="bg-white border border-gray-200 rounded-xl p-6">
             <h3 className="font-bold mb-1">Informasi Pengiriman</h3>
             <p className="text-xs text-slate-500 mb-4">Pastikan alamat dan kontak Anda sudah benar.</p>
+
+            {hasSavedAddress && (
+              <div className="flex items-center justify-between bg-gray-50 border border-gray-200 p-4 rounded-lg mb-6">
+                <div>
+                  <h4 className="font-semibold text-sm">Gunakan Alamat Tersimpan</h4>
+                  <p className="text-xs text-gray-500">Isi otomatis dari profil Anda</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setUseSavedAddress(!useSavedAddress)}
+                  className={`w-11 h-6 rounded-full transition-colors relative flex items-center ${useSavedAddress ? 'bg-black' : 'bg-gray-300'}`}
+                >
+                  <span className={`w-4 h-4 bg-white rounded-full absolute transition-transform ${useSavedAddress ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+            )}
 
             <div className="grid sm:grid-cols-2 gap-4 mb-5">
               <Field label="Nama Penerima" value={form.name} onChange={(v) => update('name', v)} required />
@@ -337,7 +365,7 @@ export default function Checkout() {
                       required
                       value={form.addressDetail}
                       onChange={(e) => update('addressDetail', e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500"
+                      className="w-full bg-gray-50 border border-gray-200 px-3.5 py-2.5 text-sm outline-none focus:border-black"
                     />
                   </div>
                 </div>
@@ -348,21 +376,19 @@ export default function Checkout() {
                     value={form.note}
                     onChange={(e) => update('note', e.target.value)}
                     placeholder="Contoh: Tolong dibungkus rapi ya..."
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500 min-h-[80px]"
+                    className="w-full bg-gray-50 border border-gray-200 px-3.5 py-2.5 text-sm outline-none focus:border-black min-h-[80px]"
                   ></textarea>
                 </div>
 
                 {user && (
-                  <div className="mt-5 p-3 bg-white border border-gray-100 rounded-lg">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={form.saveToProfile} 
-                        onChange={(e) => update('saveToProfile', e.target.checked)}
-                        className="accent-lime-500 w-4 h-4 rounded"
-                      />
-                      <span className="text-sm font-semibold text-slate-900">Simpan/perbarui sebagai alamat utama profil saya</span>
-                    </label>
+                  <div className="mt-5 p-4 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-between cursor-pointer" onClick={() => update('saveToProfile', !form.saveToProfile)}>
+                    <div>
+                      <h4 className="font-semibold text-sm">Simpan sebagai alamat utama</h4>
+                      <p className="text-xs text-gray-500">Perbarui alamat di profil saya</p>
+                    </div>
+                    <div className={`w-11 h-6 rounded-full transition-colors relative flex items-center ${form.saveToProfile ? 'bg-black' : 'bg-gray-300'}`}>
+                      <span className={`w-4 h-4 bg-white rounded-full absolute transition-transform ${form.saveToProfile ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </div>
                   </div>
                 )}
           </div>
@@ -371,11 +397,11 @@ export default function Checkout() {
             <h3 className="font-bold mb-4">Metode Pembayaran</h3>
             <div className="flex gap-4 mb-4">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="payCat" className="accent-lime-500" checked={paymentCategory === 'bank'} onChange={() => setPaymentCategory('bank')} />
+                <input type="radio" name="payCat" className="accent-black" checked={paymentCategory === 'bank'} onChange={() => setPaymentCategory('bank')} />
                 <span className="text-sm font-semibold">Transfer Bank</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="payCat" className="accent-lime-500" checked={paymentCategory === 'ewallet'} onChange={() => setPaymentCategory('ewallet')} />
+                <input type="radio" name="payCat" className="accent-black" checked={paymentCategory === 'ewallet'} onChange={() => setPaymentCategory('ewallet')} />
                 <span className="text-sm font-semibold">E-Wallet</span>
               </label>
             </div>
@@ -385,11 +411,11 @@ export default function Checkout() {
                 <label
                   key={p.id}
                   className={`border rounded-lg px-4 py-3 flex items-center justify-between cursor-pointer transition-colors ${
-                    form.payment === p.id ? 'border-lime-500 bg-lime-500/10' : 'border-gray-200'
+                    form.payment === p.id ? 'border-black bg-gray-50' : 'border-gray-200'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <input type="radio" name="payment" className="accent-lime-500" checked={form.payment === p.id} onChange={() => update('payment', p.id)} />
+                    <input type="radio" name="payment" className="accent-black" checked={form.payment === p.id} onChange={() => update('payment', p.id)} />
                     <div className="w-10 h-10 bg-white rounded flex items-center justify-center shrink-0">
                       {p.logo ? <img src={p.logo} alt="" className="w-full h-full object-contain" /> : <div className="font-bold text-lg">{p.name.charAt(0)}</div>}
                     </div>
@@ -459,7 +485,7 @@ export default function Checkout() {
             </div>
           )}
           <div className="flex gap-2 my-4">
-            <input value={voucherCode} onChange={e => setVoucherCode(e.target.value.toUpperCase())} placeholder="Kode Voucher" className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-lime-500" disabled={!!activeVoucher} />
+            <input value={voucherCode} onChange={e => setVoucherCode(e.target.value.toUpperCase())} placeholder="Kode Voucher" className="flex-1 bg-white border border-gray-200 px-3 py-2 text-sm outline-none focus:border-black" disabled={!!activeVoucher} />
             {activeVoucher ? (
               <button type="button" onClick={handleRemoveVoucher} className="bg-rose-100 text-rose-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-rose-200 transition-colors">Batal</button>
             ) : (
@@ -472,7 +498,7 @@ export default function Checkout() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-3 rounded-full transition-colors disabled:opacity-50"
+            className="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 transition-colors disabled:opacity-50"
           >
             {saving ? 'Memproses...' : 'Buat Pesanan'}
           </button>
@@ -488,10 +514,10 @@ export default function Checkout() {
             <h3 className="font-bold text-lg mb-1">Tinggalkan halaman checkout?</h3>
             <p className="text-sm text-slate-600 mb-6">Data pesanan yang sedang kamu isi belum disimpan dan akan hilang.</p>
             <div className="flex gap-3">
-              <button onClick={cancelLeave} className="flex-1 border border-gray-200 font-semibold py-2.5 rounded-full hover:border-lime-500 transition-colors">
+              <button onClick={cancelLeave} className="flex-1 border border-gray-200 font-semibold py-2.5 hover:border-black transition-colors">
                 Tetap di Sini
               </button>
-              <button onClick={confirmLeave} className="flex-1 bg-rose-500 hover:bg-rose-500/90 text-white font-bold py-2.5 rounded-full transition-colors">
+              <button onClick={confirmLeave} className="flex-1 bg-rose-500 hover:bg-rose-500/90 text-white font-bold py-2.5 transition-colors">
                 Ya, Tinggalkan
               </button>
             </div>
@@ -506,7 +532,7 @@ export default function Checkout() {
             <img src={showQR} alt="QRIS" className="w-full object-contain mb-4 border rounded-lg" />
             <div className="flex gap-3">
               <button type="button" onClick={() => setShowQR(null)} className="flex-1 border border-gray-200 py-2 rounded-full font-semibold">Tutup</button>
-              <a href={showQR} download="QRIS-Payment.png" className="flex-1 bg-lime-500 text-slate-900 font-bold py-2 rounded-full text-center hover:bg-lime-400">Unduh</a>
+              <a href={showQR} download="QRIS-Payment.png" className="flex-1 bg-black text-white font-bold py-2 text-center hover:bg-gray-800">Unduh</a>
             </div>
           </div>
         </div>
@@ -525,7 +551,7 @@ function Field({ label, value, onChange, required, type = 'text', disabled }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm outline-none focus:border-lime-500 disabled:opacity-60"
+        className="w-full bg-gray-50 border border-gray-200 px-3.5 py-2.5 text-sm outline-none focus:border-black disabled:opacity-60"
       />
     </div>
   )

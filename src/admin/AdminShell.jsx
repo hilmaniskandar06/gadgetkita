@@ -68,22 +68,22 @@ export default function AdminShell({ title, actions, children }) {
                 className={`h-6 w-auto object-contain ${content.logoLight ? '' : 'brightness-0 invert'}`}
               />
             ) : (
-              <span>{content.shopName || 'KAKAO.KITA'}</span>
+              <span>{content.shopName || 'GADGETKITA'}</span>
             )}
-            <span className="text-lime-400 font-medium text-sm ml-1">Admin</span>
+            <span className="text-gray-400 font-medium text-sm ml-1">Admin</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link to="/toko" target="_blank" className="text-sm flex items-center gap-1.5 text-gray-100 hover:text-lime-400 transition-colors">
+            <Link to="/toko" target="_blank" className="text-sm flex items-center gap-1.5 text-gray-300 hover:text-white transition-colors">
               <Store size={15} /> Lihat Toko
             </Link>
-            <button onClick={handleLogout} className="text-sm flex items-center gap-1.5 text-gray-100 hover:text-lime-400 transition-colors">
+            <button onClick={handleLogout} className="text-sm flex items-center gap-1.5 text-gray-300 hover:text-white transition-colors">
               <LogOut size={15} /> Keluar
             </button>
           </div>
         </div>
       </header>
       <div className="flex-1 max-w-7xl w-full mx-auto px-5 flex flex-col md:flex-row gap-8 py-8 items-start relative">
-        <aside className="w-full md:w-64 shrink-0 bg-white border border-gray-200 rounded-xl p-4 md:sticky top-24 z-0 relative">
+        <aside className="w-full md:w-64 shrink-0 bg-white border border-gray-200 p-4 md:sticky top-24 z-0 relative">
           <nav className="flex flex-col gap-1">
             {menu.map(m => {
               const active = m.exact ? location.pathname === m.path : location.pathname.startsWith(m.path)
@@ -92,16 +92,16 @@ export default function AdminShell({ title, actions, children }) {
                 <Link
                   key={m.path}
                   to={m.path}
-                  className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
-                    active ? 'bg-lime-500 text-slate-900' : 'text-slate-700 hover:bg-gray-50'
+                  className={`flex items-center justify-between px-3 py-2.5 text-sm font-semibold transition-colors ${
+                    active ? 'bg-black text-white' : 'text-slate-700 hover:bg-gray-100'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon size={18} className={active ? 'text-slate-900' : 'text-slate-500'} />
+                    <Icon size={18} className={active ? 'text-white' : 'text-slate-500'} />
                     {m.name}
                   </div>
                   {m.badge > 0 && (
-                    <span className="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full">
+                    <span className="bg-rose-500 text-white text-[10px] px-2 py-0.5">
                       {m.badge}
                     </span>
                   )}

@@ -100,7 +100,7 @@ export default function Shop() {
         <select
           value={tempSort}
           onChange={(e) => setTempSort(e.target.value)}
-          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none"
+          className="w-full bg-gray-50 border border-gray-200 px-3 py-2 text-sm outline-none"
         >
           {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
@@ -118,7 +118,7 @@ export default function Shop() {
               <label
                 key={item.id || '__all__'}
                 htmlFor={`cat-${item.id || 'all'}`}
-                className={`flex items-center gap-2.5 text-sm cursor-pointer touch-manipulation select-none py-1 md:py-0.5 px-1 rounded-lg min-h-[44px] md:min-h-[36px] transition-colors ${checked ? 'bg-lime-100 text-slate-900' : 'hover:bg-gray-50'}`}
+                className={`flex items-center gap-2.5 text-sm cursor-pointer touch-manipulation select-none py-1 md:py-0.5 px-1 min-h-[44px] md:min-h-[36px] transition-colors ${checked ? 'bg-gray-100 text-slate-900 font-semibold' : 'hover:bg-gray-50'}`}
               >
                 <span className="relative inline-flex shrink-0 items-center justify-center w-5 h-5">
                   <input
@@ -127,12 +127,12 @@ export default function Shop() {
                     name="cat"
                     checked={checked}
                     onChange={() => setTempCategory(item.id)}
-                    className="peer absolute inset-0 opacity-0 cursor-pointer accent-lime-500"
+                    className="peer absolute inset-0 opacity-0 cursor-pointer accent-black"
                   />
-                  <span className={`w-5 h-5 rounded-full border-2 transition-all pointer-events-none ${checked ? 'border-lime-500' : 'border-gray-400 peer-focus:border-lime-500'}`}>
+                  <span className={`w-5 h-5 border-2 transition-all pointer-events-none ${checked ? 'border-black' : 'border-gray-400 peer-focus:border-black'}`}>
                     {checked && (
                       <span className="flex w-full h-full items-center justify-center">
-                        <span className="w-2.5 h-2.5 rounded-full bg-lime-500" />
+                        <span className="w-2.5 h-2.5 bg-black" />
                       </span>
                     )}
                   </span>
@@ -153,7 +153,7 @@ export default function Shop() {
           step="5000"
           value={tempMaxPrice}
           onChange={(e) => setTempMaxPrice(Number(e.target.value))}
-          className="w-full accent-lime-500"
+          className="w-full accent-black"
         />
         <div className="text-xs text-slate-600 font-mono mt-0.5">hingga Rp{Number(tempMaxPrice).toLocaleString('id-ID')}</div>
       </div>
@@ -168,9 +168,9 @@ export default function Shop() {
             type="checkbox"
             checked={tempInStockOnly}
             onChange={(e) => setTempInStockOnly(e.target.checked)}
-            className="peer absolute inset-0 opacity-0 cursor-pointer accent-lime-500"
+            className="peer absolute inset-0 opacity-0 cursor-pointer accent-black"
           />
-          <span className={`w-5 h-5 rounded-md border-2 transition-all pointer-events-none flex items-center justify-center ${tempInStockOnly ? 'border-lime-500 bg-lime-500 text-white' : 'border-gray-400 peer-focus:border-lime-500'}`}>
+          <span className={`w-5 h-5 border-2 transition-all pointer-events-none flex items-center justify-center ${tempInStockOnly ? 'border-black bg-black text-white' : 'border-gray-400 peer-focus:border-black'}`}>
             {tempInStockOnly && (
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
                 <path fillRule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-8 8a1 1 0 01-1.42 0l-4-4a1 1 0 111.42-1.42L8 12.58l7.29-7.29a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -184,7 +184,7 @@ export default function Shop() {
       <div className="hidden md:block flex flex-col gap-2">
         <button
           onClick={applyAllFiltersDesktop}
-          className="w-full bg-lime-500 hover:bg-lime-400 font-bold py-2 rounded-lg text-sm transition-colors"
+          className="w-full bg-black text-white hover:bg-gray-800 font-bold py-2 text-sm transition-colors"
         >
           Terapkan Filter
         </button>
@@ -202,7 +202,7 @@ export default function Shop() {
     <>
       <button
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFiltersOpen(true) }}
-        className="md:hidden fixed bottom-[10.5rem] right-5 z-40 w-14 h-14 bg-slate-900 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-slate-800 transition-colors"
+        className="md:hidden fixed bottom-[10.5rem] right-5 z-40 w-14 h-14 bg-black text-white shadow-2xl flex items-center justify-center hover:bg-gray-800 transition-colors"
         aria-label="Filter"
         type="button"
       >
@@ -252,14 +252,14 @@ export default function Shop() {
               <button
                 type="button"
                 onClick={resetAllFilters}
-                className="flex-1 border border-gray-200 py-2.5 rounded-lg text-sm font-semibold hover:bg-white transition-colors"
+                className="flex-1 border border-gray-200 py-2.5 text-sm font-semibold hover:bg-white transition-colors"
               >
                 Reset
               </button>
               <button
                 type="button"
                 onClick={applyAllFilters}
-                className="flex-[1.5] bg-lime-500 hover:bg-lime-400 text-slate-900 font-bold py-2.5 rounded-lg text-sm transition-colors shadow-md shadow-lime-500/20"
+                className="flex-[1.5] bg-black hover:bg-gray-800 text-white font-bold py-2.5 text-sm transition-colors"
               >
                 Terapkan
               </button>

@@ -10,22 +10,26 @@ export default {
       },
       colors: {
         slate: {
-          900: '#0F172A',
-          800: '#1E293B',
-          700: '#334155',
-          600: '#475569',
-          500: '#64748B',
+          900: '#0A0A0A',
+          800: '#1A1A1A',
+          700: '#2A2A2A',
+          600: '#555555',
+          500: '#888888',
         },
         gray: {
-          50: '#F8FAFC',
-          100: '#F1F5F9',
-          200: '#E2E8F0',
-          300: '#CBD5E1',
+          50: '#F9F9F9',
+          100: '#F2F2F2',
+          200: '#E0E0E0',
+          300: '#C8C8C8',
         },
-        lime: {
-          400: '#A3E635',
-          500: '#84CC16',
-          600: '#65A30D',
+        // accent = hitam — dipakai menggantikan lime
+        accent: {
+          DEFAULT: '#0A0A0A',
+          50: '#F2F2F2',
+          100: '#E0E0E0',
+          400: '#555555',
+          500: '#0A0A0A',
+          600: '#1A1A1A',
         },
         rose: {
           500: '#E11D48',
@@ -41,8 +45,15 @@ export default {
         },
       },
       borderRadius: {
-        xl: '6px',
-        '2xl': '12px',
+        // Boxy — kotak sempurna
+        DEFAULT: '0px',
+        sm: '0px',
+        md: '0px',
+        lg: '0px',
+        xl: '0px',
+        '2xl': '0px',
+        '3xl': '0px',
+        full: '2px',   // "rounded-full" jadi hampir kotak (badge/dot masih ok)
       },
     },
   },
