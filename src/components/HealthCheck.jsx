@@ -4,17 +4,17 @@ import { supabase } from '../config/supabase'
 const HealthCheckContext = createContext(null)
 
 const TABLES_TO_CHECK = [
-  'products',
-  'categories',
-  'site_settings',
-  'profiles',
-  'carts',
-  'wishlists',
-  'vouchers',
-  'payments',
-  'orders',
-  'notifications',
-  'chats',
+  { name: 'products', col: 'id' },
+  { name: 'categories', col: 'id' },
+  { name: 'site_settings', col: 'id' },
+  { name: 'profiles', col: 'id' },
+  { name: 'carts', col: 'user_id' },
+  { name: 'wishlists', col: 'user_id' },
+  { name: 'vouchers', col: 'id' },
+  { name: 'payments', col: 'id' },
+  { name: 'orders', col: 'id' },
+  { name: 'notifications', col: 'id' },
+  { name: 'chats', col: 'id' },
 ]
 
 export function HealthCheckProvider({ children }) {
@@ -52,11 +52,11 @@ export function HealthCheckProvider({ children }) {
 
     if (envOk && authOk) {
       const results = await Promise.all(
-        TABLES_TO_CHECK.map(async (table) => {
+        TABLES_TO_CHECK.map(async ({ name: table, col }) => {
           try {
             const { data, error } = await supabase
               .from(table)
-              .select('id')
+              .select(col)
               .limit(1)
               .maybeSingle()
             if (error && error.code !== 'PGRST116') {
