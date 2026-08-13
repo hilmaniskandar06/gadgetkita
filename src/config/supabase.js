@@ -16,6 +16,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
+    // ⭐ CUSTOM STORAGE KEY: agar JWT session LAMA (dari project SportKita / sisa debug)
+    // di domain yang sama TIDAK TERBACA. Otomatis user baru generate session BERSIH.
+    // Ini SOLUSI UTAMA error "JWT issued at future" di production karena token bentrok.
+    storageKey: 'gadgetkita_auth_v1',
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,

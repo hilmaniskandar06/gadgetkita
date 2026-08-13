@@ -206,14 +206,7 @@ export default function Home() {
       {/* ── Kategori Collage ── */}
       <section id="kategori" className="max-w-7xl mx-auto px-5 lg:px-8 py-12 md:py-16">
         <div className="mb-8 md:mb-10 flex items-end justify-between flex-wrap gap-4">
-          <div>
-            <h2 className="font-display text-3xl md:text-5xl font-bold text-slate-900 mb-2 leading-tight">
-              Jelajahi Kategori
-            </h2>
-            <p className="text-sm md:text-base text-slate-500">
-              {catsLoading ? 'Memuat...' : `${categories.length} kategori tersedia — pilih sesuai kebutuhanmu.`}
-            </p>
-          </div>
+          
         </div>
 
         <CategoryCollage categories={categories} loading={catsLoading} layouted={layouted} />
