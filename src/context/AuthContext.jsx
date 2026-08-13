@@ -10,6 +10,38 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const { addToast } = useToast()
 
+  // Parse base64 JWT payload (client-side only, tanpa validasi signature)
+  function parseJwt(token) {
+    try {
+      const base64Url = (token || '').split('.')[1]
+      if (!base64Url) return null
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join(''))
+      return JSON.parse(jsonPayload)
+    } catch (_) { return null }
+  }
+
+  // ⭐ Cek apakah JWT session VALID menurut iat (issued-at) dan exp (expired)
+  // Return true jika session BURUK (future-iat atau expired) → harus di-clear
+  function isSessionBadJwt(session) {
+    if (!session?.access_token) return false
+    const payload = parseJwt(session.access_token)
+    if (!payload) return false
+    const nowSec = Math.floor(Date.now() / 1000)
+    // SKEW TOLERANCE 120 DETIK: mengatasi clock drift server Supabase ↔ client browser
+    if (typeof payload.iat === 'number' && payload.iat > (nowSec + 120)) {
+      console.warn('🔴 Session rejected: JWT issued at FUTURE (clock drift / token lama). Auto-clearing. iat=', payload.iat, 'now=', nowSec)
+      return true
+    }
+    if (typeof payload.exp === 'number' && payload.exp < (nowSec - 60)) {
+      console.warn('🔴 Session rejected: JWT EXPIRED. Auto-clearing. exp=', payload.exp, 'now=', nowSec)
+      return true
+    }
+    return false
+  }
+
   useEffect(() => {
     let mounted = true
     ;(async () => {
@@ -25,6 +57,13 @@ export function AuthProvider({ children }) {
           if (attempt < 2) await new Promise((res) => setTimeout(res, 200))
         }
         if (!mounted) return
+
+        // ⭐ Jika JWT session invalid (issued-at future / expired) → clear OTOMATIS tanpa user action
+        if (session && isSessionBadJwt(session)) {
+          try { await supabase.auth.signOut() } catch (_) {}
+          session = null
+        }
+
         if (session) {
           await fetchProfile(session.user, mounted)
         } else {
