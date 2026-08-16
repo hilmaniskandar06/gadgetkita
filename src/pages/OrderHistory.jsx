@@ -72,7 +72,7 @@ export default function OrderHistory() {
                   <span className="text-xs text-slate-500">{new Date(o.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                 </div>
                 <div className="text-sm text-slate-700 mb-3 truncate">
-                  {o.items.map((i) => i.name + ' ×' + i.qty).join(', ')}
+                  {o.items.map((i) => i.name + (i.selectedColor || i.color ? ` (${i.selectedColor || i.color})` : '') + ' ×' + i.qty).join(', ')}
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-slate-600">

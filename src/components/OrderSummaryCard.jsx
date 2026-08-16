@@ -1,4 +1,4 @@
-﻿import ProductThumb from './ProductThumb'
+import ProductThumb from './ProductThumb'
 import { useToast } from '../context/ToastContext'
 import { Copy } from 'lucide-react'
 
@@ -18,13 +18,16 @@ export default function OrderSummaryCard({ order }) {
     <div className="bg-gray-100 rounded-xl p-6 text-left">
       <h3 className="font-bold mb-4">Produk Dipesan</h3>
       <div className="flex flex-col gap-3 mb-4">
-        {order.items.map((i) => (
-          <div key={i.id} className="flex items-center gap-3">
+        {order.items.map((i, idx) => (
+          <div key={i.id || idx} className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-lg bg-white flex items-center justify-center shrink-0 overflow-hidden">
-              <ProductThumb product={i} size={40} />
+              <ProductThumb image={i.image || (i.images && i.images[0])} product={i} size={40} />
             </div>
             <div className="flex-1 min-w-0 text-sm">
               <div className="font-semibold truncate">{i.name}</div>
+              {(i.selectedColor || i.color) && (
+                <div className="text-xs text-slate-700 font-semibold">Varian: {i.selectedColor || i.color}</div>
+              )}
               <div className="text-slate-500 text-xs">Qty {i.qty}</div>
             </div>
             <span className="font-mono text-sm font-semibold">{fmt(i.price * i.qty)}</span>
@@ -59,47 +62,32 @@ export default function OrderSummaryCard({ order }) {
             <div className="flex items-center gap-2 mt-1">
               <span className="font-mono bg-gray-100 px-2 py-0.5 rounded text-slate-900 font-bold">{order.customer.payment.account}</span>
               <button 
-                onClick={() => {
-                  navigator.clipboard.writeText(order.customer.payment.account)
-                  addToast('Nomor rekening/akun berhasil disalin!')
+                type="button"
+                onClick={() => { 
+                  navigator.clipboard.writeText(order.customer.payment.account); 
+                  addToast('Nomor rekening/e-wallet berhasil disalin!'); 
                 }} 
-                className="text-slate-600 hover:text-slate-900 transition-colors"
-                title="Salin Nomor Rekening"
+                className="text-xs text-lime-600 hover:text-lime-700 flex items-center gap-1 font-semibold"
               >
-                <Copy size={15} />
+                <Copy size={12} /> Salin
               </button>
             </div>
           )}
         </div>
-        {order.paymentProof && (
-          <div className="mt-3">
-            <span className="block mb-1 font-semibold text-slate-900">Bukti Transfer:</span>
-            <img src={order.paymentProof} alt="Bukti Transfer" className="max-w-[200px] w-full rounded-lg border border-gray-200 shadow-sm object-cover" />
-          </div>
-        )}
       </div>
 
-      {(order.paymentStatus === 'dikirim' || order.paymentStatus === 'dibatalkan') && (
-        <div className={`mt-4 p-4 rounded-lg text-sm border ${order.paymentStatus === 'dikirim' ? 'bg-indigo-50 border-indigo-200 text-indigo-900' : 'bg-rose-50 border-rose-200 text-rose-900'}`}>
-          {order.paymentStatus === 'dikirim' && (
-            <div>
-              <strong>Status: Dikirim</strong>
-              <div className="mt-1 flex items-center gap-2">
-                Nomor Resi: <span className="font-mono font-bold bg-white px-2 py-0.5 rounded">{order.trackingNumber || '-'}</span>
-                {order.trackingNumber && (
-                  <button onClick={copyResi} className="text-slate-600 hover:text-slate-900 transition-colors" title="Salin Resi">
-                    <Copy size={15} />
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-          {order.paymentStatus === 'dibatalkan' && (
-            <div>
-              <strong>Status: Dibatalkan</strong>
-              <div className="mt-1">Alasan: {order.cancelReason || '-'}</div>
-            </div>
-          )}
+      {order.trackingNumber && (
+        <div className="border-t border-gray-200 mt-4 pt-4 text-sm">
+          <div className="font-bold text-slate-900 mb-1">Nomor Resi Pengiriman</div>
+          <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
+            <span className="font-mono font-bold text-slate-800">{order.trackingNumber}</span>
+            <button
+              onClick={copyResi}
+              className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors"
+            >
+              <Copy size={12} /> Salin Resi
+            </button>
+          </div>
         </div>
       )}
     </div>

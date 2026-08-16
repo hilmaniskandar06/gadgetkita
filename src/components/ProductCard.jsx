@@ -1,20 +1,15 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { Heart, Plus, Zap } from 'lucide-react'
-import ProductThumb from './ProductThumb'
+import { Link } from 'react-router-dom'
+import { Plus } from 'lucide-react'
 import { useCart } from '../context/CartContext'
-import { useWishlist } from '../context/WishlistContext'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
 
 const fmt = (n) => 'Rp' + n.toLocaleString('id-ID')
 
 export default function ProductCard({ product }) {
-  const { toggle, isWishlisted } = useWishlist()
   const { addItem } = useCart()
   const { addToast } = useToast()
   const { user } = useAuth()
-  const navigate = useNavigate()
-  const wishlisted = isWishlisted(product.id)
 
   const discount = product.oldPrice
     ? Math.round(100 - (product.price / product.oldPrice) * 100)
@@ -25,24 +20,17 @@ export default function ProductCard({ product }) {
     e.stopPropagation()
     if (!product.inStock) return
     if (!user) return addToast('Silakan login terlebih dahulu', 'error')
-    addItem(product.id, 1)
+
+    const defaultColor = (product.colors && product.colors.length > 0) ? product.colors[0].name : (product.color || null)
+    addItem(product.id, 1, defaultColor)
     addToast(`${product.name} ditambahkan ke keranjang`)
   }
 
-  function handleBuyNow(e) {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!product.inStock) return
-    if (!user) return addToast('Silakan login terlebih dahulu', 'error')
-    navigate('/checkout', { state: { directItem: { ...product, qty: 1 } } })
-  }
-
-  function handleWishlist(e) {
-    e.preventDefault()
-    e.stopPropagation()
-    if (!user) return addToast('Silakan login terlebih dahulu', 'error')
-    toggle(product.id)
-    addToast(wishlisted ? `${product.name} dihapus dari wishlist` : `${product.name} disimpan ke wishlist`)
+  let firstImage = product.images?.[0] || product.image
+  if (typeof firstImage === 'object') firstImage = firstImage.url
+  if (typeof firstImage === 'string') {
+    if (firstImage === '[object Object]') firstImage = ''
+    else firstImage = firstImage.split('#color=')[0]
   }
 
   return (
@@ -50,7 +38,7 @@ export default function ProductCard({ product }) {
       to={`/produk/${product.id}`}
       className="group flex flex-col bg-white border border-gray-200 overflow-hidden hover:border-black transition-colors"
     >
-      <div className="relative h-32 sm:h-40 flex items-center justify-center bg-gray-100">
+      <div className="relative h-32 sm:h-40 w-full overflow-hidden bg-gray-100 flex items-center justify-center">
         <div className="absolute top-0 left-0 z-10 flex flex-col gap-0">
           {discount && (
             <span className="bg-rose-500 text-white text-[11px] font-bold px-2 py-1 w-fit">
@@ -59,80 +47,89 @@ export default function ProductCard({ product }) {
           )}
           {product.isNew && (
             <span className="bg-black text-white text-[11px] font-bold px-2 py-1 w-fit">
-              NEW
-            </span>
-          )}
-          {!product.inStock && (
-            <span className="bg-gray-600 text-white text-[11px] font-bold px-2 py-1 w-fit">
-              HABIS
-            </span>
-          )}
-          {Number(product.sold || 0) >= 200 && (
-            <span className="bg-warning-500 text-white text-[11px] font-bold px-2 py-1 w-fit">
-              BEST
+              BARU
             </span>
           )}
         </div>
-        <button
-          onClick={handleWishlist}
-          aria-label="Simpan ke wishlist"
-          className="absolute top-3 right-3 z-10 w-8 h-8 bg-white flex items-center justify-center border border-gray-200 hover:border-black transition-colors"
-        >
-          <Heart size={15} className={wishlisted ? 'fill-rose-500 text-rose-500' : 'text-slate-600'} />
-        </button>
-        <img
-          src={product?.images?.[0] || product?.image || 'https://images.unsplash.com/photo-1609692814858-f7cd2f0afa4f?auto=format&fit=crop&q=80&w=400'}
-          alt={product.name}
-          className="w-full h-full object-cover"
-        />
-      </div>
 
-      <div className="flex flex-col gap-1 sm:gap-1.5 p-3 sm:p-4 flex-1">
-        <div className="hidden md:block">
-          <span className="text-[11px] uppercase tracking-widest text-gray-500 font-semibold">{product.category}</span>
-        </div>
-        <h3 className="font-bold text-xs md:text-sm text-slate-900 leading-snug line-clamp-2">{product.name}</h3>
-        {product.compatibility && (
-          <div className="flex flex-wrap gap-1">
-            <span className="inline-block text-[10px] font-semibold uppercase bg-gray-100 text-gray-600 px-1.5 py-0.5">{product.compatibility}</span>
+        {firstImage ? (
+          <img
+            src={firstImage}
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              e.target.onerror = null
+              e.target.style.display = 'none'
+            }}
+          />
+        ) : (
+          <div className="text-xs text-slate-400 font-semibold">No Image</div>
+        )}
+
+        {!product.inStock && (
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] flex items-center justify-center">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-rose-500 bg-white px-2 py-1 border border-rose-500">
+              Habis
+            </span>
           </div>
         )}
-        <div className="hidden md:block">
-          <p className="text-xs text-slate-600 line-clamp-2">{product.shortDesc}</p>
+      </div>
+
+      <div className="p-3 sm:p-4 flex flex-col flex-1 gap-1 sm:gap-2">
+        <div className="flex items-center gap-1 text-[10px] sm:text-xs text-slate-500 font-semibold uppercase">
+          {product.brand && <span className="text-black font-bold">{product.brand}</span>}
+          {product.brand && <span>•</span>}
+          <span>{product.category}</span>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mt-auto pt-2 sm:pt-3 gap-2 sm:gap-0">
+        <h3 className="font-bold text-xs sm:text-sm text-slate-900 line-clamp-2 leading-tight group-hover:text-black transition-colors">
+          {product.name}
+        </h3>
+
+        {/* Warna Swatches Preview */}
+        {product.colors && product.colors.length > 0 && (
+          <div className="flex items-center gap-1 mt-0.5">
+            {product.colors.slice(0, 4).map((c, idx) => (
+              <span
+                key={idx}
+                className="w-2.5 h-2.5 rounded-full border border-gray-300 shadow-inner inline-block"
+                style={{
+                  background: c.type === 'dual'
+                    ? `linear-gradient(135deg, ${c.hex1} 50%, ${c.hex2 || '#ffffff'} 50%)`
+                    : (c.hex1 || '#000000')
+                }}
+                title={c.name}
+              />
+            ))}
+            {product.colors.length > 4 && (
+              <span className="text-[9px] text-slate-400 font-mono">+{product.colors.length - 4}</span>
+            )}
+          </div>
+        )}
+
+        <div className="flex items-end justify-between mt-auto pt-2 sm:pt-3">
           <div className="flex flex-col">
             {product.oldPrice && (
-              <span className="text-[10px] sm:text-xs text-slate-500 line-through font-mono">{fmt(product.oldPrice)}</span>
+              <span className="text-[10px] sm:text-xs text-slate-500 line-through font-mono">
+                {fmt(product.oldPrice)}
+              </span>
             )}
             <div className="flex items-baseline gap-2">
-              <span className="font-mono font-bold text-sm sm:text-base text-slate-900">{fmt(product.price)}</span>
-              {Number(product.sold || 0) > 0 && (
-                <span className="text-[10px] sm:text-xs text-gray-500 font-bold">
-                  {Number(product.sold || 0).toLocaleString('id-ID')}+ Terjual
-                </span>
-              )}
+              <span className="font-mono font-bold text-sm sm:text-base text-slate-900">
+                {fmt(product.price)}
+              </span>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end">
+
+          <div className="flex items-center justify-end">
             <button
               onClick={handleAdd}
               disabled={!product.inStock}
               aria-label="Tambah ke keranjang"
               title="Tambah ke Keranjang"
-              className="w-8 h-8 sm:w-9 sm:h-9 bg-white border border-gray-200 text-slate-800 flex items-center justify-center hover:border-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <Plus size={16} />
-            </button>
-            <button
-              onClick={handleBuyNow}
-              disabled={!product.inStock}
-              aria-label="Beli sekarang"
-              title="Beli Sekarang"
               className="w-8 h-8 sm:w-9 sm:h-9 bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              <Zap size={14} className="fill-current" />
+              <Plus size={16} />
             </button>
           </div>
         </div>

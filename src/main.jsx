@@ -6,6 +6,8 @@ import GlobalErrorBoundary from './components/GlobalErrorBoundary.jsx'
 import { HealthCheckProvider, HealthWarningBanner } from './components/HealthCheck.jsx'
 import { ProductsProvider } from './context/ProductsContext.jsx'
 import { CategoriesProvider } from './context/CategoriesContext.jsx'
+import { BrandProvider } from './context/BrandContext.jsx'
+import { ColorProvider } from './context/ColorContext.jsx'
 import { SiteContentProvider } from './context/SiteContentContext.jsx'
 import { CartProvider } from './context/CartContext.jsx'
 import { WishlistProvider } from './context/WishlistContext.jsx'
@@ -30,6 +32,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <ToastProvider>
           <AuthProvider>
             <CategoriesProvider>
+            <BrandProvider>
+              <ColorProvider>
               <SiteContentProvider>
                 <ProductsProvider>
                   <VoucherProvider>
@@ -47,7 +51,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   </VoucherProvider>
                 </ProductsProvider>
               </SiteContentProvider>
-            </CategoriesProvider>
+            </ColorProvider>
+            </BrandProvider>
+          </CategoriesProvider>
           </AuthProvider>
         </ToastProvider>
       </BrowserRouter>

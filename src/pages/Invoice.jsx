@@ -129,6 +129,7 @@ export default function Invoice() {
                 <tr key={item.id || idx} className="border-b border-gray-100">
                   <td className="py-4 px-2">
                     <div className="font-semibold text-gray-800">{item.name}</div>
+                    {(item.selectedColor || item.color) && <div className="text-xs font-semibold text-gray-700">Varian: {item.selectedColor || item.color}</div>}
                     {item.weight && <div className="text-xs text-gray-500">{item.weight}</div>}
                   </td>
                   <td className="py-4 px-2 text-center text-gray-600">{formatRp(item.price)}</td>

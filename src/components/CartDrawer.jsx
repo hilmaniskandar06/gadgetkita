@@ -6,7 +6,7 @@ import { useCart } from '../context/CartContext'
 const fmt = (n) => 'Rp' + n.toLocaleString('id-ID')
 
 export default function CartDrawer({ open, onClose }) {
-  const { cartList, subtotal, setQty, removeItem } = useCart()
+  const { cartList, subtotal, updateQty, removeItem } = useCart()
 
   return (
     <>
@@ -41,24 +41,27 @@ export default function CartDrawer({ open, onClose }) {
             </div>
           ) : (
             cartList.map((item) => (
-              <div key={item.id} className="flex gap-3 py-4 border-b border-gray-100">
-                <div className="w-14 h-14 bg-gray-100 flex items-center justify-center shrink-0 border border-gray-100">
-                  <ProductThumb product={item} size={36} />
+              <div key={item.cartKey || item.id} className="flex gap-3 py-4 border-b border-gray-100">
+                <div className="w-14 h-14 bg-gray-100 flex items-center justify-center shrink-0 border border-gray-100 overflow-hidden rounded">
+                  <ProductThumb image={item.displayImage || item.image} product={item} size={48} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-semibold text-slate-900 truncate">{item.name}</h4>
+                  {item.selectedColor && (
+                    <div className="text-[11px] text-slate-500 font-medium">Varian: {item.selectedColor}</div>
+                  )}
                   <span className="font-mono text-xs text-slate-700">{fmt(item.price)}</span>
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center border border-gray-200">
-                      <button onClick={() => setQty(item.id, item.qty - 1)} className="w-7 h-7 flex items-center justify-center" aria-label="Kurangi">
+                      <button onClick={() => updateQty(item.cartKey || item.id, item.qty - 1)} className="w-7 h-7 flex items-center justify-center hover:bg-gray-100" aria-label="Kurangi">
                         <Minus size={12} />
                       </button>
                       <span className="w-6 text-center text-xs font-mono">{item.qty}</span>
-                      <button onClick={() => setQty(item.id, item.qty + 1)} className="w-7 h-7 flex items-center justify-center" aria-label="Tambah">
+                      <button onClick={() => updateQty(item.cartKey || item.id, item.qty + 1)} className="w-7 h-7 flex items-center justify-center hover:bg-gray-100" aria-label="Tambah">
                         <Plus size={12} />
                       </button>
                     </div>
-                    <button onClick={() => removeItem(item.id)} className="text-xs text-rose-500 hover:underline">
+                    <button onClick={() => removeItem(item.cartKey || item.id)} className="text-xs text-rose-500 hover:underline">
                       Hapus
                     </button>
                   </div>
@@ -69,17 +72,17 @@ export default function CartDrawer({ open, onClose }) {
         </div>
 
         {cartList.length > 0 && (
-          <div className="border-t border-gray-200 px-5 py-5">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-sm text-slate-700">Subtotal</span>
-              <span className="font-mono font-bold text-lg">{fmt(subtotal)}</span>
+          <div className="p-5 border-t border-gray-200 bg-gray-50 flex flex-col gap-3">
+            <div className="flex justify-between font-bold text-sm">
+              <span>Subtotal</span>
+              <span className="font-mono">{fmt(subtotal)}</span>
             </div>
             <Link
               to="/checkout"
               onClick={onClose}
-              className="block text-center w-full bg-black hover:bg-gray-800 text-white font-bold py-3.5 transition-colors text-sm tracking-wide"
+              className="block text-center bg-black text-white font-bold py-3 hover:bg-gray-800 transition-colors"
             >
-              Lanjut ke Checkout
+              Checkout Sekarang
             </Link>
           </div>
         )}

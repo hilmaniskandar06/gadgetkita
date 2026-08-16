@@ -1,9 +1,10 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { X, Filter as FilterIcon } from 'lucide-react'
+import { X, Filter as FilterIcon, ChevronDown, Check, RotateCcw } from 'lucide-react'
 import ProductCard from '../components/ProductCard'
 import { useProducts } from '../context/ProductsContext'
 import { useCategories } from '../context/CategoriesContext'
+import { useBrands } from '../context/BrandContext'
 
 const SORTS = [
   { value: 'default', label: 'Paling Relevan' },
@@ -12,261 +13,459 @@ const SORTS = [
   { value: 'sold', label: 'Terlaris' },
 ]
 
+const PRICE_PRESETS = [
+  { label: '< 250rb', min: 0, max: 250000 },
+  { label: '250rb - 500rb', min: 250000, max: 500000 },
+  { label: '500rb - 1jt', min: 500000, max: 1000000 },
+  { label: '> 1jt', min: 1000000, max: 100000000 },
+]
+
 export default function Shop() {
   const { products, loading } = useProducts()
   const { categories } = useCategories()
+  const { brands } = useBrands()
   const [params, setParams] = useSearchParams()
   const [filtersOpen, setFiltersOpen] = useState(false)
 
+  // URL Params parsing
   const query = params.get('q') || ''
-  const activeCategory = params.get('category') || ''
+  const selectedCategories = useMemo(() => {
+    const raw = params.get('category')
+    return raw ? raw.split(',').filter(Boolean) : []
+  }, [params])
+
+  const selectedBrands = useMemo(() => {
+    const raw = params.get('brand')
+    return raw ? raw.split(',').filter(Boolean) : []
+  }, [params])
+
   const sort = params.get('sort') || 'default'
-  const maxPrice = Number(params.get('max')) || 200000
+  const minPrice = params.get('min') ? Number(params.get('min')) : 0
+  const maxPrice = params.get('max') ? Number(params.get('max')) : 0
   const inStockOnly = params.get('stock') === '1'
 
-  // STATE TEMPORARY untuk manual apply (Opsi A = Opsi 2)
+  // TEMPORARY STATES FOR FILTER FORM
   const [tempSort, setTempSort] = useState(sort)
-  const [tempCategory, setTempCategory] = useState(activeCategory)
-  const [tempMaxPrice, setTempMaxPrice] = useState(maxPrice)
+  const [tempCategories, setTempCategories] = useState(selectedCategories)
+  const [tempBrands, setTempBrands] = useState(selectedBrands)
+  const [tempMinPrice, setTempMinPrice] = useState(minPrice ? String(minPrice) : '')
+  const [tempMaxPrice, setTempMaxPrice] = useState(maxPrice ? String(maxPrice) : '')
   const [tempInStockOnly, setTempInStockOnly] = useState(inStockOnly)
 
+  // Dropdown collapse states
+  const [openCatDropdown, setOpenCatDropdown] = useState(true)
+  const [openBrandDropdown, setOpenBrandDropdown] = useState(true)
+
   useEffect(() => {
-    if (filtersOpen) {
-      setTempSort(sort)
-      setTempCategory(activeCategory)
-      setTempMaxPrice(maxPrice)
-      setTempInStockOnly(inStockOnly)
+    setTempSort(sort)
+    setTempCategories(selectedCategories)
+    setTempBrands(selectedBrands)
+    setTempMinPrice(minPrice ? String(minPrice) : '')
+    setTempMaxPrice(maxPrice ? String(maxPrice) : '')
+    setTempInStockOnly(inStockOnly)
+  }, [sort, selectedCategories, selectedBrands, minPrice, maxPrice, inStockOnly])
+
+  function toggleCategory(catName) {
+    if (tempCategories.includes(catName)) {
+      setTempCategories(tempCategories.filter(c => c !== catName))
+    } else {
+      setTempCategories([...tempCategories, catName])
     }
-  }, [filtersOpen, sort, activeCategory, maxPrice, inStockOnly])
+  }
+
+  function toggleBrand(brandName) {
+    if (tempBrands.includes(brandName)) {
+      setTempBrands(tempBrands.filter(b => b !== brandName))
+    } else {
+      setTempBrands([...tempBrands, brandName])
+    }
+  }
+
+  function setPresetPrice(preset) {
+    setTempMinPrice(preset.min ? String(preset.min) : '0')
+    setTempMaxPrice(preset.max < 100000000 ? String(preset.max) : '')
+  }
 
   function applyAllFilters() {
-    const next = new URLSearchParams(params)
-    if (query) next.set('q', query); else next.delete('q')
-    if (tempSort && tempSort !== 'default') next.set('sort', tempSort); else next.delete('sort')
-    if (tempCategory) next.set('category', tempCategory); else next.delete('category')
-    if (tempMaxPrice && tempMaxPrice < 200000) next.set('max', String(tempMaxPrice)); else next.delete('max')
-    if (tempInStockOnly) next.set('stock', '1'); else next.delete('stock')
+    const next = new URLSearchParams()
+    if (query) next.set('q', query)
+    if (tempSort && tempSort !== 'default') next.set('sort', tempSort)
+    if (tempCategories.length > 0) next.set('category', tempCategories.join(','))
+    if (tempBrands.length > 0) next.set('brand', tempBrands.join(','))
+    if (tempMinPrice && Number(tempMinPrice) > 0) next.set('min', tempMinPrice)
+    if (tempMaxPrice && Number(tempMaxPrice) > 0) next.set('max', tempMaxPrice)
+    if (tempInStockOnly) next.set('stock', '1')
+
     setParams(next)
     setFiltersOpen(false)
   }
 
-  function applyAllFiltersDesktop() {
-    const next = new URLSearchParams(params)
-    if (query) next.set('q', query); else next.delete('q')
-    if (tempSort && tempSort !== 'default') next.set('sort', tempSort); else next.delete('sort')
-    if (tempCategory) next.set('category', tempCategory); else next.delete('category')
-    if (tempMaxPrice && tempMaxPrice < 200000) next.set('max', String(tempMaxPrice)); else next.delete('max')
-    if (tempInStockOnly) next.set('stock', '1'); else next.delete('stock')
-    setParams(next)
-  }
-
   function resetAllFilters() {
     setTempSort('default')
-    setTempCategory('')
-    setTempMaxPrice(200000)
+    setTempCategories([])
+    setTempBrands([])
+    setTempMinPrice('')
+    setTempMaxPrice('')
     setTempInStockOnly(false)
+
+    const next = new URLSearchParams()
+    if (query) next.set('q', query)
+    setParams(next)
+    setFiltersOpen(false)
   }
 
-  // Apply realtime hanya untuk sidebar desktop
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches && !filtersOpen) {
-      const hasDiff =
-        tempSort !== sort ||
-        tempCategory !== activeCategory ||
-        Number(tempMaxPrice) !== Number(maxPrice) ||
-        Boolean(tempInStockOnly) !== Boolean(inStockOnly)
-      if (hasDiff) applyAllFiltersDesktop()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tempSort, tempCategory, tempMaxPrice, tempInStockOnly])
-
+  // Filtered Products Calculation
   const results = useMemo(() => {
-    let list = products.filter((p) => p.price <= maxPrice)
-    if (activeCategory) list = list.filter((p) => p.category === activeCategory)
-    if (inStockOnly) list = list.filter((p) => p.inStock)
-    if (query) list = list.filter((p) => p.name.toLowerCase().includes(query.toLowerCase()))
+    let list = [...products]
 
-    if (sort === 'price-asc') list = [...list].sort((a, b) => a.price - b.price)
-    if (sort === 'price-desc') list = [...list].sort((a, b) => b.price - a.price)
-    if (sort === 'sold') list = [...list].sort((a, b) => Number(b.sold || 0) - Number(a.sold || 0))
+    if (query) {
+      list = list.filter((p) => p.name.toLowerCase().includes(query.toLowerCase()))
+    }
+    if (selectedCategories.length > 0) {
+      list = list.filter((p) => selectedCategories.includes(p.category))
+    }
+    if (selectedBrands.length > 0) {
+      list = list.filter((p) => p.brand && selectedBrands.some(b => b.toLowerCase() === p.brand.toLowerCase()))
+    }
+    if (minPrice > 0) {
+      list = list.filter((p) => p.price >= minPrice)
+    }
+    if (maxPrice > 0) {
+      list = list.filter((p) => p.price <= maxPrice)
+    }
+    if (inStockOnly) {
+      list = list.filter((p) => p.inStock)
+    }
+
+    if (sort === 'price-asc') list.sort((a, b) => a.price - b.price)
+    if (sort === 'price-desc') list.sort((a, b) => b.price - a.price)
+    if (sort === 'sold') list.sort((a, b) => Number(b.sold || 0) - Number(a.sold || 0))
 
     return list
-  }, [products, activeCategory, sort, maxPrice, inStockOnly, query])
+  }, [products, selectedCategories, selectedBrands, minPrice, maxPrice, inStockOnly, query, sort])
+
+  const activeFilterCount = (selectedCategories.length > 0 ? 1 : 0) +
+    (selectedBrands.length > 0 ? 1 : 0) +
+    (minPrice > 0 || maxPrice > 0 ? 1 : 0) +
+    (inStockOnly ? 1 : 0) +
+    (sort !== 'default' ? 1 : 0)
 
   const FilterPanel = (
-    <div className="flex flex-col gap-5 md:gap-4">
+    <div className="flex flex-col gap-6">
+      {/* Tombol Terapkan & Reset di Bagian Atas Panel */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={applyAllFilters}
+          className="flex-1 bg-black text-white font-bold py-2.5 px-4 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+        >
+          Terapkan Filter
+        </button>
+        <button
+          type="button"
+          onClick={resetAllFilters}
+          title="Reset semua filter"
+          className="p-2.5 border border-gray-300 hover:border-black text-slate-700 hover:text-black transition-colors"
+        >
+          <RotateCcw size={15} />
+        </button>
+      </div>
+
+      {/* Urutan */}
       <div>
-        <h4 className="font-bold text-sm mb-2">Urutkan</h4>
+        <h4 className="font-bold text-xs uppercase tracking-wider text-slate-900 mb-2">Urutkan</h4>
         <select
           value={tempSort}
           onChange={(e) => setTempSort(e.target.value)}
-          className="w-full bg-gray-50 border border-gray-200 px-3 py-2 text-sm outline-none"
+          className="w-full bg-white border border-gray-300 px-3 py-2 text-xs font-semibold outline-none focus:border-black"
         >
           {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
       </div>
 
-      <div>
-        <h4 className="font-bold text-sm mb-2">Kategori</h4>
-        <div className="flex flex-col gap-0.5 md:gap-0">
-          {[
-            { id: '', name: 'Semua Kategori' },
-            ...categories.map((c) => ({ id: c.name, name: c.name })),
-          ].map((item) => {
-            const checked = item.id ? tempCategory === item.id : !tempCategory
-            return (
-              <label
-                key={item.id || '__all__'}
-                htmlFor={`cat-${item.id || 'all'}`}
-                className={`flex items-center gap-2.5 text-sm cursor-pointer touch-manipulation select-none py-1 md:py-0.5 px-1 min-h-[44px] md:min-h-[36px] transition-colors ${checked ? 'bg-gray-100 text-slate-900 font-semibold' : 'hover:bg-gray-50'}`}
-              >
-                <span className="relative inline-flex shrink-0 items-center justify-center w-5 h-5">
+      {/* Multi-Select Kategori */}
+      <div className="border-t border-gray-200 pt-4">
+        <button
+          type="button"
+          onClick={() => setOpenCatDropdown(!openCatDropdown)}
+          className="flex items-center justify-between w-full text-left font-bold text-xs uppercase tracking-wider text-slate-900 mb-2"
+        >
+          <span>Kategori {tempCategories.length > 0 && `(${tempCategories.length})`}</span>
+          <ChevronDown size={14} className={`transition-transform ${openCatDropdown ? 'rotate-180' : ''}`} />
+        </button>
+
+        {openCatDropdown && (
+          <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-1">
+            {categories.map((c) => {
+              const checked = tempCategories.includes(c.name)
+              return (
+                <label
+                  key={c.name}
+                  className={`flex items-center gap-2.5 text-xs py-1.5 px-2 cursor-pointer transition-colors ${
+                    checked ? 'bg-black text-white font-bold' : 'hover:bg-gray-100 text-slate-800'
+                  }`}
+                >
                   <input
-                    id={`cat-${item.id || 'all'}`}
-                    type="radio"
-                    name="cat"
+                    type="checkbox"
                     checked={checked}
-                    onChange={() => setTempCategory(item.id)}
-                    className="peer absolute inset-0 opacity-0 cursor-pointer accent-black"
+                    onChange={() => toggleCategory(c.name)}
+                    className="accent-black w-3.5 h-3.5"
                   />
-                  <span className={`w-5 h-5 border-2 transition-all pointer-events-none ${checked ? 'border-black' : 'border-gray-400 peer-focus:border-black'}`}>
-                    {checked && (
-                      <span className="flex w-full h-full items-center justify-center">
-                        <span className="w-2.5 h-2.5 bg-black" />
-                      </span>
-                    )}
-                  </span>
-                </span>
-                <span className="leading-tight">{item.name}</span>
-              </label>
-            )
-          })}
+                  <span className="truncate">{c.name}</span>
+                </label>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Multi-Select Brand */}
+      {brands.length > 0 && (
+        <div className="border-t border-gray-200 pt-4">
+          <button
+            type="button"
+            onClick={() => setOpenBrandDropdown(!openBrandDropdown)}
+            className="flex items-center justify-between w-full text-left font-bold text-xs uppercase tracking-wider text-slate-900 mb-2"
+          >
+            <span>Brand / Merk {tempBrands.length > 0 && `(${tempBrands.length})`}</span>
+            <ChevronDown size={14} className={`transition-transform ${openBrandDropdown ? 'rotate-180' : ''}`} />
+          </button>
+
+          {openBrandDropdown && (
+            <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-1">
+              {brands.map((b) => {
+                const checked = tempBrands.includes(b.name)
+                return (
+                  <label
+                    key={b.id}
+                    className={`flex items-center gap-2.5 text-xs py-1.5 px-2 cursor-pointer transition-colors ${
+                      checked ? 'bg-black text-white font-bold' : 'hover:bg-gray-100 text-slate-800'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleBrand(b.name)}
+                      className="accent-black w-3.5 h-3.5"
+                    />
+                    <span className="truncate">{b.name}</span>
+                  </label>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Rentang Harga (Min - Max + Presets) */}
+      <div className="border-t border-gray-200 pt-4">
+        <h4 className="font-bold text-xs uppercase tracking-wider text-slate-900 mb-2">Rentang Harga (Rp)</h4>
+
+        {/* Input Min & Max */}
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Min</label>
+            <input
+              type="number"
+              min={0}
+              placeholder="0"
+              value={tempMinPrice}
+              onChange={(e) => setTempMinPrice(e.target.value)}
+              className="w-full bg-white border border-gray-300 px-2 py-1.5 text-xs font-mono outline-none focus:border-black"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">Max</label>
+            <input
+              type="number"
+              min={0}
+              placeholder="Tak terbatas"
+              value={tempMaxPrice}
+              onChange={(e) => setTempMaxPrice(e.target.value)}
+              className="w-full bg-white border border-gray-300 px-2 py-1.5 text-xs font-mono outline-none focus:border-black"
+            />
+          </div>
+        </div>
+
+        {/* Tombol Preset Cepat */}
+        <div className="grid grid-cols-2 gap-1.5">
+          {PRICE_PRESETS.map((p, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => setPresetPrice(p)}
+              className="border border-gray-200 hover:border-black bg-gray-50 py-1.5 px-2 text-[11px] font-semibold text-slate-700 hover:text-black transition-colors text-center"
+            >
+              {p.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div>
-        <h4 className="font-bold text-sm mb-2">Harga Maksimum</h4>
-        <input
-          type="range"
-          min="30000"
-          max="200000"
-          step="5000"
-          value={tempMaxPrice}
-          onChange={(e) => setTempMaxPrice(Number(e.target.value))}
-          className="w-full accent-black"
-        />
-        <div className="text-xs text-slate-600 font-mono mt-0.5">hingga Rp{Number(tempMaxPrice).toLocaleString('id-ID')}</div>
-      </div>
-
-      <label
-        htmlFor="stock-only-filter"
-        className="flex items-center gap-2.5 text-sm cursor-pointer touch-manipulation select-none py-1 px-1 rounded-lg min-h-[44px] md:min-h-[36px] hover:bg-gray-50 transition-colors"
-      >
-        <span className="relative inline-flex shrink-0 items-center justify-center w-5 h-5">
+      {/* Stok Saja */}
+      <div className="border-t border-gray-200 pt-4">
+        <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-900 select-none">
           <input
-            id="stock-only-filter"
             type="checkbox"
             checked={tempInStockOnly}
             onChange={(e) => setTempInStockOnly(e.target.checked)}
-            className="peer absolute inset-0 opacity-0 cursor-pointer accent-black"
+            className="accent-black w-4 h-4"
           />
-          <span className={`w-5 h-5 border-2 transition-all pointer-events-none flex items-center justify-center ${tempInStockOnly ? 'border-black bg-black text-white' : 'border-gray-400 peer-focus:border-black'}`}>
-            {tempInStockOnly && (
-              <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
-                <path fillRule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-8 8a1 1 0 01-1.42 0l-4-4a1 1 0 111.42-1.42L8 12.58l7.29-7.29a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-            )}
-          </span>
-        </span>
-        <span className="leading-tight">Hanya yang tersedia</span>
-      </label>
-
-      <div className="hidden md:block flex flex-col gap-2">
-        <button
-          onClick={applyAllFiltersDesktop}
-          className="w-full bg-black text-white hover:bg-gray-800 font-bold py-2 text-sm transition-colors"
-        >
-          Terapkan Filter
-        </button>
-        <button
-          onClick={resetAllFilters}
-          className="w-full text-xs font-semibold text-rose-500 hover:underline text-left"
-        >
-          Reset semua filter
-        </button>
+          <span>Hanya Stok Tersedia</span>
+        </label>
       </div>
+
+      {/* Tombol Terapkan di Bawah */}
+      <button
+        type="button"
+        onClick={applyAllFilters}
+        className="w-full bg-black text-white font-bold py-3 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] mt-2"
+      >
+        Terapkan Filter
+      </button>
     </div>
   )
 
   return (
-    <>
-      <button
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFiltersOpen(true) }}
-        className="md:hidden fixed bottom-[10.5rem] right-5 z-40 w-14 h-14 bg-black text-white shadow-2xl flex items-center justify-center hover:bg-gray-800 transition-colors"
-        aria-label="Filter"
-        type="button"
-      >
-        <FilterIcon size={20} />
-      </button>
-
-      <div className="max-w-7xl mx-auto px-5 lg:px-8 py-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-display font-bold">{activeCategory || 'Semua Produk'}</h1>
-          <p className="text-sm text-slate-600 mt-1">
-            {query ? `Hasil pencarian untuk "${query}" — ` : ''}{results.length} produk ditemukan
+    <div className="max-w-7xl mx-auto px-5 lg:px-8 py-10">
+      {/* Header Halaman */}
+      <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 pb-6">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Katalog Produk</h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Menampilkan <strong className="text-slate-900 font-mono">{results.length}</strong> produk
+            {query && <span> untuk pencarian &quot;{query}&quot;</span>}
           </p>
         </div>
 
-        <div className="grid md:grid-cols-[220px_1fr] gap-8">
-          <aside className="hidden md:block sticky top-20 h-fit max-h-[calc(100vh-6rem)] overflow-y-auto pr-2">
-            {FilterPanel}
-          </aside>
-
-          <div>
-            {loading ? (
-              <p className="text-center py-20 text-slate-500">Memuat produk...</p>
-            ) : results.length === 0 ? (
-              <div className="text-center py-20 text-slate-600">
-                <p className="font-semibold">Produk tidak ditemukan.</p>
-                <p className="text-sm mt-1">Coba ubah kata kunci atau filter yang digunakan.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-                {results.map((p) => <ProductCard key={p.id} product={p} />)}
-              </div>
-            )}
-          </div>
+        {/* Mobile Filter Button */}
+        <div className="flex md:hidden items-center gap-2">
+          <button
+            onClick={() => setFiltersOpen(true)}
+            className="flex-1 border-2 border-black bg-white px-4 py-2.5 text-xs font-extrabold flex items-center justify-center gap-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <FilterIcon size={14} /> Filter & Urutkan {activeFilterCount > 0 && `(${activeFilterCount})`}
+          </button>
+          {activeFilterCount > 0 && (
+            <button
+              onClick={resetAllFilters}
+              className="p-2.5 border-2 border-black bg-gray-100 text-slate-900 hover:bg-black hover:text-white"
+              title="Reset"
+            >
+              <RotateCcw size={14} />
+            </button>
+          )}
         </div>
       </div>
 
-      {filtersOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div onClick={(e) => { e.preventDefault(); setFiltersOpen(false) }} className="absolute inset-0 bg-slate-900/40" />
-          <div className="absolute right-0 top-0 h-full w-72 bg-white p-6 overflow-y-auto pb-40">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-bold">Filter</h3>
-              <button onClick={() => setFiltersOpen(false)} aria-label="Tutup"><X size={18} /></button>
-            </div>
-            {FilterPanel}
-            <div className="fixed right-0 bottom-0 w-72 p-4 bg-white border-t border-gray-100 flex items-stretch gap-3 pb-[max(env(safe-area-inset-bottom),1rem)]">
+      {/* Active Filter Tags */}
+      {(selectedCategories.length > 0 || selectedBrands.length > 0 || minPrice > 0 || maxPrice > 0 || inStockOnly) && (
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          <span className="text-xs font-bold text-slate-500 uppercase">Filter Aktif:</span>
+          {selectedCategories.map(c => (
+            <span key={c} className="bg-black text-white text-[11px] font-bold px-2.5 py-1 flex items-center gap-1.5">
+              Kategori: {c}
+              <button onClick={() => {
+                const next = selectedCategories.filter(x => x !== c)
+                const p = new URLSearchParams(params)
+                if (next.length) p.set('category', next.join(',')); else p.delete('category')
+                setParams(p)
+              }}><X size={12} /></button>
+            </span>
+          ))}
+          {selectedBrands.map(b => (
+            <span key={b} className="bg-black text-white text-[11px] font-bold px-2.5 py-1 flex items-center gap-1.5">
+              Brand: {b}
+              <button onClick={() => {
+                const next = selectedBrands.filter(x => x !== b)
+                const p = new URLSearchParams(params)
+                if (next.length) p.set('brand', next.join(',')); else p.delete('brand')
+                setParams(p)
+              }}><X size={12} /></button>
+            </span>
+          ))}
+          {(minPrice > 0 || maxPrice > 0) && (
+            <span className="bg-black text-white text-[11px] font-bold px-2.5 py-1 flex items-center gap-1.5">
+              Harga: {minPrice ? `Rp${minPrice.toLocaleString('id-ID')}` : '0'} - {maxPrice ? `Rp${maxPrice.toLocaleString('id-ID')}` : '∞'}
+              <button onClick={() => {
+                const p = new URLSearchParams(params)
+                p.delete('min')
+                p.delete('max')
+                setParams(p)
+              }}><X size={12} /></button>
+            </span>
+          )}
+          {inStockOnly && (
+            <span className="bg-black text-white text-[11px] font-bold px-2.5 py-1 flex items-center gap-1.5">
+              Stok Tersedia
+              <button onClick={() => {
+                const p = new URLSearchParams(params)
+                p.delete('stock')
+                setParams(p)
+              }}><X size={12} /></button>
+            </span>
+          )}
+          <button
+            onClick={resetAllFilters}
+            className="text-xs text-rose-600 font-bold hover:underline ml-2"
+          >
+            Hapus Semua
+          </button>
+        </div>
+      )}
+
+      {/* Grid Layout: Sidebar Filter Desktop + Produk */}
+      <div className="grid md:grid-cols-[240px_1fr] gap-8 items-start">
+        {/* Sidebar Filter Desktop */}
+        <div className="hidden md:block bg-white border border-gray-200 p-5 sticky top-24">
+          {FilterPanel}
+        </div>
+
+        {/* Produk List */}
+        <div>
+          {loading ? (
+            <div className="py-24 text-center text-slate-500">Memuat produk...</div>
+          ) : results.length === 0 ? (
+            <div className="py-24 text-center border-2 border-dashed border-gray-200 p-8 flex flex-col items-center gap-3">
+              <p className="text-base font-bold text-slate-900">Tidak ada produk yang cocok dengan filter.</p>
+              <p className="text-xs text-slate-500">Coba ubah kata kunci atau hapus beberapa filter yang aktif.</p>
               <button
-                type="button"
                 onClick={resetAllFilters}
-                className="flex-1 border border-gray-200 py-2.5 text-sm font-semibold hover:bg-white transition-colors"
+                className="mt-2 bg-black text-white font-bold px-5 py-2.5 text-xs hover:bg-gray-800 transition-colors"
               >
-                Reset
+                Reset Semua Filter
               </button>
-              <button
-                type="button"
-                onClick={applyAllFilters}
-                className="flex-[1.5] bg-black hover:bg-gray-800 text-white font-bold py-2.5 text-sm transition-colors"
-              >
-                Terapkan
-              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+              {results.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile Filter Drawer Modal */}
+      {filtersOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          <div
+            onClick={() => setFiltersOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+          />
+          <div className="relative ml-auto w-full max-w-xs bg-white h-full overflow-y-auto p-5 z-10 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-4">
+                <h3 className="font-extrabold text-sm uppercase tracking-wider text-slate-900">Filter & Urutkan</h3>
+                <button onClick={() => setFiltersOpen(false)} className="p-1 hover:bg-gray-100">
+                  <X size={18} />
+                </button>
+              </div>
+              {FilterPanel}
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }

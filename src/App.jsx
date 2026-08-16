@@ -25,6 +25,8 @@ import AdminRoute from './admin/AdminRoute'
 import AdminDashboard from './admin/AdminDashboard'
 import AdminProductForm from './admin/AdminProductForm'
 import AdminCategories from './admin/AdminCategories'
+import AdminBrands from './admin/AdminBrands'
+import AdminColors from './admin/AdminColors'
 import AdminContent from './admin/AdminContent'
 import AdminVouchers from './admin/AdminVouchers'
 import AdminPayments from './admin/AdminPayments'
@@ -55,6 +57,8 @@ export default function App() {
         <Route path="/admin/produk/baru" element={<AdminRoute><AdminProductForm /></AdminRoute>} />
         <Route path="/admin/produk/:id/edit" element={<AdminRoute><AdminProductForm /></AdminRoute>} />
         <Route path="/admin/kategori" element={<AdminRoute><AdminCategories /></AdminRoute>} />
+        <Route path="/admin/brand" element={<AdminRoute><AdminBrands /></AdminRoute>} />
+        <Route path="/admin/warna" element={<AdminRoute><AdminColors /></AdminRoute>} />
         <Route path="/admin/konten" element={<AdminRoute><AdminContent /></AdminRoute>} />
         <Route path="/admin/voucher" element={<AdminRoute><AdminVouchers /></AdminRoute>} />
         <Route path="/admin/pembayaran" element={<AdminRoute><AdminPayments /></AdminRoute>} />

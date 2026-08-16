@@ -46,7 +46,7 @@ export default function Checkout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { addToast } = useToast()
-  const { user, updateProfile } = useAuth()
+  const { user, updateProfile, loading: authLoading } = useAuth()
   
   const hasSavedAddress = !!(user && user.address?.provinsiId)
   const [useSavedAddress, setUseSavedAddress] = useState(hasSavedAddress)
@@ -86,12 +86,17 @@ export default function Checkout() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (user && !form.name) {
-      setForm(f => ({
-        ...f,
-        name: user.name || '',
-        phone: user.phone || '',
-      }))
+    if (user) {
+      if (!form.name) {
+        setForm(f => ({
+          ...f,
+          name: user.name || '',
+          phone: user.phone || '',
+        }))
+      }
+      if (user.address?.provinsiId) {
+        setUseSavedAddress(true)
+      }
     }
   }, [user])
 
@@ -125,6 +130,15 @@ export default function Checkout() {
       setVillages([])
     }
   }, [useSavedAddress])
+
+  if (authLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-5 lg:px-8 py-24 text-center text-slate-500">
+        <div className="inline-block w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-sm font-medium">Memuat data checkout...</p>
+      </div>
+    )
+  }
 
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname, state: location.state }} />
 
@@ -234,8 +248,13 @@ export default function Checkout() {
       userId: user ? user.id : null,
       date: new Date().toISOString(),
       items: checkoutItems.map((i) => ({
-        id: i.id, name: i.name, price: i.price, qty: i.qty, shape: i.shape, tone: i.tone,
-        image: i.image || (i.images && i.images[0]) || null,
+        id: i.id,
+        name: i.name,
+        price: i.price,
+        qty: i.qty,
+        color: i.selectedColor || i.color || null,
+        selectedColor: i.selectedColor || i.color || null,
+        image: i.displayImage || (typeof i.images?.[0] === 'string' ? i.images[0] : i.images?.[0]?.url) || i.image || null,
         images: i.images || (i.image ? [i.image] : []),
       })),
       subtotal: checkoutSubtotal,
@@ -462,6 +481,9 @@ export default function Checkout() {
                 </div>
                 <div className="flex-1 min-w-0 text-xs">
                   <div className="font-semibold truncate">{i.name}</div>
+                  {(i.selectedColor || i.color) && (
+                    <div className="text-slate-700 font-semibold text-[11px]">Varian: {i.selectedColor || i.color}</div>
+                  )}
                   <div className="text-slate-500">Qty {i.qty}</div>
                 </div>
                 <span className="font-mono text-xs font-semibold">{fmt(i.price * i.qty)}</span>
